@@ -1,0 +1,97 @@
+<div class="profile">
+  <header class="profile-header">
+    <div class="header-content">
+      <div class="header-left">
+        <a routerLink="/dashboard" class="back-btn">← Back</a>
+        <h1>Profile</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="profile-main">
+    <!-- Profile Header Card -->
+    <div class="profile-card">
+      <div class="profile-avatar-section">
+        <div class="profile-avatar">
+          {{ userInitials }}
+        </div>
+        <div class="profile-info">
+          <h2>{{ userFullName() }}</h2>
+          <p class="email">{{ user?.email }}</p>
+          <div class="role-badge" [ngClass]="roleClass">
+            {{ user?.role?.name }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Card -->
+    <div class="details-card">
+      <h3>Account Details</h3>
+      <div class="details-grid">
+        <div class="detail-item">
+          <div class="detail-content">
+            <span class="detail-label">First Name</span>
+            <span class="detail-value">{{ user?.firstName }}</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-content">
+            <span class="detail-label">Last Name</span>
+            <span class="detail-value">{{ user?.lastName }}</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-content">
+            <span class="detail-label">Email</span>
+            <span class="detail-value">{{ user?.email }}</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-content">
+            <span class="detail-label">Role</span>
+            <span class="detail-value">
+              {{ user?.role?.name }}
+              <span class="role-description">{{ user?.role?.description }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-content">
+            <span class="detail-label">Email Verification</span>
+            <span class="detail-value">
+              <span class="verification-badge" [ngClass]="user?.isEmailVerified ? 'verified' : 'not-verified'">
+                {{ user?.isEmailVerified ? 'Verified' : 'Not Verified' }}
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-content">
+            <span class="detail-label">User ID</span>
+            <span class="detail-value">{{ user?.id }}</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-content">
+            <span class="detail-label">Account Created</span>
+            <span class="detail-value">{{ formatDate(user?.createdAt) }}</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-content">
+            <span class="detail-label">Last Updated</span>
+            <span class="detail-value">{{ formatDate(user?.updatedAt) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

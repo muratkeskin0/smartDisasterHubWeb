@@ -1,0 +1,115 @@
+<div class="dashboard">
+  <app-header></app-header>
+
+  <main class="dashboard-main">
+    <div class="welcome-section">
+      <h2>Welcome, {{ firstName }}</h2>
+      <p>Welcome to Smart Disaster Hub. You have successfully logged into the dashboard.</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3>Dashboard</h3>
+          <p>Main page</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3>Active</h3>
+          <p>System status</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3>{{ user?.role?.name }}</h3>
+          <p>User role</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3>Secure</h3>
+          <p>Session status</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="info-card">
+      <h3>User Information</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Full Name</span>
+          <span class="info-value">{{ userFullName() }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ user?.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Role</span>
+          <span class="info-value">
+            <span class="role-badge" [ngClass]="roleClass">
+              {{ user?.role?.name }}
+            </span>
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email Verification</span>
+          <span class="info-value">
+            <span class="status-badge" [ngClass]="user?.isEmailVerified ? 'verified' : 'not-verified'">
+              {{ user?.isEmailVerified ? 'Verified' : 'Not Verified' }}
+            </span>
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Account Created</span>
+          <span class="info-value">{{ formatDate(user?.createdAt) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Last Updated</span>
+          <span class="info-value">{{ formatDate(user?.updatedAt) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="actions-card">
+      <h3>Quick Actions</h3>
+      <div class="actions-grid">
+        <a routerLink="/profile" class="action-btn">
+          <span class="action-text">View Profile</span>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>

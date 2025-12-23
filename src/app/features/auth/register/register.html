@@ -1,0 +1,143 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>Smart Disaster Hub</h1>
+      <h2>Sign Up</h2>
+      <p>Create a new account</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <!-- First Name -->
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input
+          id="firstName"
+          formControlName="firstName"
+          type="text"
+          placeholder="Your first name"
+          [class.has-error]="getFieldError('firstName')"
+        />
+        @if (getFieldError('firstName')) {
+          <span class="error-message">{{ getFieldError('firstName') }}</span>
+        }
+      </div>
+
+      <!-- Last Name -->
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input
+          id="lastName"
+          formControlName="lastName"
+          type="text"
+          placeholder="Your last name"
+          [class.has-error]="getFieldError('lastName')"
+        />
+        @if (getFieldError('lastName')) {
+          <span class="error-message">{{ getFieldError('lastName') }}</span>
+        }
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          formControlName="email"
+          type="email"
+          placeholder="example@email.com"
+          [class.has-error]="getFieldError('email')"
+        />
+        @if (getFieldError('email')) {
+          <span class="error-message">{{ getFieldError('email') }}</span>
+        }
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="password-input">
+          <input
+            id="password"
+            formControlName="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            placeholder="At least 6 characters"
+            [class.has-error]="getFieldError('password')"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          >
+            @if (showPassword()) {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            }
+          </button>
+        </div>
+        @if (getFieldError('password')) {
+          <span class="error-message">{{ getFieldError('password') }}</span>
+        }
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="password-input">
+          <input
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            placeholder="Re-enter your password"
+            [class.has-error]="getFieldError('confirmPassword')"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="toggleConfirmPassword()"
+            [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'"
+          >
+            @if (showConfirmPassword()) {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            }
+          </button>
+        </div>
+        @if (getFieldError('confirmPassword')) {
+          <span class="error-message">{{ getFieldError('confirmPassword') }}</span>
+        }
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn-primary" [disabled]="loading() || registerForm.invalid">
+        @if (loading()) {
+          <span class="spinner"></span>
+        } @else {
+          <span>Sign Up</span>
+        }
+      </button>
+
+      <!-- Login Link -->
+      <div class="auth-footer">
+        <p>
+          Already have an account?
+          <a routerLink="/login" class="link">Sign In</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

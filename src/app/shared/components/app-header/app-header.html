@@ -1,0 +1,28 @@
+<header class="app-header">
+  <div class="header-content">
+    <div class="header-left">
+      <h1 class="app-title">Smart Disaster Hub</h1>
+    </div>
+    
+    <div class="header-right">
+      @if (isAuthenticated()) {
+        <div class="user-section">
+          <a routerLink="/profile" class="user-info">
+            <div class="user-avatar">
+              {{ userInitials }}
+            </div>
+            <span class="user-name">{{ userFullName() }}</span>
+          </a>
+          
+          <app-base-button
+            variant="danger"
+            size="small"
+            (buttonClick)="handleLogout()"
+          >
+            Logout
+          </app-base-button>
+        </div>
+      }
+    </div>
+  </div>
+</header>
