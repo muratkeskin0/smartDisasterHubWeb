@@ -24,7 +24,8 @@ export const API_ENDPOINTS = {
     ANALYZED: '/api/reddit-posts/analyzed',
     DISASTER_RELATED: '/api/reddit-posts/disaster-related',
     STATISTICS: '/api/reddit-posts/statistics',
-    BY_ID: '/api/reddit-posts'
+    BY_ID: '/api/reddit-posts',
+    MAP: '/api/reddit-posts/map'
   },
   ABOUT: {
     GET: '/api/about',

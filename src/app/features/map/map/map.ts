@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
+import { TextAnalysisService } from '../../../core/services/text-analysis.service';
+import { MapMarker as MapMarkerModel } from '../../../models';
 
 // Declare Leaflet types
 declare var L: any;
 
-// Mock data interface for map markers
+// Local interface for map markers with lat/lng for Leaflet
 interface MapMarker {
   lat: number;
   lng: number;
@@ -28,69 +30,6 @@ interface MapMarker {
   styleUrl: './map.css'
 })
 export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
-  // Mock data - locations with Reddit posts
-  mockMarkers: MapMarker[] = [
-    {
-      lat: 40.7128,
-      lng: -74.0060,
-      count: 5,
-      posts: [
-        { id: 1, title: 'New York Disaster Report', url: 'https://reddit.com/r/smartDisasterHub/test1' },
-        { id: 2, title: 'Emergency Alert NYC', url: 'https://reddit.com/r/smartDisasterHub/test2' },
-        { id: 3, title: 'Storm Warning Manhattan', url: 'https://reddit.com/r/smartDisasterHub/test3' },
-        { id: 4, title: 'Flood Alert Brooklyn', url: 'https://reddit.com/r/smartDisasterHub/test4' },
-        { id: 5, title: 'Emergency Services Update', url: 'https://reddit.com/r/smartDisasterHub/test5' }
-      ]
-    },
-    {
-      lat: 34.0522,
-      lng: -118.2437,
-      count: 3,
-      posts: [
-        { id: 6, title: 'LA Earthquake Update', url: 'https://reddit.com/r/smartDisasterHub/test6' },
-        { id: 7, title: 'Wildfire Alert California', url: 'https://reddit.com/r/smartDisasterHub/test7' },
-        { id: 8, title: 'Emergency Response LA', url: 'https://reddit.com/r/smartDisasterHub/test8' }
-      ]
-    },
-    {
-      lat: 41.8781,
-      lng: -87.6298,
-      count: 2,
-      posts: [
-        { id: 9, title: 'Chicago Weather Alert', url: 'https://reddit.com/r/smartDisasterHub/test9' },
-        { id: 10, title: 'Storm Warning Illinois', url: 'https://reddit.com/r/smartDisasterHub/test10' }
-      ]
-    },
-    {
-      lat: 29.7604,
-      lng: -95.3698,
-      count: 4,
-      posts: [
-        { id: 11, title: 'Houston Flood Warning', url: 'https://reddit.com/r/smartDisasterHub/test11' },
-        { id: 12, title: 'Hurricane Alert Texas', url: 'https://reddit.com/r/smartDisasterHub/test12' },
-        { id: 13, title: 'Emergency Services Houston', url: 'https://reddit.com/r/smartDisasterHub/test13' },
-        { id: 14, title: 'Storm Update Houston', url: 'https://reddit.com/r/smartDisasterHub/test14' }
-      ]
-    },
-    {
-      lat: 39.9526,
-      lng: -75.1652,
-      count: 1,
-      posts: [
-        { id: 15, title: 'Philadelphia Emergency', url: 'https://reddit.com/r/smartDisasterHub/test15' }
-      ]
-    },
-    {
-      lat: 33.7490,
-      lng: -84.3880,
-      count: 2,
-      posts: [
-        { id: 16, title: 'Atlanta Weather Alert', url: 'https://reddit.com/r/smartDisasterHub/test16' },
-        { id: 17, title: 'Storm Warning Georgia', url: 'https://reddit.com/r/smartDisasterHub/test17' }
-      ]
-    }
-  ];
-
   mapOptions: any = {
     center: [39.8283, -98.5795], // Center of USA
     zoom: 4,
@@ -103,9 +42,45 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   currentZoom: number = 4;
   visibleMarkers: MapMarker[] = [];
   mapInitialized: boolean = false;
+  loading: boolean = true;
+  error: string | null = null;
+
+  constructor(private textAnalysisService: TextAnalysisService) {}
 
   ngOnInit(): void {
-    this.updateVisibleMarkers();
+    this.loadMapMarkers();
+  }
+
+  loadMapMarkers(): void {
+    this.loading = true;
+    this.error = null;
+    
+    this.textAnalysisService.getMapMarkers().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          // Convert backend MapMarker (latitude/longitude) to local MapMarker (lat/lng)
+          this.visibleMarkers = response.data.map(marker => ({
+            lat: marker.latitude,
+            lng: marker.longitude,
+            count: marker.count,
+            posts: marker.posts.map(post => ({
+              id: post.id,
+              title: post.title,
+              url: post.url
+            }))
+          }));
+          this.updateVisibleMarkers();
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading map markers:', err);
+        this.error = 'Failed to load map data';
+        this.loading = false;
+        // Fallback to empty array
+        this.visibleMarkers = [];
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -169,15 +144,22 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     // At lower zoom levels, show fewer markers (grouped/clustered)
     // At higher zoom levels, show more markers (individual)
     
+    let allMarkers = [...this.visibleMarkers];
+    
     if (this.currentZoom < 5) {
       // Show only markers with count >= 3
-      this.visibleMarkers = this.mockMarkers.filter(m => m.count >= 3);
+      this.visibleMarkers = allMarkers.filter(m => m.count >= 3);
     } else if (this.currentZoom < 8) {
       // Show markers with count >= 2
-      this.visibleMarkers = this.mockMarkers.filter(m => m.count >= 2);
+      this.visibleMarkers = allMarkers.filter(m => m.count >= 2);
     } else {
       // Show all markers
-      this.visibleMarkers = this.mockMarkers;
+      this.visibleMarkers = allMarkers;
+    }
+    
+    // Update map markers if map is initialized
+    if (this.mapInitialized) {
+      this.updateMapMarkers();
     }
   }
 
@@ -344,7 +326,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     // Minimum size: 30px, Maximum size: 60px
     const minSize = 30;
     const maxSize = 60;
-    const maxCount = Math.max(...this.mockMarkers.map(m => m.count));
+    
+    if (this.visibleMarkers.length === 0) return minSize;
+    
+    const maxCount = Math.max(...this.visibleMarkers.map(m => m.count));
     
     if (maxCount === 0) return minSize;
     

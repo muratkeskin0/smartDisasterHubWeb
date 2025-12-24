@@ -13,8 +13,22 @@
   <div class="map-wrapper">
     <div id="map" class="map"></div>
     
+    <!-- Loading state -->
+    <div class="markers-fallback" *ngIf="loading">
+      <div class="fallback-message">
+        <p>Loading map data...</p>
+      </div>
+    </div>
+    
+    <!-- Error state -->
+    <div class="markers-fallback" *ngIf="error && !loading">
+      <div class="fallback-message">
+        <p>{{ error }}</p>
+      </div>
+    </div>
+    
     <!-- Fallback: Show markers as cards if map library not loaded -->
-    <div class="markers-fallback" *ngIf="!mapInitialized">
+    <div class="markers-fallback" *ngIf="!mapInitialized && !loading && !error">
       <div class="fallback-message">
         <p>Map is loading...</p>
         <p class="note">If map doesn't load, install Leaflet: npm install leaflet @types/leaflet</p>

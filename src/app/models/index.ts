@@ -115,3 +115,17 @@ export interface About {
   updatedAt?: string;
 }
 
+// Map Types
+export interface MapMarker {
+  latitude: number;
+  longitude: number;
+  count: number;
+  posts: MapPostInfo[];
+}
+
+export interface MapPostInfo {
+  id: number;
+  title: string;
+  url: string;
+}
+

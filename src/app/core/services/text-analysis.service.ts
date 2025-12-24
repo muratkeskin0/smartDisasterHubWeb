@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../constants/api';
-import { ApiResponse, RedditPost, PostStatistics } from '../../models';
+import { ApiResponse, RedditPost, PostStatistics, MapMarker } from '../../models';
 
 export interface PageResponse<T> {
   content: T[];
@@ -89,6 +89,15 @@ export class TextAnalysisService {
   getPostByRedditId(redditPostId: string): Observable<ApiResponse<RedditPost>> {
     return this.http.get<ApiResponse<RedditPost>>(
       `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.BY_ID}/${redditPostId}`
+    );
+  }
+
+  /**
+   * Get map markers - disaster-related posts grouped by location
+   */
+  getMapMarkers(): Observable<ApiResponse<MapMarker[]>> {
+    return this.http.get<ApiResponse<MapMarker[]>>(
+      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.MAP}`
     );
   }
 }
