@@ -5,8 +5,8 @@ import { guestGuard } from './core/guards/guest.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
-    pathMatch: 'full'
+    loadComponent: () => import('./features/landing/landing/landing').then(m => m.LandingComponent),
+    title: 'Smart Disaster Hub - Intelligent Disaster Detection'
   },
   {
     path: 'login',
@@ -33,7 +33,25 @@ export const routes: Routes = [
     title: 'Profile - Smart Disaster Hub'
   },
   {
+    path: 'text-analysis',
+    loadComponent: () => import('./features/text-analysis/text-analysis/text-analysis').then(m => m.TextAnalysisComponent),
+    canActivate: [authGuard],
+    title: 'Text Analysis - Smart Disaster Hub'
+  },
+  {
+    path: 'map',
+    loadComponent: () => import('./features/map/map/map').then(m => m.MapComponent),
+    canActivate: [authGuard],
+    title: 'Disaster Map - Smart Disaster Hub'
+  },
+  {
+    path: 'about',
+    loadComponent: () => import('./features/about/about/about').then(m => m.AboutComponent),
+    canActivate: [authGuard],
+    title: 'About - Smart Disaster Hub'
+  },
+  {
     path: '**',
-    redirectTo: '/dashboard'
+    redirectTo: '/'
   }
 ];

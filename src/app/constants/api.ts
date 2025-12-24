@@ -19,6 +19,17 @@ export const API_ENDPOINTS = {
     UPDATE: '/api/user/update',
     DELETE: '/api/user/delete',
     CHANGE_PASSWORD: '/api/user/change-password'
+  },
+  REDDIT_POSTS: {
+    ANALYZED: '/api/reddit-posts/analyzed',
+    DISASTER_RELATED: '/api/reddit-posts/disaster-related',
+    STATISTICS: '/api/reddit-posts/statistics',
+    BY_ID: '/api/reddit-posts'
+  },
+  ABOUT: {
+    GET: '/api/about',
+    UPDATE: '/api/about',
+    CREATE: '/api/about'
   }
 } as const;
 

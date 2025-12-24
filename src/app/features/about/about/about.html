@@ -1,0 +1,27 @@
+<app-header></app-header>
+
+<div class="about-container">
+  <div class="about-content">
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading about content...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-container" *ngIf="error && !loading">
+      <p class="error-message">{{ error }}</p>
+      <button class="retry-btn" (click)="loadAbout()">Retry</button>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!loading && !error && about">
+      <h1>{{ about.title || 'About Smart Disaster Hub' }}</h1>
+      <div [innerHTML]="about.content" class="about-content-html"></div>
+
+      <div class="back-section">
+        <app-back-button></app-back-button>
+      </div>
+    </div>
+  </div>
+</div>

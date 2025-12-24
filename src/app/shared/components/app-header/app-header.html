@@ -1,7 +1,17 @@
 <header class="app-header">
   <div class="header-content">
     <div class="header-left">
-      <h1 class="app-title">Smart Disaster Hub</h1>
+      <a routerLink="/dashboard" class="app-title-link">
+        <h1 class="app-title">Smart Disaster Hub</h1>
+      </a>
+      @if (isAuthenticated()) {
+        <nav class="header-nav">
+          <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
+          <a routerLink="/text-analysis" routerLinkActive="active">Text Analysis</a>
+          <a routerLink="/map" routerLinkActive="active">Map</a>
+          <a routerLink="/about" routerLinkActive="active">About</a>
+        </nav>
+      }
     </div>
     
     <div class="header-right">

@@ -8,7 +8,7 @@
 }
 
 .header-content {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: var(--spacing-md) var(--spacing-lg);
   display: flex;
@@ -19,6 +19,11 @@
 .header-left {
   display: flex;
   align-items: center;
+  gap: var(--spacing-xl);
+}
+
+.app-title-link {
+  text-decoration: none;
 }
 
 .app-title {
@@ -26,6 +31,38 @@
   font-weight: var(--font-weight-bold);
   color: var(--color-primary);
   margin: 0;
+  transition: color var(--transition-fast);
+}
+
+.app-title-link:hover .app-title {
+  color: var(--color-primary-dark);
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.header-nav a {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.header-nav a:hover {
+  color: var(--color-primary);
+  background: var(--color-background-secondary);
+}
+
+.header-nav a.active {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-background-secondary);
 }
 
 .header-right {
@@ -77,10 +114,26 @@
 @media (max-width: 768px) {
   .header-content {
     padding: var(--spacing-sm) var(--spacing-md);
+    flex-wrap: wrap;
   }
   
+  .header-left {
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+  }
+
   .app-title {
     font-size: var(--font-size-xl);
+  }
+
+  .header-nav {
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+  }
+
+  .header-nav a {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
   
   .user-name {

@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { BaseButtonComponent } from '../base-button/base-button';
 
@@ -13,6 +13,7 @@ import { BaseButtonComponent } from '../base-button/base-button';
 })
 export class AppHeaderComponent {
   private authService = inject(AuthService);
+  private router = inject(Router);
   
   currentUser$ = this.authService.currentUser$;
   isAuthenticated = computed(() => this.authService.isAuthenticated);
@@ -26,5 +27,6 @@ export class AppHeaderComponent {
 
   handleLogout(): void {
     this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

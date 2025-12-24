@@ -105,12 +105,22 @@ export class AuthService {
    * User logout
    */
   logout(): void {
+    // Clear local storage first
     localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER_DATA);
     this.currentUserSubject.next(null);
     
-    // Optional: Call logout API
-    this.http.post<ApiResponse>(`${this.apiUrl}${API_ENDPOINTS.AUTH.LOGOUT}`, {}).subscribe();
+    // Call logout API (fire and forget - don't wait for response)
+    this.http.post<ApiResponse<any>>(`${this.apiUrl}${API_ENDPOINTS.AUTH.LOGOUT}`, {})
+      .subscribe({
+        next: () => {
+          // Logout successful on server
+        },
+        error: (err) => {
+          // Ignore errors - logout is primarily client-side for JWT
+          console.debug('Logout API call error (ignored):', err);
+        }
+      });
   }
 
   /**

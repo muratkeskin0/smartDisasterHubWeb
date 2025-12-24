@@ -1,0 +1,184 @@
+<app-header></app-header>
+
+<div class="text-analysis-container">
+  <div class="header-section">
+    <div class="header-top">
+      <app-back-button></app-back-button>
+    </div>
+    <h1>Text Analysis</h1>
+    <p class="subtitle">Reddit posts analyzed for disaster relevance</p>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="statistics-section" *ngIf="statistics">
+    <div class="stat-card">
+      <div class="stat-label">Total Posts</div>
+      <div class="stat-value">{{ statistics.totalPosts }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Analyzed</div>
+      <div class="stat-value">{{ statistics.analyzedPosts }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Disaster Related</div>
+      <div class="stat-value disaster">{{ statistics.disasterRelatedPosts }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Disaster Percentage</div>
+      <div class="stat-value">{{ statistics.disasterPercentage.toFixed(1) }}%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">{{ statistics.pendingPosts }}</div>
+    </div>
+  </div>
+
+  <!-- Filter and Controls -->
+  <div class="controls-section">
+    <button 
+      class="filter-btn" 
+      [class.active]="filterDisasterOnly"
+      (click)="toggleFilter()">
+      {{ filterDisasterOnly ? 'Show All Posts' : 'Show Disaster Related Only' }}
+    </button>
+    <button class="refresh-btn" (click)="loadData()" [disabled]="loading">
+      Refresh
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading posts...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !loading">
+    <p class="error-message">{{ error }}</p>
+  </div>
+
+  <!-- Sorting and Pagination Controls -->
+  <div class="sort-pagination-controls" *ngIf="!loading && !error && posts.length > 0">
+    <div class="sort-controls">
+      <span class="sort-label">Sort by:</span>
+      <button class="sort-btn" [class.active]="sortBy === 'analyzedAt'" (click)="changeSort('analyzedAt')">
+        Analyzed Date
+        <span *ngIf="sortBy === 'analyzedAt'">{{ sortDirection === 'ASC' ? '↑' : '↓' }}</span>
+      </button>
+      <button class="sort-btn" [class.active]="sortBy === 'relevanceScore'" (click)="changeSort('relevanceScore')">
+        Relevance Score
+        <span *ngIf="sortBy === 'relevanceScore'">{{ sortDirection === 'ASC' ? '↑' : '↓' }}</span>
+      </button>
+      <button class="sort-btn" [class.active]="sortBy === 'upvotes'" (click)="changeSort('upvotes')">
+        Upvotes
+        <span *ngIf="sortBy === 'upvotes'">{{ sortDirection === 'ASC' ? '↑' : '↓' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Posts List -->
+  <div class="posts-section" *ngIf="!loading && !error">
+    <div class="posts-count">
+      Showing {{ posts.length }} of {{ totalElements }} {{ filterDisasterOnly ? 'disaster-related' : 'analyzed' }} posts
+      (Page {{ currentPage + 1 }} of {{ totalPages }})
+    </div>
+
+    <div class="posts-list">
+      <div class="post-card" *ngFor="let post of posts">
+        <div class="post-header">
+          <div class="post-title-section">
+            <h3 class="post-title" (click)="openRedditPost(post.url)">
+              {{ post.title }}
+            </h3>
+            <div class="post-meta">
+              <span class="meta-item">r/{{ post.subreddit }}</span>
+              <span class="meta-item" *ngIf="post.author">by {{ post.author }}</span>
+              <span class="meta-item">{{ formatDate(post.analyzedAt) }}</span>
+            </div>
+          </div>
+          <div class="post-status">
+            <span class="status-badge" [ngClass]="getStatusClass(post.status)">
+              {{ post.status }}
+            </span>
+          </div>
+        </div>
+
+        <div class="post-content" *ngIf="post.content">
+          <p>{{ post.content.length > 300 ? (post.content.substring(0, 300) + '...') : post.content }}</p>
+        </div>
+
+        <div class="post-analysis">
+          <div class="analysis-result" *ngIf="post.isDisasterRelated !== null">
+            <span class="analysis-label">Disaster Related:</span>
+            <span class="analysis-value" [class.disaster-yes]="post.isDisasterRelated" [class.disaster-no]="!post.isDisasterRelated">
+              {{ post.isDisasterRelated ? 'Yes' : 'No' }}
+            </span>
+          </div>
+          <div class="analysis-result" *ngIf="post.relevanceScore !== null && post.relevanceScore !== undefined">
+            <span class="analysis-label">Relevance Score:</span>
+            <span class="analysis-value" [ngClass]="getRelevanceClass(post.relevanceScore!)">
+              {{ (post.relevanceScore! * 100).toFixed(1) }}%
+            </span>
+          </div>
+          <div class="post-stats">
+            <span class="stat-item">{{ post.upvotes || 0 }} upvotes</span>
+            <span class="stat-item">{{ post.commentCount || 0 }} comments</span>
+          </div>
+        </div>
+
+        <div class="post-footer">
+          <a [href]="post.url" target="_blank" class="view-reddit-link">View on Reddit →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-posts" *ngIf="posts.length === 0">
+      <p>No posts found.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 0">
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === 0"
+        (click)="changePage(0)">
+        « First
+      </button>
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage === 0"
+        (click)="changePage(currentPage - 1)">
+        ‹ Previous
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          *ngFor="let page of getPageNumbers()"
+          class="page-number-btn" 
+          [class.active]="page === currentPage"
+          [disabled]="page === -1"
+          (click)="page !== -1 && changePage(page)">
+          {{ page === -1 ? '...' : (page + 1) }}
+        </button>
+      </div>
+      
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage >= totalPages - 1"
+        (click)="changePage(currentPage + 1)">
+        Next ›
+      </button>
+      <button 
+        class="page-btn" 
+        [disabled]="currentPage >= totalPages - 1"
+        (click)="changePage(totalPages - 1)">
+        Last »
+      </button>
+      
+      <span class="page-info">
+        Page {{ currentPage + 1 }} of {{ totalPages }}
+      </span>
+    </div>
+  </div>
+</div>
+

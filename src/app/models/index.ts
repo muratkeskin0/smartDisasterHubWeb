@@ -69,3 +69,49 @@ export interface AppError {
   severity?: 'error' | 'warning' | 'info';
 }
 
+// Reddit Post Types
+export enum RedditPostStatus {
+  PENDING = 'PENDING',
+  ANALYZED = 'ANALYZED',
+  FAILED = 'FAILED'
+}
+
+export interface RedditPost {
+  id: number;
+  redditPostId: string;
+  title: string;
+  content?: string | null;
+  url: string;
+  author?: string | null;
+  subreddit: string;
+  upvotes?: number | null;
+  commentCount?: number | null;
+  redditCreatedAt: string;
+  fetchedAt: string;
+  isDisasterRelated?: boolean | null;
+  relevanceScore?: number | null;
+  analysisMessage?: string | null;
+  analyzedAt?: string | null;
+  status: RedditPostStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PostStatistics {
+  totalPosts: number;
+  pendingPosts: number;
+  analyzedPosts: number;
+  failedPosts: number;
+  disasterRelatedPosts: number;
+  disasterPercentage: number;
+}
+
+// About Types
+export interface About {
+  id?: number;
+  title: string;
+  content: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+

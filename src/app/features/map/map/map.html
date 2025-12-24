@@ -1,0 +1,68 @@
+<app-header></app-header>
+
+<div class="map-container">
+  <div class="header-section">
+    <div class="header-top">
+      <app-back-button></app-back-button>
+    </div>
+    <h1>Disaster Map</h1>
+    <p class="subtitle">View disaster-related posts by location</p>
+  </div>
+
+  <!-- Map will be initialized here -->
+  <div class="map-wrapper">
+    <div id="map" class="map"></div>
+    
+    <!-- Fallback: Show markers as cards if map library not loaded -->
+    <div class="markers-fallback" *ngIf="!mapInitialized">
+      <div class="fallback-message">
+        <p>Map is loading...</p>
+        <p class="note">If map doesn't load, install Leaflet: npm install leaflet @types/leaflet</p>
+      </div>
+      
+      <!-- Show markers as list -->
+      <div class="markers-list">
+        <div 
+          *ngFor="let marker of visibleMarkers" 
+          class="marker-card"
+          (click)="onMarkerClick(marker)">
+          <div class="marker-circle" [style.width.px]="getMarkerSize(marker.count)" [style.height.px]="getMarkerSize(marker.count)">
+            <span class="marker-count">{{ marker.count }}</span>
+          </div>
+          <div class="marker-info">
+            <div class="marker-location">
+              {{ marker.lat.toFixed(4) }}, {{ marker.lng.toFixed(4) }}
+            </div>
+            <div class="marker-posts">
+              {{ marker.count }} {{ marker.count === 1 ? 'post' : 'posts' }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Controls -->
+  <div class="map-controls">
+    <div class="control-info">
+      <span class="info-text">
+        Zoom in to see more detailed locations
+      </span>
+    </div>
+    <div class="control-legend">
+      <div class="legend-item">
+        <div class="legend-circle small"></div>
+        <span>1-2 posts</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-circle medium"></div>
+        <span>3-4 posts</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-circle large"></div>
+        <span>5+ posts</span>
+      </div>
+    </div>
+  </div>
+</div>
+
