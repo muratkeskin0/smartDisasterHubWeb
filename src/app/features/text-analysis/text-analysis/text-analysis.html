@@ -41,7 +41,7 @@
       (click)="toggleFilter()">
       {{ filterDisasterOnly ? 'Show All Posts' : 'Show Disaster Related Only' }}
     </button>
-    <button class="refresh-btn" (click)="loadData()" [disabled]="loading">
+    <button class="refresh-btn" (click)="loadData(true)" [disabled]="loading">
       Refresh
     </button>
   </div>
@@ -181,6 +181,7 @@
     </div>
   </div>
 </div>
+
 
 
 

@@ -36,10 +36,37 @@ export class TextAnalysisComponent implements OnInit {
     this.loadData();
   }
 
-  loadData(): void {
+  loadData(refreshJobs: boolean = false): void {
     this.loading = true;
     this.error = null;
 
+    // If refresh is requested, trigger jobs first
+    if (refreshJobs) {
+      this.textAnalysisService.triggerRefresh().subscribe({
+        next: (response) => {
+          if (response.success) {
+            console.log('Refresh jobs triggered successfully');
+            // Wait a bit for jobs to complete, then load data
+            setTimeout(() => {
+              this.loadDataInternal();
+            }, 2000); // Wait 2 seconds for jobs to process
+          } else {
+            console.error('Error triggering refresh:', response.message);
+            this.loadDataInternal();
+          }
+        },
+        error: (err) => {
+          console.error('Error triggering refresh:', err);
+          // Continue loading data even if refresh fails
+          this.loadDataInternal();
+        }
+      });
+    } else {
+      this.loadDataInternal();
+    }
+  }
+
+  private loadDataInternal(): void {
     // Load statistics
     this.textAnalysisService.getStatistics().subscribe({
       next: (response) => {
@@ -172,6 +199,7 @@ export class TextAnalysisComponent implements OnInit {
     window.open(url, '_blank');
   }
 }
+
 
 
 

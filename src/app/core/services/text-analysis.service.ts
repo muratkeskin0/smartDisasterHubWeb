@@ -100,7 +100,39 @@ export class TextAnalysisService {
       `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.MAP}`
     );
   }
+
+  /**
+   * Manually trigger refresh (fetch + analyze jobs)
+   * Fetches new posts from Reddit and analyzes pending posts
+   */
+  triggerRefresh(): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.REFRESH}`,
+      {}
+    );
+  }
+
+  /**
+   * Manually trigger fetch job only
+   */
+  triggerFetchJob(): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.FETCH_JOB}`,
+      {}
+    );
+  }
+
+  /**
+   * Manually trigger analysis job only
+   */
+  triggerAnalysisJob(): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(
+      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.ANALYZE_JOB}`,
+      {}
+    );
+  }
 }
+
 
 
 
