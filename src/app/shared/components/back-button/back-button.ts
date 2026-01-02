@@ -13,3 +13,6 @@ export class BackButtonComponent {
   @Input() route: string = '/dashboard';
   @Input() label: string = 'Back to Dashboard';
 }
+
+
+
