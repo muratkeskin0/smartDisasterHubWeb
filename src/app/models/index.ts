@@ -91,6 +91,10 @@ export interface RedditPost {
   isDisasterRelated?: boolean | null;
   relevanceScore?: number | null;
   analysisMessage?: string | null;
+  // T2 fields (help request + humanitarian categories)
+  isHelpRequest?: boolean | null;
+  helpRequestProbability?: number | null;
+  humanitarianCategories?: string | null;
   analyzedAt?: string | null;
   status: RedditPostStatus;
   createdAt: string;

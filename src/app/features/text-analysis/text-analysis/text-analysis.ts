@@ -195,6 +195,24 @@ export class TextAnalysisComponent implements OnInit {
     return 'relevance-low';
   }
 
+  /**
+   * Split comma-separated humanitarianCategories into display-friendly chips.
+   */
+  getHumanitarianCategories(post: RedditPost): string[] {
+    if (!post.humanitarianCategories) {
+      return [];
+    }
+    return post.humanitarianCategories
+      .split(',')
+      .map(c => c.trim())
+      .filter(c => !!c)
+      .map(c =>
+        c
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, ch => ch.toUpperCase())
+      );
+  }
+
   openRedditPost(url: string): void {
     window.open(url, '_blank');
   }

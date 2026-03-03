@@ -120,6 +120,26 @@
               {{ (post.relevanceScore! * 100).toFixed(1) }}%
             </span>
           </div>
+          <div class="analysis-result" *ngIf="post.isHelpRequest !== null && post.isHelpRequest !== undefined">
+            <span class="analysis-label">Help Request (T2):</span>
+            <span class="analysis-value" [class.disaster-yes]="post.isHelpRequest" [class.disaster-no]="!post.isHelpRequest">
+              {{ post.isHelpRequest ? 'Yes' : 'No' }}
+            </span>
+          </div>
+          <div class="analysis-result" *ngIf="post.helpRequestProbability !== null && post.helpRequestProbability !== undefined">
+            <span class="analysis-label">Help Probability:</span>
+            <span class="analysis-value">
+              {{ (post.helpRequestProbability! * 100).toFixed(1) }}%
+            </span>
+          </div>
+          <div class="analysis-result" *ngIf="post.humanitarianCategories">
+            <span class="analysis-label">Humanitarian Categories:</span>
+            <div class="analysis-chips">
+              <span class="chip" *ngFor="let cat of getHumanitarianCategories(post)">
+                {{ cat }}
+              </span>
+            </div>
+          </div>
           <div class="post-stats">
             <span class="stat-item">{{ post.upvotes || 0 }} upvotes</span>
             <span class="stat-item">{{ post.commentCount || 0 }} comments</span>
