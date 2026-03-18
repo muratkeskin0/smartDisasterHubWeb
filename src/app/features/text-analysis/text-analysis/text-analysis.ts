@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TextAnalysisService, PageResponse } from '../../../core/services/text-analysis.service';
@@ -21,6 +21,14 @@ export class TextAnalysisComponent implements OnInit {
   loading = true;
   error: string | null = null;
   filterDisasterOnly = false;
+
+  // Lightbox / gallery
+  lightboxOpen = false;
+  lightboxUrls: string[] = [];
+  lightboxIndex = 0;
+  lightboxTitle: string | null = null;
+
+  private failedImageByPostId: Record<number, boolean> = {};
   
   // Pagination
   currentPage = 0;
@@ -215,6 +223,95 @@ export class TextAnalysisComponent implements OnInit {
 
   openRedditPost(url: string): void {
     window.open(url, '_blank');
+  }
+
+  isDisplayableImageUrl(url: string | null | undefined): boolean {
+    if (!url) return false;
+    const u = url.toLowerCase();
+    const isHttp = u.startsWith('http://') || u.startsWith('https://');
+    if (!isHttp) return false;
+    return u.includes('i.redd.it') || u.includes('preview.redd.it')
+      || u.endsWith('.jpg') || u.endsWith('.jpeg') || u.endsWith('.png') || u.endsWith('.webp') || u.endsWith('.gif');
+  }
+
+  markImageFailed(postId: number): void {
+    this.failedImageByPostId[postId] = true;
+  }
+
+  isImageFailed(postId: number): boolean {
+    return !!this.failedImageByPostId[postId];
+  }
+
+  getImageMatchStatus(post: RedditPost): { label: string; css: string; hint?: string } | null {
+    if (!post.mediaUrl || !this.isDisplayableImageUrl(post.mediaUrl) || this.isImageFailed(post.id)) return null;
+
+    // If we have a value, show it.
+    if (post.isImageTextMatch === true) {
+      return { label: 'Match: Yes', css: 'match-yes' };
+    }
+    if (post.isImageTextMatch === false) {
+      return { label: 'Match: No', css: 'match-no' };
+    }
+
+    // Otherwise it wasn't analyzed (or not applicable).
+    const score = post.relevanceScore ?? null;
+    if (score !== null && score < 0.7) {
+      return { label: 'Match: Skipped', css: 'match-skip', hint: 'Skipped because relevance score < 70%' };
+    }
+    return { label: 'Match: Not analyzed', css: 'match-na', hint: 'Not analyzed yet (or OpenAI disabled)' };
+  }
+
+  openLightbox(post: RedditPost): void {
+    const rawUrls = (post.mediaUrls && post.mediaUrls.length > 0)
+      ? post.mediaUrls
+      : (post.mediaUrl ? [post.mediaUrl] : []);
+
+    const urls = rawUrls.filter(u => this.isDisplayableImageUrl(u));
+    if (!urls || urls.length === 0) return;
+
+    this.lightboxUrls = urls;
+    this.lightboxIndex = 0;
+    this.lightboxTitle = post.title || null;
+    this.lightboxOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen = false;
+    this.lightboxUrls = [];
+    this.lightboxIndex = 0;
+    this.lightboxTitle = null;
+    document.body.style.overflow = '';
+  }
+
+  nextImage(): void {
+    if (!this.lightboxUrls || this.lightboxUrls.length <= 1) return;
+    this.lightboxIndex = (this.lightboxIndex + 1) % this.lightboxUrls.length;
+  }
+
+  prevImage(): void {
+    if (!this.lightboxUrls || this.lightboxUrls.length <= 1) return;
+    this.lightboxIndex = (this.lightboxIndex - 1 + this.lightboxUrls.length) % this.lightboxUrls.length;
+  }
+
+  onLightboxBackdropClick(ev: MouseEvent): void {
+    // Only close when clicking the backdrop itself (not the content)
+    const target = ev.target as HTMLElement | null;
+    if (target && target.classList.contains('lightbox-backdrop')) {
+      this.closeLightbox();
+    }
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeydown(event: KeyboardEvent): void {
+    if (!this.lightboxOpen) return;
+    if (event.key === 'Escape') {
+      this.closeLightbox();
+    } else if (event.key === 'ArrowRight') {
+      this.nextImage();
+    } else if (event.key === 'ArrowLeft') {
+      this.prevImage();
+    }
   }
 }
 

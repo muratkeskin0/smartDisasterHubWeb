@@ -82,6 +82,10 @@ export interface RedditPost {
   title: string;
   content?: string | null;
   url: string;
+  mediaUrl?: string | null;
+  mediaUrls?: string[] | null;
+  mediaContentHash?: string | null;
+  duplicateOfPostId?: number | null;
   author?: string | null;
   subreddit: string;
   upvotes?: number | null;
@@ -95,6 +99,11 @@ export interface RedditPost {
   isHelpRequest?: boolean | null;
   helpRequestProbability?: number | null;
   humanitarianCategories?: string | null;
+  // Vision (optional)
+  isImageTextMatch?: boolean | null;
+  imageTextMatchScore?: number | null;
+  imageCaption?: string | null;
+  imageAnalyzedAt?: string | null;
   analyzedAt?: string | null;
   status: RedditPostStatus;
   createdAt: string;

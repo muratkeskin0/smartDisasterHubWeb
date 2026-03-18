@@ -107,6 +107,31 @@
           <p>{{ post.content.length > 300 ? (post.content.substring(0, 300) + '...') : post.content }}</p>
         </div>
 
+        <!-- Post Media -->
+        <div class="post-media" *ngIf="post.mediaUrl && isDisplayableImageUrl(post.mediaUrl) && !isImageFailed(post.id)">
+          <img
+            class="post-image"
+            [src]="post.mediaUrl"
+            [alt]="post.imageCaption || post.title"
+            loading="lazy"
+            (click)="openLightbox(post)"
+            (error)="markImageFailed(post.id)"
+          />
+          <div
+            class="media-meta match"
+            *ngIf="getImageMatchStatus(post) as ms"
+            [ngClass]="ms.css"
+            [title]="ms.hint || ''">
+            {{ ms.label }}
+          </div>
+          <div class="media-meta" *ngIf="post.mediaUrls && post.mediaUrls.length > 1">
+            +{{ post.mediaUrls.length - 1 }} more
+          </div>
+          <div class="media-meta duplicate" *ngIf="post.duplicateOfPostId !== null && post.duplicateOfPostId !== undefined && post.duplicateOfPostId !== post.id">
+            Duplicate of #{{ post.duplicateOfPostId }}
+          </div>
+        </div>
+
         <div class="post-analysis">
           <div class="analysis-result" *ngIf="post.isDisasterRelated !== null">
             <span class="analysis-label">Disaster Related:</span>
@@ -139,6 +164,18 @@
                 {{ cat }}
               </span>
             </div>
+          </div>
+          <div class="analysis-result" *ngIf="post.isImageTextMatch !== null && post.isImageTextMatch !== undefined">
+            <span class="analysis-label">Image/Text Match:</span>
+            <span class="analysis-value" [class.disaster-yes]="post.isImageTextMatch" [class.disaster-no]="!post.isImageTextMatch">
+              {{ post.isImageTextMatch ? 'Yes' : 'No' }}
+            </span>
+          </div>
+          <div class="analysis-result" *ngIf="post.imageTextMatchScore !== null && post.imageTextMatchScore !== undefined">
+            <span class="analysis-label">Match Score:</span>
+            <span class="analysis-value">
+              {{ (post.imageTextMatchScore! * 100).toFixed(1) }}%
+            </span>
           </div>
           <div class="post-stats">
             <span class="stat-item">{{ post.upvotes || 0 }} upvotes</span>
@@ -198,6 +235,48 @@
       <span class="page-info">
         Page {{ currentPage + 1 }} of {{ totalPages }}
       </span>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div
+  class="lightbox-backdrop"
+  *ngIf="lightboxOpen"
+  (click)="onLightboxBackdropClick($event)">
+  <div class="lightbox">
+    <div class="lightbox-header">
+      <div class="lightbox-title">
+        {{ lightboxTitle || 'Post media' }}
+      </div>
+      <button class="lightbox-close" (click)="closeLightbox()" aria-label="Close">✕</button>
+    </div>
+
+    <div class="lightbox-body">
+      <button
+        class="lightbox-nav prev"
+        *ngIf="lightboxUrls.length > 1"
+        (click)="prevImage()"
+        aria-label="Previous image">
+        ‹
+      </button>
+
+      <img
+        class="lightbox-image"
+        [src]="lightboxUrls[lightboxIndex]"
+        [alt]="lightboxTitle || 'Post media'"/>
+
+      <button
+        class="lightbox-nav next"
+        *ngIf="lightboxUrls.length > 1"
+        (click)="nextImage()"
+        aria-label="Next image">
+        ›
+      </button>
+    </div>
+
+    <div class="lightbox-footer" *ngIf="lightboxUrls.length > 1">
+      {{ lightboxIndex + 1 }} / {{ lightboxUrls.length }}
     </div>
   </div>
 </div>
