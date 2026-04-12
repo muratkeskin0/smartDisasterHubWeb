@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
-import { MapMarker as MapMarkerModel } from '../../../models';
 
 // Declare Leaflet types
 declare var L: any;
@@ -18,6 +17,8 @@ interface MapMarker {
     id: number;
     title: string;
     url: string;
+    contentPreview?: string | null;
+    locationText?: string | null;
   }>;
 }
 
@@ -31,19 +32,24 @@ interface MapMarker {
 })
 export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   mapOptions: any = {
-    center: [39.8283, -98.5795], // Center of USA
-    zoom: 4,
+    /** Türkiye’ye yakın merkez (yaklaşık ülke ortası), ülke geneli görünür */
+    center: [39.0, 35.0] as [number, number],
+    zoom: 6,
     minZoom: 3,
     maxZoom: 18
   };
 
   map: any = null;
   markers: any[] = [];
-  currentZoom: number = 4;
+  currentZoom: number = 6;
+  /** Full marker set from API (never replaced by zoom filter) */
+  allMarkersData: MapMarker[] = [];
   visibleMarkers: MapMarker[] = [];
   mapInitialized: boolean = false;
   loading: boolean = true;
   error: string | null = null;
+  /** Marker cluster selected by click — show posts in side panel */
+  selectedMarker: MapMarker | null = null;
 
   constructor(private textAnalysisService: TextAnalysisService) {}
 
@@ -59,25 +65,38 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       next: (response) => {
         if (response.success && response.data) {
           // Convert backend MapMarker (latitude/longitude) to local MapMarker (lat/lng)
-          this.visibleMarkers = response.data.map(marker => ({
-            lat: marker.latitude,
-            lng: marker.longitude,
-            count: marker.count,
-            posts: marker.posts.map(post => ({
-              id: post.id,
-              title: post.title,
-              url: post.url
-            }))
-          }));
-          this.updateVisibleMarkers();
+          this.allMarkersData = response.data
+            .filter(
+              m =>
+                m.latitude != null &&
+                m.longitude != null &&
+                !Number.isNaN(Number(m.latitude)) &&
+                !Number.isNaN(Number(m.longitude))
+            )
+            .map(marker => ({
+              lat: marker.latitude as number,
+              lng: marker.longitude as number,
+              count: marker.count,
+              posts: marker.posts.map(post => ({
+                id: post.id,
+                title: post.title,
+                url: post.url,
+                contentPreview: post.contentPreview ?? null,
+                locationText: post.locationText ?? null
+              }))
+            }));
+          this.applyZoomFilter();
+          this.scheduleMapResize();
         }
         this.loading = false;
+        this.scheduleMapResize();
       },
       error: (err) => {
         console.error('Error loading map markers:', err);
         this.error = 'Failed to load map data';
         this.loading = false;
         // Fallback to empty array
+        this.allMarkersData = [];
         this.visibleMarkers = [];
       }
     });
@@ -108,8 +127,8 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     try {
       // Initialize map
       this.map = L.map('map', {
-        center: [39.8283, -98.5795], // Center of USA
-        zoom: 4,
+        center: [39.0, 35.0],
+        zoom: 6,
         minZoom: 3,
         maxZoom: 18,
         zoomControl: true
@@ -134,33 +153,37 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       // Add markers
       this.updateMapMarkers();
       this.mapInitialized = true;
+      this.scheduleMapResize();
     } catch (error) {
       console.error('Error initializing map:', error);
     }
   }
 
-  updateVisibleMarkers(): void {
-    // Show markers based on zoom level
-    // At lower zoom levels, show fewer markers (grouped/clustered)
-    // At higher zoom levels, show more markers (individual)
-    
-    let allMarkers = [...this.visibleMarkers];
-    
-    if (this.currentZoom < 5) {
-      // Show only markers with count >= 3
-      this.visibleMarkers = allMarkers.filter(m => m.count >= 3);
-    } else if (this.currentZoom < 8) {
-      // Show markers with count >= 2
-      this.visibleMarkers = allMarkers.filter(m => m.count >= 2);
-    } else {
-      // Show all markers
-      this.visibleMarkers = allMarkers;
-    }
-    
-    // Update map markers if map is initialized
+  /** Leaflet measures container on init; flex/layout can be wrong until after paint — refresh tile layout. */
+  private scheduleMapResize(): void {
+    const run = () => {
+      if (this.map && typeof this.map.invalidateSize === 'function') {
+        this.map.invalidateSize({ animate: false });
+      }
+    };
+    setTimeout(run, 0);
+    setTimeout(run, 200);
+  }
+
+  /**
+   * Derive {@link visibleMarkers} from {@link allMarkersData}.
+   * (Previously we hid pins at low zoom unless count≥3 — that hid every single-post location.)
+   */
+  applyZoomFilter(): void {
+    this.visibleMarkers = [...this.allMarkersData];
+
     if (this.mapInitialized) {
       this.updateMapMarkers();
     }
+  }
+
+  updateVisibleMarkers(): void {
+    this.applyZoomFilter();
   }
 
   onMapReady(map: any): void {
@@ -300,24 +323,34 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       }, 200);
     });
 
-    // Add click handler to navigate to first post
     marker.on('click', () => {
       if (closePopupTimeout) {
         clearTimeout(closePopupTimeout);
         closePopupTimeout = null;
       }
       marker.closePopup();
-      this.onMarkerClick(markerData);
+      this.selectedMarker = markerData;
+      this.scheduleMapResize();
     });
 
     return marker;
   }
 
   onMarkerClick(markerData: MapMarker, postIndex: number = 0): void {
-    // Navigate to the first post
     const post = markerData.posts[postIndex];
-    if (post && post.url) {
-      window.open(post.url, '_blank');
+    if (post?.url) {
+      this.openPostOnReddit(post.url);
+    }
+  }
+
+  closePostPanel(): void {
+    this.selectedMarker = null;
+    this.scheduleMapResize();
+  }
+
+  openPostOnReddit(url: string): void {
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   }
 
@@ -327,12 +360,12 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     const minSize = 30;
     const maxSize = 60;
     
-    if (this.visibleMarkers.length === 0) return minSize;
+    if (this.allMarkersData.length === 0) return minSize;
+
+    const maxCount = Math.max(...this.allMarkersData.map(m => m.count));
     
-    const maxCount = Math.max(...this.visibleMarkers.map(m => m.count));
-    
-    if (maxCount === 0) return minSize;
-    
+    if (maxCount <= 0) return minSize;
+
     return minSize + (count / maxCount) * (maxSize - minSize);
   }
 }

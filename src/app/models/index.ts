@@ -106,6 +106,10 @@ export interface RedditPost {
   imageAnalyzedAt?: string | null;
   analyzedAt?: string | null;
   status: RedditPostStatus;
+  /** Extracted after Location:/Konum:/… in post text */
+  locationText?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -140,5 +144,7 @@ export interface MapPostInfo {
   id: number;
   title: string;
   url: string;
+  contentPreview?: string | null;
+  locationText?: string | null;
 }
 

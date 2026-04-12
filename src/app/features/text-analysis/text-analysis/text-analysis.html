@@ -107,6 +107,23 @@
           <p>{{ post.content.length > 300 ? (post.content.substring(0, 300) + '...') : post.content }}</p>
         </div>
 
+        <div class="post-location" *ngIf="post.locationText || hasCoordinates(post)">
+          <div class="post-location__main" *ngIf="post.locationText">
+            <span class="post-location__label">Konum</span>
+            <span class="post-location__value">{{ post.locationText }}</span>
+          </div>
+          <div class="post-location__coords" *ngIf="hasCoordinates(post)">
+            <a
+              [href]="openStreetMapUrl(post)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="post-location__map-link">
+              {{ post.latitude | number:'1.4-4' }}, {{ post.longitude | number:'1.4-4' }}
+              <span class="post-location__map-hint"> · Haritada aç</span>
+            </a>
+          </div>
+        </div>
+
         <!-- Post Media -->
         <div class="post-media" *ngIf="post.mediaUrl && isDisplayableImageUrl(post.mediaUrl) && !isImageFailed(post.id)">
           <img

@@ -225,6 +225,21 @@ export class TextAnalysisComponent implements OnInit {
     window.open(url, '_blank');
   }
 
+  hasCoordinates(post: RedditPost): boolean {
+    return (
+      post.latitude != null &&
+      post.longitude != null &&
+      !Number.isNaN(Number(post.latitude)) &&
+      !Number.isNaN(Number(post.longitude))
+    );
+  }
+
+  openStreetMapUrl(post: RedditPost): string {
+    const lat = Number(post.latitude);
+    const lon = Number(post.longitude);
+    return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=12/${lat}/${lon}`;
+  }
+
   isDisplayableImageUrl(url: string | null | undefined): boolean {
     if (!url) return false;
     const u = url.toLowerCase();

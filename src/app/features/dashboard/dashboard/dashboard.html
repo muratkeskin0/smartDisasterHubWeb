@@ -54,5 +54,47 @@
         <div class="feature-arrow">→</div>
       </a>
     </div>
+
+    <section class="dashboard-location" *ngIf="locationsLoading || locationsLoaded">
+      <div class="dashboard-location__head">
+        <h3 class="dashboard-location__title">Çıkarılan konumlar</h3>
+        <p class="dashboard-location__subtitle">
+          Analiz edilmiş gönderilerde <strong>Konum:</strong> / <strong>Location:</strong> (veya koordinat) kaydı olanlar
+        </p>
+      </div>
+
+      <div class="dashboard-location__loading" *ngIf="locationsLoading">
+        <span>Yükleniyor…</span>
+      </div>
+
+      <p class="dashboard-location__error" *ngIf="locationsError && !locationsLoading">{{ locationsError }}</p>
+
+      <ul class="dashboard-location__list" *ngIf="!locationsLoading && !locationsError && locationRows.length > 0">
+        <li class="dashboard-location__item" *ngFor="let row of locationRows">
+          <div class="dashboard-location__item-main">
+            <a [href]="row.url" target="_blank" rel="noopener noreferrer" class="dashboard-location__title-link">
+              {{ row.title }}
+            </a>
+            <p class="dashboard-location__text" *ngIf="row.locationText">{{ row.locationText }}</p>
+            <a
+              *ngIf="hasCoords(row)"
+              [href]="osmLink(row)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="dashboard-location__coords">
+              {{ row.lat | number:'1.4-4' }}, {{ row.lng | number:'1.4-4' }} · Haritada aç
+            </a>
+          </div>
+        </li>
+      </ul>
+
+      <p
+        class="dashboard-location__empty"
+        *ngIf="locationsLoaded && !locationsLoading && !locationsError && locationRows.length === 0">
+        Henüz konum çıkarılmış afet gönderisi yok. Gönderilerde <code>Konum:</code> veya <code>Location:</code> satırı kullanıldığında burada listelenir.
+      </p>
+
+      <a routerLink="/text-analysis" class="dashboard-location__cta">Tüm analizleri gör →</a>
+    </section>
   </main>
 </div>

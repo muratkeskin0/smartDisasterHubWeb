@@ -10,8 +10,33 @@
   </div>
 
   <!-- Map will be initialized here -->
-  <div class="map-wrapper">
-    <div id="map" class="map"></div>
+  <div class="map-wrapper" [class.map-wrapper--split]="selectedMarker">
+    <div class="map-main">
+      <div id="map" class="map"></div>
+    </div>
+
+    <aside class="post-side-panel" *ngIf="selectedMarker as cluster">
+      <div class="post-side-panel__header">
+        <div>
+          <h2 class="post-side-panel__title">{{ cluster.count }} {{ cluster.count === 1 ? 'post' : 'posts' }}</h2>
+          <p class="post-side-panel__coords">{{ cluster.lat.toFixed(4) }}, {{ cluster.lng.toFixed(4) }}</p>
+        </div>
+        <button type="button" class="post-side-panel__close" (click)="closePostPanel()" aria-label="Close panel">×</button>
+      </div>
+      <div class="post-side-panel__list">
+        <article class="map-post-card" *ngFor="let post of cluster.posts">
+          <h3 class="map-post-card__title">{{ post.title }}</h3>
+          <p class="map-post-card__loc" *ngIf="post.locationText">
+            <span class="map-post-card__loc-label">Konum</span>
+            {{ post.locationText }}
+          </p>
+          <p class="map-post-card__body" *ngIf="post.contentPreview">{{ post.contentPreview }}</p>
+          <button type="button" class="map-post-card__link" (click)="openPostOnReddit(post.url)">
+            Postu Reddit’te aç
+          </button>
+        </article>
+      </div>
+    </aside>
     
     <!-- Loading state -->
     <div class="markers-fallback" *ngIf="loading">
@@ -37,7 +62,7 @@
       <!-- Show markers as list -->
       <div class="markers-list">
         <div 
-          *ngFor="let marker of visibleMarkers" 
+          *ngFor="let marker of allMarkersData" 
           class="marker-card"
           (click)="onMarkerClick(marker)">
           <div class="marker-circle" [style.width.px]="getMarkerSize(marker.count)" [style.height.px]="getMarkerSize(marker.count)">
@@ -60,7 +85,7 @@
   <div class="map-controls">
     <div class="control-info">
       <span class="info-text">
-        Zoom in to see more detailed locations
+        Pin size reflects post count at that location
       </span>
     </div>
     <div class="control-legend">
