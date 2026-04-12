@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 // Declare Leaflet types
 declare var L: any;
@@ -25,14 +26,14 @@ interface MapMarker {
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppHeaderComponent, BackButtonComponent],
+  imports: [CommonModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './map.html',
   styleUrl: './map.css'
 })
 export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   mapOptions: any = {
-    /** Türkiye’ye yakın merkez (yaklaşık ülke ortası), ülke geneli görünür */
+    /** Turkey-centered view (approx. country mid), country-wide visibility */
     center: [39.0, 35.0] as [number, number],
     zoom: 6,
     minZoom: 3,

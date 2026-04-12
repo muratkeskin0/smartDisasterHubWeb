@@ -5,11 +5,10 @@
     <div class="header-top">
       <app-back-button></app-back-button>
     </div>
-    <h1>Disaster Map</h1>
-    <p class="subtitle">View disaster-related posts by location</p>
+    <h1>{{ 'map.title' | transloco }}</h1>
+    <p class="subtitle">{{ 'map.subtitle' | transloco }}</p>
   </div>
 
-  <!-- Map will be initialized here -->
   <div class="map-wrapper" [class.map-wrapper--split]="selectedMarker">
     <div class="map-main">
       <div id="map" class="map"></div>
@@ -18,54 +17,61 @@
     <aside class="post-side-panel" *ngIf="selectedMarker as cluster">
       <div class="post-side-panel__header">
         <div>
-          <h2 class="post-side-panel__title">{{ cluster.count }} {{ cluster.count === 1 ? 'post' : 'posts' }}</h2>
+          <h2 class="post-side-panel__title">
+            {{ cluster.count }}
+            {{ (cluster.count === 1 ? 'map.postSingular' : 'map.postPlural') | transloco }}
+          </h2>
           <p class="post-side-panel__coords">{{ cluster.lat.toFixed(4) }}, {{ cluster.lng.toFixed(4) }}</p>
         </div>
-        <button type="button" class="post-side-panel__close" (click)="closePostPanel()" aria-label="Close panel">×</button>
+        <button
+          type="button"
+          class="post-side-panel__close"
+          (click)="closePostPanel()"
+          [attr.aria-label]="'map.closePanel' | transloco"
+        >
+          ×
+        </button>
       </div>
       <div class="post-side-panel__list">
         <article class="map-post-card" *ngFor="let post of cluster.posts">
           <h3 class="map-post-card__title">{{ post.title }}</h3>
           <p class="map-post-card__loc" *ngIf="post.locationText">
-            <span class="map-post-card__loc-label">Konum</span>
+            <span class="map-post-card__loc-label">{{ 'map.location' | transloco }}</span>
             {{ post.locationText }}
           </p>
           <p class="map-post-card__body" *ngIf="post.contentPreview">{{ post.contentPreview }}</p>
           <button type="button" class="map-post-card__link" (click)="openPostOnReddit(post.url)">
-            Postu Reddit’te aç
+            {{ 'common.openPost' | transloco }}
           </button>
         </article>
       </div>
     </aside>
-    
-    <!-- Loading state -->
+
     <div class="markers-fallback" *ngIf="loading">
       <div class="fallback-message">
-        <p>Loading map data...</p>
+        <p>{{ 'map.loading' | transloco }}</p>
       </div>
     </div>
-    
-    <!-- Error state -->
+
     <div class="markers-fallback" *ngIf="error && !loading">
       <div class="fallback-message">
         <p>{{ error }}</p>
       </div>
     </div>
-    
-    <!-- Fallback: Show markers as cards if map library not loaded -->
+
     <div class="markers-fallback" *ngIf="!mapInitialized && !loading && !error">
       <div class="fallback-message">
-        <p>Map is loading...</p>
-        <p class="note">If map doesn't load, install Leaflet: npm install leaflet @types/leaflet</p>
+        <p>{{ 'map.mapLoading' | transloco }}</p>
+        <p class="note">{{ 'map.mapFallbackNote' | transloco }}</p>
       </div>
-      
-      <!-- Show markers as list -->
+
       <div class="markers-list">
-        <div 
-          *ngFor="let marker of allMarkersData" 
-          class="marker-card"
-          (click)="onMarkerClick(marker)">
-          <div class="marker-circle" [style.width.px]="getMarkerSize(marker.count)" [style.height.px]="getMarkerSize(marker.count)">
+        <div *ngFor="let marker of allMarkersData" class="marker-card" (click)="onMarkerClick(marker)">
+          <div
+            class="marker-circle"
+            [style.width.px]="getMarkerSize(marker.count)"
+            [style.height.px]="getMarkerSize(marker.count)"
+          >
             <span class="marker-count">{{ marker.count }}</span>
           </div>
           <div class="marker-info">
@@ -73,7 +79,8 @@
               {{ marker.lat.toFixed(4) }}, {{ marker.lng.toFixed(4) }}
             </div>
             <div class="marker-posts">
-              {{ marker.count }} {{ marker.count === 1 ? 'post' : 'posts' }}
+              {{ marker.count }}
+              {{ (marker.count === 1 ? 'map.postSingular' : 'map.postPlural') | transloco }}
             </div>
           </div>
         </div>
@@ -81,31 +88,23 @@
     </div>
   </div>
 
-  <!-- Map Controls -->
   <div class="map-controls">
     <div class="control-info">
-      <span class="info-text">
-        Pin size reflects post count at that location
-      </span>
+      <span class="info-text">{{ 'map.pinSizeInfo' | transloco }}</span>
     </div>
     <div class="control-legend">
       <div class="legend-item">
         <div class="legend-circle small"></div>
-        <span>1-2 posts</span>
+        <span>{{ 'map.legend12' | transloco }}</span>
       </div>
       <div class="legend-item">
         <div class="legend-circle medium"></div>
-        <span>3-4 posts</span>
+        <span>{{ 'map.legend34' | transloco }}</span>
       </div>
       <div class="legend-item">
         <div class="legend-circle large"></div>
-        <span>5+ posts</span>
+        <span>{{ 'map.legend5' | transloco }}</span>
       </div>
     </div>
   </div>
 </div>
-
-
-
-
-

@@ -5,16 +5,18 @@ import { TextAnalysisService, PageResponse } from '../../../core/services/text-a
 import { RedditPost, PostStatistics, RedditPostStatus } from '../../../models';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-text-analysis',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppHeaderComponent, BackButtonComponent],
+  imports: [CommonModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
   templateUrl: './text-analysis.html',
   styleUrl: './text-analysis.css'
 })
 export class TextAnalysisComponent implements OnInit {
   private textAnalysisService = inject(TextAnalysisService);
+  private transloco = inject(TranslocoService);
   
   posts: RedditPost[] = [];
   statistics: PostStatistics | null = null;
@@ -174,7 +176,8 @@ export class TextAnalysisComponent implements OnInit {
   formatDate(dateString: string | null | undefined): string {
     if (!dateString) return '-';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    const locale = this.transloco.getActiveLang() === 'tr' ? 'tr-TR' : 'en-US';
+    return date.toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

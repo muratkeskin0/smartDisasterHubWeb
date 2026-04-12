@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 export interface DashboardLocationRow {
   title: string;
@@ -16,7 +17,7 @@ export interface DashboardLocationRow {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppHeaderComponent],
+  imports: [CommonModule, RouterModule, AppHeaderComponent, TranslocoPipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -28,7 +29,7 @@ export class DashboardComponent implements OnInit {
   locationRows: DashboardLocationRow[] = [];
   locationsLoading = false;
   locationsLoaded = false;
-  locationsError: string | null = null;
+  locationsError = false;
   
   currentUser$ = this.authService.currentUser$;
   isAuthenticated = computed(() => this.authService.isAuthenticated);
@@ -58,8 +59,8 @@ export class DashboardComponent implements OnInit {
 
   private loadRecentLocations(): void {
     this.locationsLoading = true;
-    this.locationsError = null;
-    // Tüm analiz edilmiş gönderiler (sadece disaster-related değil — DB'de konumu olan satırlar görünsün)
+    this.locationsError = false;
+    // All analyzed posts (not only disaster-related) so rows with location in DB show up
     this.textAnalysisService.getAnalyzedPosts(0, 60, 'analyzedAt', 'DESC').subscribe({
       next: (response) => {
         this.locationsLoading = false;
@@ -90,7 +91,7 @@ export class DashboardComponent implements OnInit {
       error: () => {
         this.locationsLoading = false;
         this.locationsLoaded = true;
-        this.locationsError = 'Konum özeti yüklenemedi.';
+        this.locationsError = true;
         this.locationRows = [];
       }
     });

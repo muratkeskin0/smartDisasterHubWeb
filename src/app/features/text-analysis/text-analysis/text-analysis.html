@@ -5,82 +5,78 @@
     <div class="header-top">
       <app-back-button></app-back-button>
     </div>
-    <h1>Text Analysis</h1>
-    <p class="subtitle">Reddit posts analyzed for disaster relevance</p>
+    <h1>{{ 'textAnalysis.title' | transloco }}</h1>
+    <p class="subtitle">{{ 'textAnalysis.subtitle' | transloco }}</p>
   </div>
 
-  <!-- Statistics Cards -->
   <div class="statistics-section" *ngIf="statistics">
     <div class="stat-card">
-      <div class="stat-label">Total Posts</div>
+      <div class="stat-label">{{ 'textAnalysis.statTotal' | transloco }}</div>
       <div class="stat-value">{{ statistics.totalPosts }}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Analyzed</div>
+      <div class="stat-label">{{ 'textAnalysis.statAnalyzed' | transloco }}</div>
       <div class="stat-value">{{ statistics.analyzedPosts }}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Disaster Related</div>
+      <div class="stat-label">{{ 'textAnalysis.statDisaster' | transloco }}</div>
       <div class="stat-value disaster">{{ statistics.disasterRelatedPosts }}</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Disaster Percentage</div>
+      <div class="stat-label">{{ 'textAnalysis.statPercent' | transloco }}</div>
       <div class="stat-value">{{ statistics.disasterPercentage.toFixed(1) }}%</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Pending</div>
+      <div class="stat-label">{{ 'textAnalysis.statPending' | transloco }}</div>
       <div class="stat-value">{{ statistics.pendingPosts }}</div>
     </div>
   </div>
 
-  <!-- Filter and Controls -->
   <div class="controls-section">
-    <button 
-      class="filter-btn" 
-      [class.active]="filterDisasterOnly"
-      (click)="toggleFilter()">
-      {{ filterDisasterOnly ? 'Show All Posts' : 'Show Disaster Related Only' }}
+    <button class="filter-btn" [class.active]="filterDisasterOnly" (click)="toggleFilter()">
+      {{ filterDisasterOnly ? ('textAnalysis.filterAll' | transloco) : ('textAnalysis.filterDisaster' | transloco) }}
     </button>
     <button class="refresh-btn" (click)="loadData(true)" [disabled]="loading">
-      Refresh
+      {{ 'common.refresh' | transloco }}
     </button>
   </div>
 
-  <!-- Loading State -->
   <div class="loading-container" *ngIf="loading">
     <div class="spinner"></div>
-    <p>Loading posts...</p>
+    <p>{{ 'textAnalysis.loadingPosts' | transloco }}</p>
   </div>
 
-  <!-- Error State -->
   <div class="error-container" *ngIf="error && !loading">
     <p class="error-message">{{ error }}</p>
   </div>
 
-  <!-- Sorting and Pagination Controls -->
   <div class="sort-pagination-controls" *ngIf="!loading && !error && posts.length > 0">
     <div class="sort-controls">
-      <span class="sort-label">Sort by:</span>
+      <span class="sort-label">{{ 'textAnalysis.sortByLabel' | transloco }}</span>
       <button class="sort-btn" [class.active]="sortBy === 'analyzedAt'" (click)="changeSort('analyzedAt')">
-        Analyzed Date
+        {{ 'textAnalysis.sortAnalyzedDate' | transloco }}
         <span *ngIf="sortBy === 'analyzedAt'">{{ sortDirection === 'ASC' ? '↑' : '↓' }}</span>
       </button>
       <button class="sort-btn" [class.active]="sortBy === 'relevanceScore'" (click)="changeSort('relevanceScore')">
-        Relevance Score
+        {{ 'textAnalysis.sortRelevance' | transloco }}
         <span *ngIf="sortBy === 'relevanceScore'">{{ sortDirection === 'ASC' ? '↑' : '↓' }}</span>
       </button>
       <button class="sort-btn" [class.active]="sortBy === 'upvotes'" (click)="changeSort('upvotes')">
-        Upvotes
+        {{ 'textAnalysis.sortUpvotes' | transloco }}
         <span *ngIf="sortBy === 'upvotes'">{{ sortDirection === 'ASC' ? '↑' : '↓' }}</span>
       </button>
     </div>
   </div>
 
-  <!-- Posts List -->
   <div class="posts-section" *ngIf="!loading && !error">
     <div class="posts-count">
-      Showing {{ posts.length }} of {{ totalElements }} {{ filterDisasterOnly ? 'disaster-related' : 'analyzed' }} posts
-      (Page {{ currentPage + 1 }} of {{ totalPages }})
+      {{
+        filterDisasterOnly
+          ? ('textAnalysis.showingDisaster'
+            | transloco: { shown: posts.length, total: totalElements, page: currentPage + 1, pages: totalPages })
+          : ('textAnalysis.showingAnalyzed'
+            | transloco: { shown: posts.length, total: totalElements, page: currentPage + 1, pages: totalPages })
+      }}
     </div>
 
     <div class="posts-list">
@@ -92,7 +88,9 @@
             </h3>
             <div class="post-meta">
               <span class="meta-item">r/{{ post.subreddit }}</span>
-              <span class="meta-item" *ngIf="post.author">by {{ post.author }}</span>
+              <span class="meta-item" *ngIf="post.author">{{
+                'textAnalysis.metaBy' | transloco: { author: post.author }
+              }}</span>
               <span class="meta-item">{{ formatDate(post.analyzedAt) }}</span>
             </div>
           </div>
@@ -109,7 +107,7 @@
 
         <div class="post-location" *ngIf="post.locationText || hasCoordinates(post)">
           <div class="post-location__main" *ngIf="post.locationText">
-            <span class="post-location__label">Konum</span>
+            <span class="post-location__label">{{ 'textAnalysis.location' | transloco }}</span>
             <span class="post-location__value">{{ post.locationText }}</span>
           </div>
           <div class="post-location__coords" *ngIf="hasCoordinates(post)">
@@ -119,12 +117,11 @@
               rel="noopener noreferrer"
               class="post-location__map-link">
               {{ post.latitude | number:'1.4-4' }}, {{ post.longitude | number:'1.4-4' }}
-              <span class="post-location__map-hint"> · Haritada aç</span>
+              <span class="post-location__map-hint">{{ 'textAnalysis.mapHint' | transloco }}</span>
             </a>
           </div>
         </div>
 
-        <!-- Post Media -->
         <div class="post-media" *ngIf="post.mediaUrl && isDisplayableImageUrl(post.mediaUrl) && !isImageFailed(post.id)">
           <img
             class="post-image"
@@ -142,40 +139,42 @@
             {{ ms.label }}
           </div>
           <div class="media-meta" *ngIf="post.mediaUrls && post.mediaUrls.length > 1">
-            +{{ post.mediaUrls.length - 1 }} more
+            {{ 'textAnalysis.moreImages' | transloco: { n: post.mediaUrls.length - 1 } }}
           </div>
-          <div class="media-meta duplicate" *ngIf="post.duplicateOfPostId !== null && post.duplicateOfPostId !== undefined && post.duplicateOfPostId !== post.id">
-            Duplicate of #{{ post.duplicateOfPostId }}
+          <div
+            class="media-meta duplicate"
+            *ngIf="post.duplicateOfPostId !== null && post.duplicateOfPostId !== undefined && post.duplicateOfPostId !== post.id">
+            {{ 'textAnalysis.duplicateOf' | transloco: { id: post.duplicateOfPostId } }}
           </div>
         </div>
 
         <div class="post-analysis">
           <div class="analysis-result" *ngIf="post.isDisasterRelated !== null">
-            <span class="analysis-label">Disaster Related:</span>
+            <span class="analysis-label">{{ 'textAnalysis.labelDisasterRelated' | transloco }}</span>
             <span class="analysis-value" [class.disaster-yes]="post.isDisasterRelated" [class.disaster-no]="!post.isDisasterRelated">
-              {{ post.isDisasterRelated ? 'Yes' : 'No' }}
+              {{ post.isDisasterRelated ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
             </span>
           </div>
           <div class="analysis-result" *ngIf="post.relevanceScore !== null && post.relevanceScore !== undefined">
-            <span class="analysis-label">Relevance Score:</span>
+            <span class="analysis-label">{{ 'textAnalysis.labelRelevance' | transloco }}</span>
             <span class="analysis-value" [ngClass]="getRelevanceClass(post.relevanceScore!)">
               {{ (post.relevanceScore! * 100).toFixed(1) }}%
             </span>
           </div>
           <div class="analysis-result" *ngIf="post.isHelpRequest !== null && post.isHelpRequest !== undefined">
-            <span class="analysis-label">Help Request (T2):</span>
+            <span class="analysis-label">{{ 'textAnalysis.labelHelpT2' | transloco }}</span>
             <span class="analysis-value" [class.disaster-yes]="post.isHelpRequest" [class.disaster-no]="!post.isHelpRequest">
-              {{ post.isHelpRequest ? 'Yes' : 'No' }}
+              {{ post.isHelpRequest ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
             </span>
           </div>
           <div class="analysis-result" *ngIf="post.helpRequestProbability !== null && post.helpRequestProbability !== undefined">
-            <span class="analysis-label">Help Probability:</span>
+            <span class="analysis-label">{{ 'textAnalysis.labelHelpProb' | transloco }}</span>
             <span class="analysis-value">
               {{ (post.helpRequestProbability! * 100).toFixed(1) }}%
             </span>
           </div>
           <div class="analysis-result" *ngIf="post.humanitarianCategories">
-            <span class="analysis-label">Humanitarian Categories:</span>
+            <span class="analysis-label">{{ 'textAnalysis.labelHumanitarian' | transloco }}</span>
             <div class="analysis-chips">
               <span class="chip" *ngFor="let cat of getHumanitarianCategories(post)">
                 {{ cat }}
@@ -183,90 +182,78 @@
             </div>
           </div>
           <div class="analysis-result" *ngIf="post.isImageTextMatch !== null && post.isImageTextMatch !== undefined">
-            <span class="analysis-label">Image/Text Match:</span>
+            <span class="analysis-label">{{ 'textAnalysis.labelImageText' | transloco }}</span>
             <span class="analysis-value" [class.disaster-yes]="post.isImageTextMatch" [class.disaster-no]="!post.isImageTextMatch">
-              {{ post.isImageTextMatch ? 'Yes' : 'No' }}
+              {{ post.isImageTextMatch ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
             </span>
           </div>
           <div class="analysis-result" *ngIf="post.imageTextMatchScore !== null && post.imageTextMatchScore !== undefined">
-            <span class="analysis-label">Match Score:</span>
+            <span class="analysis-label">{{ 'textAnalysis.labelMatchScore' | transloco }}</span>
             <span class="analysis-value">
               {{ (post.imageTextMatchScore! * 100).toFixed(1) }}%
             </span>
           </div>
           <div class="post-stats">
-            <span class="stat-item">{{ post.upvotes || 0 }} upvotes</span>
-            <span class="stat-item">{{ post.commentCount || 0 }} comments</span>
+            <span class="stat-item">{{ post.upvotes || 0 }} {{ 'textAnalysis.upvotes' | transloco }}</span>
+            <span class="stat-item">{{ post.commentCount || 0 }} {{ 'textAnalysis.comments' | transloco }}</span>
           </div>
         </div>
 
         <div class="post-footer">
-          <a [href]="post.url" target="_blank" class="view-reddit-link">View on Reddit →</a>
+          <a [href]="post.url" target="_blank" class="view-reddit-link">{{ 'common.viewOnReddit' | transloco }}</a>
         </div>
       </div>
     </div>
 
     <div class="no-posts" *ngIf="posts.length === 0">
-      <p>No posts found.</p>
+      <p>{{ 'textAnalysis.noPosts' | transloco }}</p>
     </div>
 
-    <!-- Pagination -->
     <div class="pagination" *ngIf="totalPages > 0">
-      <button 
-        class="page-btn" 
-        [disabled]="currentPage === 0"
-        (click)="changePage(0)">
-        « First
+      <button class="page-btn" [disabled]="currentPage === 0" (click)="changePage(0)">
+        {{ 'textAnalysis.pageFirst' | transloco }}
       </button>
-      <button 
-        class="page-btn" 
-        [disabled]="currentPage === 0"
-        (click)="changePage(currentPage - 1)">
-        ‹ Previous
+      <button class="page-btn" [disabled]="currentPage === 0" (click)="changePage(currentPage - 1)">
+        {{ 'textAnalysis.pagePrev' | transloco }}
       </button>
-      
+
       <div class="page-numbers">
-        <button 
+        <button
           *ngFor="let page of getPageNumbers()"
-          class="page-number-btn" 
+          class="page-number-btn"
           [class.active]="page === currentPage"
           [disabled]="page === -1"
           (click)="page !== -1 && changePage(page)">
           {{ page === -1 ? '...' : (page + 1) }}
         </button>
       </div>
-      
-      <button 
-        class="page-btn" 
-        [disabled]="currentPage >= totalPages - 1"
-        (click)="changePage(currentPage + 1)">
-        Next ›
+
+      <button class="page-btn" [disabled]="currentPage >= totalPages - 1" (click)="changePage(currentPage + 1)">
+        {{ 'textAnalysis.pageNext' | transloco }}
       </button>
-      <button 
-        class="page-btn" 
-        [disabled]="currentPage >= totalPages - 1"
-        (click)="changePage(totalPages - 1)">
-        Last »
+      <button class="page-btn" [disabled]="currentPage >= totalPages - 1" (click)="changePage(totalPages - 1)">
+        {{ 'textAnalysis.pageLast' | transloco }}
       </button>
-      
+
       <span class="page-info">
-        Page {{ currentPage + 1 }} of {{ totalPages }}
+        {{ 'textAnalysis.pageInfo' | transloco: { current: currentPage + 1, total: totalPages } }}
       </span>
     </div>
   </div>
 </div>
 
-<!-- Lightbox -->
-<div
-  class="lightbox-backdrop"
-  *ngIf="lightboxOpen"
-  (click)="onLightboxBackdropClick($event)">
+<div class="lightbox-backdrop" *ngIf="lightboxOpen" (click)="onLightboxBackdropClick($event)">
   <div class="lightbox">
     <div class="lightbox-header">
       <div class="lightbox-title">
-        {{ lightboxTitle || 'Post media' }}
+        {{ lightboxTitle || ('textAnalysis.lightboxMedia' | transloco) }}
       </div>
-      <button class="lightbox-close" (click)="closeLightbox()" aria-label="Close">✕</button>
+      <button
+        class="lightbox-close"
+        (click)="closeLightbox()"
+        [attr.aria-label]="'textAnalysis.ariaClose' | transloco">
+        ✕
+      </button>
     </div>
 
     <div class="lightbox-body">
@@ -274,20 +261,20 @@
         class="lightbox-nav prev"
         *ngIf="lightboxUrls.length > 1"
         (click)="prevImage()"
-        aria-label="Previous image">
+        [attr.aria-label]="'textAnalysis.ariaPrevImg' | transloco">
         ‹
       </button>
 
       <img
         class="lightbox-image"
         [src]="lightboxUrls[lightboxIndex]"
-        [alt]="lightboxTitle || 'Post media'"/>
+        [alt]="lightboxTitle || ('textAnalysis.lightboxMedia' | transloco)" />
 
       <button
         class="lightbox-nav next"
         *ngIf="lightboxUrls.length > 1"
         (click)="nextImage()"
-        aria-label="Next image">
+        [attr.aria-label]="'textAnalysis.ariaNextImg' | transloco">
         ›
       </button>
     </div>
@@ -297,9 +284,3 @@
     </div>
   </div>
 </div>
-
-
-
-
-
-

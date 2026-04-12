@@ -21,6 +21,12 @@
   gap: 16px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 
 .header-content h1 {
   font-size: var(--font-size-2xl);

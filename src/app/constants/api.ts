@@ -34,6 +34,11 @@ export const API_ENDPOINTS = {
     GET: '/api/about',
     UPDATE: '/api/about',
     CREATE: '/api/about'
+  },
+  /** Aggregated authors; backend path may stay reddit-* until multi-source API ships */
+  AUTHORS: {
+    LIST: '/api/reddit-authors',
+    INSIGHTS: '/api/reddit-authors/insights'
   }
 } as const;
 

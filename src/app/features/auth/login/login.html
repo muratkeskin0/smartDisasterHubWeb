@@ -1,15 +1,17 @@
 <div class="auth-container">
   <div class="auth-card">
+    <div class="auth-lang-bar">
+      <app-language-switcher />
+    </div>
     <div class="auth-header">
-      <h1>Smart Disaster Hub</h1>
-      <h2>Sign In</h2>
-      <p>Sign in to your account</p>
+      <h1>{{ 'app.title' | transloco }}</h1>
+      <h2>{{ 'login.title' | transloco }}</h2>
+      <p>{{ 'login.subtitle' | transloco }}</p>
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
-      <!-- Email -->
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">{{ 'login.email' | transloco }}</label>
         <input
           id="email"
           formControlName="email"
@@ -23,15 +25,14 @@
         }
       </div>
 
-      <!-- Password -->
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">{{ 'login.password' | transloco }}</label>
         <div class="password-input">
           <input
             id="password"
             formControlName="password"
             [type]="showPassword() ? 'text' : 'password'"
-            placeholder="Enter your password"
+            [placeholder]="'login.placeholderPassword' | transloco"
             [disabled]="loading()"
           />
           <button
@@ -39,7 +40,9 @@
             class="toggle-password"
             (click)="togglePassword()"
             [disabled]="loading()"
-            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-label]="
+              (showPassword() ? 'login.hidePassword' : 'login.showPassword') | transloco
+            "
           >
             @if (showPassword()) {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -59,36 +62,32 @@
         }
       </div>
 
-      <!-- Remember Me & Forgot Password -->
       <div class="form-options">
         <label class="checkbox-label">
           <input type="checkbox" [disabled]="loading()" />
-          <span>Remember Me</span>
+          <span>{{ 'login.rememberMe' | transloco }}</span>
         </label>
-        <a href="#" class="forgot-password" (click)="$event.preventDefault()">Forgot Password</a>
+        <a href="#" class="forgot-password" (click)="$event.preventDefault()">{{ 'login.forgotPassword' | transloco }}</a>
       </div>
 
-      <!-- Submit Button -->
       <button type="submit" class="btn-primary" [disabled]="loading() || loginForm.invalid">
         @if (loading()) {
           <span class="spinner"></span>
         } @else {
-          <span>Sign In</span>
+          <span>{{ 'login.submit' | transloco }}</span>
         }
       </button>
 
-      <!-- Register Link -->
       <div class="auth-footer">
         <p>
-          Don't have an account?
-          <a routerLink="/register" class="link">Sign Up</a>
+          {{ 'login.noAccount' | transloco }}
+          <a routerLink="/register" class="link">{{ 'login.signUpLink' | transloco }}</a>
         </p>
       </div>
     </form>
 
-    <!-- Admin Test Info -->
     <div class="test-info">
-      <p><strong>Test Account:</strong></p>
+      <p><strong>{{ 'login.testAccount' | transloco }}</strong></p>
       <p>Email: admin@smartdisasterhub.com</p>
       <p>Password: Admin123!</p>
     </div>

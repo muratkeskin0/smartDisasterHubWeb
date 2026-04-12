@@ -233,6 +233,12 @@ body {
   width: 100%;
 }
 
+.auth-lang-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--spacing-md);
+}
+
 .auth-header {
   text-align: center;
   margin-bottom: 30px;

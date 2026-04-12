@@ -106,7 +106,7 @@ export interface RedditPost {
   imageAnalyzedAt?: string | null;
   analyzedAt?: string | null;
   status: RedditPostStatus;
-  /** Extracted after Location:/Konum:/… in post text */
+  /** Extracted after Location: / Konum: markers in post text */
   locationText?: string | null;
   latitude?: number | null;
   longitude?: number | null;
@@ -130,6 +130,29 @@ export interface About {
   content: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+// Content authors aggregated from ingested posts (API may still expose Reddit-specific field names)
+export interface RedditAuthor {
+  id: number;
+  redditUsername: string;
+  redditUserId?: string | null;
+  totalPosts: number;
+  analyzedPosts: number;
+  disasterRelatedPosts: number;
+  failedAnalysisPosts: number;
+  trustScore?: number | null;
+  firstSeenAt?: string | null;
+  lastPostAt?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface RedditAuthorInsights {
+  totalAuthors: number;
+  averageTrust?: number | null;
+  topByTrust: RedditAuthor[];
+  topByPostVolume: RedditAuthor[];
 }
 
 // Map Types

@@ -1,0 +1,18 @@
+<div class="lang-switch" role="group" [attr.aria-label]="'common.language' | transloco">
+  <button
+    type="button"
+    class="lang-switch__btn"
+    [class.lang-switch__btn--active]="activeLang() === 'en'"
+    (click)="setLang('en')"
+  >
+    EN
+  </button>
+  <button
+    type="button"
+    class="lang-switch__btn"
+    [class.lang-switch__btn--active]="activeLang() === 'tr'"
+    (click)="setLang('tr')"
+  >
+    TR
+  </button>
+</div>

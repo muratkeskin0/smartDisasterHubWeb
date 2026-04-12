@@ -2,20 +2,22 @@
   <div class="header-content">
     <div class="header-left">
       <a routerLink="/dashboard" class="app-title-link">
-        <h1 class="app-title">Smart Disaster Hub</h1>
+        <h1 class="app-title">{{ 'app.title' | transloco }}</h1>
       </a>
       @if (isAuthenticated()) {
         <nav class="header-nav">
-          <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Dashboard</a>
-          <a routerLink="/text-analysis" routerLinkActive="active">Text Analysis</a>
-          <a routerLink="/map" routerLinkActive="active">Map</a>
-          <a routerLink="/about" routerLinkActive="active">About</a>
+          <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'nav.dashboard' | transloco }}</a>
+          <a routerLink="/text-analysis" routerLinkActive="active">{{ 'nav.textAnalysis' | transloco }}</a>
+          <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | transloco }}</a>
+          <a routerLink="/authors" routerLinkActive="active">{{ 'nav.authors' | transloco }}</a>
+          <a routerLink="/about" routerLinkActive="active">{{ 'nav.about' | transloco }}</a>
         </nav>
       }
     </div>
     
     <div class="header-right">
       @if (isAuthenticated()) {
+        <app-language-switcher class="header-lang" />
         <div class="user-section">
           <a routerLink="/profile" class="user-info">
             <div class="user-avatar">
@@ -29,7 +31,7 @@
             size="small"
             (buttonClick)="handleLogout()"
           >
-            Logout
+            {{ 'nav.logout' | transloco }}
           </app-base-button>
         </div>
       }

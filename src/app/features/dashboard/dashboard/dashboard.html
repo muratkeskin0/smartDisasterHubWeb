@@ -3,8 +3,8 @@
 
   <main class="dashboard-main">
     <div class="welcome-section">
-      <h2>Welcome, {{ firstName }}</h2>
-      <p>Access disaster monitoring and analysis features</p>
+      <h2>{{ 'dashboard.welcome' | transloco: { name: firstName } }}</h2>
+      <p>{{ 'dashboard.tagline' | transloco }}</p>
     </div>
 
     <!-- Features Grid -->
@@ -20,8 +20,8 @@
           </svg>
         </div>
         <div class="feature-content">
-          <h3>Text Analysis</h3>
-          <p>View analyzed Reddit posts for disaster relevance</p>
+          <h3>{{ 'dashboard.featureTextAnalysisTitle' | transloco }}</h3>
+          <p>{{ 'dashboard.featureTextAnalysisDesc' | transloco }}</p>
         </div>
         <div class="feature-arrow">→</div>
       </a>
@@ -34,8 +34,24 @@
           </svg>
         </div>
         <div class="feature-content">
-          <h3>Disaster Map</h3>
-          <p>Explore disaster-related posts on an interactive map</p>
+          <h3>{{ 'dashboard.featureMapTitle' | transloco }}</h3>
+          <p>{{ 'dashboard.featureMapDesc' | transloco }}</p>
+        </div>
+        <div class="feature-arrow">→</div>
+      </a>
+
+      <a routerLink="/authors" class="feature-card">
+        <div class="feature-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <h3>{{ 'dashboard.featureAuthorsTitle' | transloco }}</h3>
+          <p>{{ 'dashboard.featureAuthorsDesc' | transloco }}</p>
         </div>
         <div class="feature-arrow">→</div>
       </a>
@@ -48,8 +64,8 @@
           </svg>
         </div>
         <div class="feature-content">
-          <h3>Profile</h3>
-          <p>Manage your account settings and preferences</p>
+          <h3>{{ 'dashboard.featureProfileTitle' | transloco }}</h3>
+          <p>{{ 'dashboard.featureProfileDesc' | transloco }}</p>
         </div>
         <div class="feature-arrow">→</div>
       </a>
@@ -57,17 +73,19 @@
 
     <section class="dashboard-location" *ngIf="locationsLoading || locationsLoaded">
       <div class="dashboard-location__head">
-        <h3 class="dashboard-location__title">Çıkarılan konumlar</h3>
+        <h3 class="dashboard-location__title">{{ 'dashboard.locationsTitle' | transloco }}</h3>
         <p class="dashboard-location__subtitle">
-          Analiz edilmiş gönderilerde <strong>Konum:</strong> / <strong>Location:</strong> (veya koordinat) kaydı olanlar
+          {{ 'dashboard.locationsSubtitle' | transloco }}
         </p>
       </div>
 
       <div class="dashboard-location__loading" *ngIf="locationsLoading">
-        <span>Yükleniyor…</span>
+        <span>{{ 'common.loading' | transloco }}</span>
       </div>
 
-      <p class="dashboard-location__error" *ngIf="locationsError && !locationsLoading">{{ locationsError }}</p>
+      <p class="dashboard-location__error" *ngIf="locationsError && !locationsLoading">
+        {{ 'dashboard.locationsError' | transloco }}
+      </p>
 
       <ul class="dashboard-location__list" *ngIf="!locationsLoading && !locationsError && locationRows.length > 0">
         <li class="dashboard-location__item" *ngFor="let row of locationRows">
@@ -82,7 +100,7 @@
               target="_blank"
               rel="noopener noreferrer"
               class="dashboard-location__coords">
-              {{ row.lat | number:'1.4-4' }}, {{ row.lng | number:'1.4-4' }} · Haritada aç
+              {{ row.lat | number:'1.4-4' }}, {{ row.lng | number:'1.4-4' }} · {{ 'common.openOnMap' | transloco }}
             </a>
           </div>
         </li>
@@ -91,10 +109,10 @@
       <p
         class="dashboard-location__empty"
         *ngIf="locationsLoaded && !locationsLoading && !locationsError && locationRows.length === 0">
-        Henüz konum çıkarılmış afet gönderisi yok. Gönderilerde <code>Konum:</code> veya <code>Location:</code> satırı kullanıldığında burada listelenir.
+        {{ 'dashboard.locationsEmpty' | transloco }}
       </p>
 
-      <a routerLink="/text-analysis" class="dashboard-location__cta">Tüm analizleri gör →</a>
+      <a routerLink="/text-analysis" class="dashboard-location__cta">{{ 'dashboard.viewAllAnalyses' | transloco }}</a>
     </section>
   </main>
 </div>

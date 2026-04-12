@@ -1,0 +1,166 @@
+<app-header></app-header>
+
+<div class="ra-page">
+  <div class="ra-header">
+    <div class="ra-header-top">
+      <app-back-button></app-back-button>
+    </div>
+    <h1>{{ 'authors.title' | transloco }}</h1>
+    <p class="ra-sub">{{ 'authors.subtitle' | transloco }}</p>
+  </div>
+
+  <section class="ra-insights" *ngIf="insights || insightsLoading">
+    <div class="ra-insights-loading" *ngIf="insightsLoading">{{ 'authors.loadingSummary' | transloco }}</div>
+    <ng-container *ngIf="!insightsLoading && insights">
+      <div class="ra-kpis">
+        <div class="ra-kpi">
+          <span class="ra-kpi-label">{{ 'authors.totalAuthors' | transloco }}</span>
+          <span class="ra-kpi-value">{{ insights.totalAuthors }}</span>
+        </div>
+        <div class="ra-kpi">
+          <span class="ra-kpi-label">{{ 'authors.averageTrust' | transloco }}</span>
+          <span class="ra-kpi-value">
+            {{ insights.averageTrust != null ? (insights.averageTrust * 100 | number:'1.1-1') + '%' : '—' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="ra-charts">
+        <div class="ra-chart-card">
+          <h2>{{ 'authors.chartTrust' | transloco }}</h2>
+          <div class="ra-bar-list" *ngIf="insights.topByTrust?.length; else noTrust">
+            <div class="ra-bar-row" *ngFor="let a of insights.topByTrust">
+              <span class="ra-bar-name" [title]="a.redditUsername">u/{{ a.redditUsername }}</span>
+              <div class="ra-bar-track">
+                <div class="ra-bar-fill ra-bar-fill--trust" [style.width.%]="barWidthTrust(a.trustScore)"></div>
+              </div>
+              <span class="ra-bar-num">{{ trustPercent(a.trustScore) }}</span>
+            </div>
+          </div>
+          <ng-template #noTrust><p class="ra-empty-mini">{{ 'authors.noData' | transloco }}</p></ng-template>
+        </div>
+
+        <div class="ra-chart-card">
+          <h2>{{ 'authors.chartPosts' | transloco }}</h2>
+          <div class="ra-bar-list" *ngIf="insights.topByPostVolume?.length; else noVol">
+            <div class="ra-bar-row" *ngFor="let a of insights.topByPostVolume">
+              <span class="ra-bar-name">u/{{ a.redditUsername }}</span>
+              <div class="ra-bar-track">
+                <div class="ra-bar-fill ra-bar-fill--posts" [style.width.%]="postBarWidth(a.totalPosts)"></div>
+              </div>
+              <span class="ra-bar-num">{{ a.totalPosts }}</span>
+            </div>
+          </div>
+          <ng-template #noVol><p class="ra-empty-mini">{{ 'authors.noData' | transloco }}</p></ng-template>
+        </div>
+      </div>
+    </ng-container>
+  </section>
+
+  <section class="ra-controls">
+    <div class="ra-search">
+      <input
+        type="search"
+        class="ra-input"
+        [(ngModel)]="searchDraft"
+        (keyup.enter)="applySearch()"
+        [placeholder]="'authors.placeholderSearch' | transloco"
+        [attr.aria-label]="'common.search' | transloco"
+      />
+      <button type="button" class="ra-btn ra-btn--primary" (click)="applySearch()">{{ 'common.search' | transloco }}</button>
+      <button type="button" class="ra-btn" (click)="clearSearch()" *ngIf="search || searchDraft">{{ 'common.clear' | transloco }}</button>
+    </div>
+    <div class="ra-filters">
+      <label class="ra-field">
+        <span>{{ 'authors.sortBy' | transloco }}</span>
+        <select class="ra-select" [(ngModel)]="sortBy" (ngModelChange)="onSortChange()">
+          <option value="trustScore">{{ 'authors.trustScore' | transloco }}</option>
+          <option value="totalPosts">{{ 'authors.totalPosts' | transloco }}</option>
+          <option value="analyzedPosts">{{ 'authors.analyzedPosts' | transloco }}</option>
+          <option value="disasterRelatedPosts">{{ 'authors.disasterRelated' | transloco }}</option>
+          <option value="redditUsername">{{ 'authors.username' | transloco }}</option>
+          <option value="lastPostAt">{{ 'authors.lastPost' | transloco }}</option>
+        </select>
+      </label>
+      <label class="ra-field">
+        <span>{{ 'authors.direction' | transloco }}</span>
+        <select class="ra-select" [(ngModel)]="sortDirection" (ngModelChange)="onSortChange()">
+          <option value="DESC">{{ 'authors.descending' | transloco }}</option>
+          <option value="ASC">{{ 'authors.ascending' | transloco }}</option>
+        </select>
+      </label>
+      <label class="ra-field">
+        <span>{{ 'authors.pageSize' | transloco }}</span>
+        <select class="ra-select" [(ngModel)]="pageSize" (ngModelChange)="currentPage = 0; loadAuthors()">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="15">15</option>
+          <option [ngValue]="25">25</option>
+          <option [ngValue]="50">50</option>
+        </select>
+      </label>
+    </div>
+  </section>
+
+  <div class="ra-loading" *ngIf="loading">
+    <div class="ra-spinner"></div>
+    <p>{{ 'authors.loadingList' | transloco }}</p>
+  </div>
+
+  <div class="ra-error" *ngIf="loadError && !loading">{{ 'authors.errorLoad' | transloco }}</div>
+
+  <section class="ra-table-wrap" *ngIf="!loading && !loadError">
+    <div class="ra-table-info">
+      {{ 'authors.tableInfo' | transloco: { total: totalElements, current: currentPage + 1, pages: totalPages || 1 } }}
+    </div>
+    <div class="ra-table-scroll">
+      <table class="ra-table">
+        <thead>
+          <tr>
+            <th>{{ 'authors.colUsername' | transloco }}</th>
+            <th>{{ 'authors.colUserId' | transloco }}</th>
+            <th>{{ 'authors.colTrust' | transloco }}</th>
+            <th>{{ 'authors.colPosts' | transloco }}</th>
+            <th>{{ 'authors.colAnalyzed' | transloco }}</th>
+            <th>{{ 'authors.colDisaster' | transloco }}</th>
+            <th>{{ 'authors.colFailed' | transloco }}</th>
+            <th>{{ 'authors.colRatio' | transloco }}</th>
+            <th>{{ 'authors.colLastPost' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of authors">
+            <td><span class="ra-user">u/{{ a.redditUsername }}</span></td>
+            <td class="ra-mono">{{ a.redditUserId || '—' }}</td>
+            <td>
+              <span class="ra-trust" [class.ra-trust--hi]="(a.trustScore ?? 0) >= 0.65" [class.ra-trust--lo]="(a.trustScore ?? 0) < 0.4">
+                {{ trustPercent(a.trustScore) }}
+              </span>
+            </td>
+            <td>{{ a.totalPosts }}</td>
+            <td>{{ a.analyzedPosts }}</td>
+            <td>{{ a.disasterRelatedPosts }}</td>
+            <td>{{ a.failedAnalysisPosts }}</td>
+            <td>{{ disasterRatio(a) }}</td>
+            <td class="ra-date">{{ formatDate(a.lastPostAt) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="ra-empty" *ngIf="authors.length === 0">
+      {{ 'authors.empty' | transloco }}
+    </p>
+
+    <div class="ra-pagination" *ngIf="totalPages > 1">
+      <button type="button" class="ra-btn" [disabled]="currentPage === 0" (click)="goPage(currentPage - 1)">{{ 'common.previous' | transloco }}</button>
+      <span class="ra-page-label">{{ currentPage + 1 }} / {{ totalPages }}</span>
+      <button
+        type="button"
+        class="ra-btn"
+        [disabled]="currentPage >= totalPages - 1"
+        (click)="goPage(currentPage + 1)"
+      >
+        {{ 'common.next' | transloco }}
+      </button>
+    </div>
+  </section>
+</div>

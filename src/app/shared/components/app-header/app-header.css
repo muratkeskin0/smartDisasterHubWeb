@@ -68,7 +68,12 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.header-lang {
+  flex-shrink: 0;
 }
 
 .user-section {

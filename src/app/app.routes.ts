@@ -45,6 +45,17 @@ export const routes: Routes = [
     title: 'Disaster Map - Smart Disaster Hub'
   },
   {
+    path: 'reddit-authors',
+    redirectTo: 'authors',
+    pathMatch: 'full'
+  },
+  {
+    path: 'authors',
+    loadComponent: () => import('./features/authors/authors/authors').then(m => m.AuthorsComponent),
+    canActivate: [authGuard],
+    title: 'Authors - Smart Disaster Hub'
+  },
+  {
     path: 'about',
     loadComponent: () => import('./features/about/about/about').then(m => m.AboutComponent),
     canActivate: [authGuard],

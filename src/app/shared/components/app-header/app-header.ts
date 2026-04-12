@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { BaseButtonComponent } from '../base-button/base-button';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, BaseButtonComponent],
+  imports: [CommonModule, RouterModule, BaseButtonComponent, TranslocoPipe, LanguageSwitcherComponent],
   templateUrl: './app-header.html',
   styleUrl: './app-header.css'
 })

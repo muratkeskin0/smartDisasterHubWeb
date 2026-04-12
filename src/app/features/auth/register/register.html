@@ -1,20 +1,22 @@
 <div class="auth-container">
   <div class="auth-card">
+    <div class="auth-lang-bar">
+      <app-language-switcher />
+    </div>
     <div class="auth-header">
-      <h1>Smart Disaster Hub</h1>
-      <h2>Sign Up</h2>
-      <p>Create a new account</p>
+      <h1>{{ 'app.title' | transloco }}</h1>
+      <h2>{{ 'register.title' | transloco }}</h2>
+      <p>{{ 'register.subtitle' | transloco }}</p>
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
-      <!-- First Name -->
       <div class="form-group">
-        <label for="firstName">First Name</label>
+        <label for="firstName">{{ 'profile.firstName' | transloco }}</label>
         <input
           id="firstName"
           formControlName="firstName"
           type="text"
-          placeholder="Your first name"
+          [placeholder]="'register.placeholderFirst' | transloco"
           [class.has-error]="getFieldError('firstName')"
         />
         @if (getFieldError('firstName')) {
@@ -22,14 +24,13 @@
         }
       </div>
 
-      <!-- Last Name -->
       <div class="form-group">
-        <label for="lastName">Last Name</label>
+        <label for="lastName">{{ 'profile.lastName' | transloco }}</label>
         <input
           id="lastName"
           formControlName="lastName"
           type="text"
-          placeholder="Your last name"
+          [placeholder]="'register.placeholderLast' | transloco"
           [class.has-error]="getFieldError('lastName')"
         />
         @if (getFieldError('lastName')) {
@@ -37,9 +38,8 @@
         }
       </div>
 
-      <!-- Email -->
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">{{ 'login.email' | transloco }}</label>
         <input
           id="email"
           formControlName="email"
@@ -52,22 +52,23 @@
         }
       </div>
 
-      <!-- Password -->
       <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password">{{ 'login.password' | transloco }}</label>
         <div class="password-input">
           <input
             id="password"
             formControlName="password"
             [type]="showPassword() ? 'text' : 'password'"
-            placeholder="At least 6 characters"
+            [placeholder]="'register.placeholderPwMin' | transloco"
             [class.has-error]="getFieldError('password')"
           />
           <button
             type="button"
             class="toggle-password"
             (click)="togglePassword()"
-            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-label]="
+              (showPassword() ? 'login.hidePassword' : 'login.showPassword') | transloco
+            "
           >
             @if (showPassword()) {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -87,22 +88,23 @@
         }
       </div>
 
-      <!-- Confirm Password -->
       <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
+        <label for="confirmPassword">{{ 'register.confirmPassword' | transloco }}</label>
         <div class="password-input">
           <input
             id="confirmPassword"
             formControlName="confirmPassword"
             [type]="showConfirmPassword() ? 'text' : 'password'"
-            placeholder="Re-enter your password"
+            [placeholder]="'register.placeholderConfirmPw' | transloco"
             [class.has-error]="getFieldError('confirmPassword')"
           />
           <button
             type="button"
             class="toggle-password"
             (click)="toggleConfirmPassword()"
-            [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-label]="
+              (showConfirmPassword() ? 'login.hidePassword' : 'login.showPassword') | transloco
+            "
           >
             @if (showConfirmPassword()) {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -122,20 +124,18 @@
         }
       </div>
 
-      <!-- Submit Button -->
       <button type="submit" class="btn-primary" [disabled]="loading() || registerForm.invalid">
         @if (loading()) {
           <span class="spinner"></span>
         } @else {
-          <span>Sign Up</span>
+          <span>{{ 'register.signUpButton' | transloco }}</span>
         }
       </button>
 
-      <!-- Login Link -->
       <div class="auth-footer">
         <p>
-          Already have an account?
-          <a routerLink="/login" class="link">Sign In</a>
+          {{ 'register.hasAccount' | transloco }}
+          <a routerLink="/login" class="link">{{ 'register.signIn' | transloco }}</a>
         </p>
       </div>
     </form>

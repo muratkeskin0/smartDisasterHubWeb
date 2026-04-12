@@ -1,47 +1,19 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
-import { AboutService } from '../../../core/services/about.service';
-import { About } from '../../../models';
+import { TranslocoPipe } from '@jsverse/transloco';
 
+/**
+ * About copy is driven by i18n (en.json / tr.json) so it follows the active language.
+ * API-stored HTML is not used here; add a merge strategy later if admin-edited DB content is required.
+ */
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppHeaderComponent, BackButtonComponent],
+  imports: [CommonModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
   templateUrl: './about.html',
   styleUrl: './about.css'
 })
-export class AboutComponent implements OnInit {
-  private aboutService = inject(AboutService);
-  
-  about: About | null = null;
-  loading = true;
-  error: string | null = null;
-
-  ngOnInit(): void {
-    this.loadAbout();
-  }
-
-  loadAbout(): void {
-    this.loading = true;
-    this.error = null;
-    
-    this.aboutService.getAbout().subscribe({
-      next: (about) => {
-        this.about = about;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error loading about content:', err);
-        this.error = 'Failed to load about content. Please try again later.';
-        this.loading = false;
-      }
-    });
-  }
-}
-
-
-
-
+export class AboutComponent {}

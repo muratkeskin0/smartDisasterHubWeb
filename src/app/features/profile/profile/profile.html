@@ -2,14 +2,16 @@
   <header class="profile-header">
     <div class="header-content">
       <div class="header-left">
-        <app-back-button label="Back"></app-back-button>
-        <h1>Profile</h1>
+        <app-back-button [label]="'common.back' | transloco"></app-back-button>
+        <h1>{{ 'profile.title' | transloco }}</h1>
+      </div>
+      <div class="header-right">
+        <app-language-switcher />
       </div>
     </div>
   </header>
 
   <main class="profile-main">
-    <!-- Profile Header Card -->
     <div class="profile-card">
       <div class="profile-avatar-section">
         <div class="profile-avatar">
@@ -25,34 +27,33 @@
       </div>
     </div>
 
-    <!-- Details Card -->
     <div class="details-card">
-      <h3>Account Details</h3>
+      <h3>{{ 'profile.accountDetails' | transloco }}</h3>
       <div class="details-grid">
         <div class="detail-item">
           <div class="detail-content">
-            <span class="detail-label">First Name</span>
+            <span class="detail-label">{{ 'profile.firstName' | transloco }}</span>
             <span class="detail-value">{{ user?.firstName }}</span>
           </div>
         </div>
 
         <div class="detail-item">
           <div class="detail-content">
-            <span class="detail-label">Last Name</span>
+            <span class="detail-label">{{ 'profile.lastName' | transloco }}</span>
             <span class="detail-value">{{ user?.lastName }}</span>
           </div>
         </div>
 
         <div class="detail-item">
           <div class="detail-content">
-            <span class="detail-label">Email</span>
+            <span class="detail-label">{{ 'profile.email' | transloco }}</span>
             <span class="detail-value">{{ user?.email }}</span>
           </div>
         </div>
 
         <div class="detail-item">
           <div class="detail-content">
-            <span class="detail-label">Role</span>
+            <span class="detail-label">{{ 'profile.role' | transloco }}</span>
             <span class="detail-value">
               {{ user?.role?.name }}
               <span class="role-description">{{ user?.role?.description }}</span>
@@ -62,10 +63,10 @@
 
         <div class="detail-item">
           <div class="detail-content">
-            <span class="detail-label">Email Verification</span>
+            <span class="detail-label">{{ 'profile.emailVerification' | transloco }}</span>
             <span class="detail-value">
               <span class="verification-badge" [ngClass]="user?.isEmailVerified ? 'verified' : 'not-verified'">
-                {{ user?.isEmailVerified ? 'Verified' : 'Not Verified' }}
+                {{ user?.isEmailVerified ? ('profile.verified' | transloco) : ('profile.notVerified' | transloco) }}
               </span>
             </span>
           </div>
@@ -73,21 +74,21 @@
 
         <div class="detail-item">
           <div class="detail-content">
-            <span class="detail-label">User ID</span>
+            <span class="detail-label">{{ 'profile.userId' | transloco }}</span>
             <span class="detail-value">{{ user?.id }}</span>
           </div>
         </div>
 
         <div class="detail-item">
           <div class="detail-content">
-            <span class="detail-label">Account Created</span>
+            <span class="detail-label">{{ 'profile.accountCreated' | transloco }}</span>
             <span class="detail-value">{{ formatDate(user?.createdAt) }}</span>
           </div>
         </div>
 
         <div class="detail-item">
           <div class="detail-content">
-            <span class="detail-label">Last Updated</span>
+            <span class="detail-label">{{ 'profile.lastUpdated' | transloco }}</span>
             <span class="detail-value">{{ formatDate(user?.updatedAt) }}</span>
           </div>
         </div>
