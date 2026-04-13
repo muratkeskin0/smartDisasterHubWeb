@@ -9,13 +9,14 @@
       <p>{{ 'register.subtitle' | transloco }}</p>
     </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form" autocomplete="off">
       <div class="form-group">
         <label for="firstName">{{ 'profile.firstName' | transloco }}</label>
         <input
           id="firstName"
           formControlName="firstName"
           type="text"
+          autocomplete="off"
           [placeholder]="'register.placeholderFirst' | transloco"
           [class.has-error]="getFieldError('firstName')"
         />
@@ -30,6 +31,7 @@
           id="lastName"
           formControlName="lastName"
           type="text"
+          autocomplete="off"
           [placeholder]="'register.placeholderLast' | transloco"
           [class.has-error]="getFieldError('lastName')"
         />
@@ -44,6 +46,7 @@
           id="email"
           formControlName="email"
           type="email"
+          autocomplete="off"
           placeholder="example@email.com"
           [class.has-error]="getFieldError('email')"
         />
@@ -59,6 +62,7 @@
             id="password"
             formControlName="password"
             [type]="showPassword() ? 'text' : 'password'"
+            autocomplete="new-password"
             [placeholder]="'register.placeholderPwMin' | transloco"
             [class.has-error]="getFieldError('password')"
           />
@@ -95,6 +99,7 @@
             id="confirmPassword"
             formControlName="confirmPassword"
             [type]="showConfirmPassword() ? 'text' : 'password'"
+            autocomplete="new-password"
             [placeholder]="'register.placeholderConfirmPw' | transloco"
             [class.has-error]="getFieldError('confirmPassword')"
           />
@@ -131,6 +136,10 @@
           <span>{{ 'register.signUpButton' | transloco }}</span>
         }
       </button>
+
+      @if (serverError()) {
+        <span class="error-message">{{ serverError() }}</span>
+      }
 
       <div class="auth-footer">
         <p>

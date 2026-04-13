@@ -189,6 +189,15 @@
     "placeholderPwMin": "At least 6 characters",
     "placeholderConfirmPw": "Re-enter your password"
   },
+  "authActivation": {
+    "mailSentTitle": "Activation email sent",
+    "mailSentSubtitle": "Please check your inbox and click the activation link before signing in.",
+    "activatingTitle": "Activating your account...",
+    "activatingSubtitle": "Please wait while we verify your email.",
+    "successTitle": "Email activated",
+    "errorTitle": "Activation failed",
+    "goToLogin": "Go to Sign In"
+  },
   "aboutPage": {
     "loading": "Loading about content...",
     "fallbackTitle": "About Smart Disaster Hub",

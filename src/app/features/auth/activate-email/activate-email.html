@@ -1,0 +1,20 @@
+<div class="status-container">
+  <div class="status-card">
+    @if (loading()) {
+      <h2>{{ 'authActivation.activatingTitle' | transloco }}</h2>
+      <p>{{ 'authActivation.activatingSubtitle' | transloco }}</p>
+    } @else {
+      <h2>
+        @if (success()) {
+          {{ 'authActivation.successTitle' | transloco }}
+        } @else {
+          {{ 'authActivation.errorTitle' | transloco }}
+        }
+      </h2>
+      <p>{{ message() }}</p>
+      <button class="btn" type="button" (click)="goToLogin()">
+        {{ 'authActivation.goToLogin' | transloco }}
+      </button>
+    }
+  </div>
+</div>

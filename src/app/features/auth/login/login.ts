@@ -1,10 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +25,7 @@ export class LoginComponent {
   loading = signal(false);
   showPassword = signal(false);
   errors = signal<{ email?: string; password?: string }>({});
+  serverError = signal('');
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -74,19 +77,19 @@ export class LoginComponent {
     }
 
     this.loading.set(true);
+    this.serverError.set('');
 
-    this.authService.login(this.loginForm.value).subscribe({
-      next: () => {
-        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-        this.router.navigate([returnUrl]);
-      },
-      error: (err) => {
-        console.error('Login error:', err);
-        // Handle errors - you can add error handling logic here
-      },
-      complete: () => {
-        this.loading.set(false);
-      }
-    });
+    this.authService.login(this.loginForm.value)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: () => {
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+          this.router.navigate([returnUrl]);
+        },
+        error: (err: HttpErrorResponse) => {
+          console.error('Login error:', err);
+          this.serverError.set(err?.error?.message || err?.error?.error?.details || 'Login failed');
+        }
+      });
   }
 }

@@ -1,0 +1,12 @@
+<div class="status-container">
+  <div class="status-card">
+    <h2>{{ 'authActivation.mailSentTitle' | transloco }}</h2>
+    <p>{{ 'authActivation.mailSentSubtitle' | transloco }}</p>
+
+    @if (email) {
+      <p class="email">{{ email }}</p>
+    }
+
+    <a routerLink="/login" class="btn">{{ 'authActivation.goToLogin' | transloco }}</a>
+  </div>
+</div>

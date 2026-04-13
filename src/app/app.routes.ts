@@ -21,6 +21,18 @@ export const routes: Routes = [
     title: 'Sign Up - Smart Disaster Hub'
   },
   {
+    path: 'activation-mail-sent',
+    loadComponent: () => import('./features/auth/activation-mail-sent/activation-mail-sent').then(m => m.ActivationMailSentComponent),
+    canActivate: [guestGuard],
+    title: 'Activation Mail Sent - Smart Disaster Hub'
+  },
+  {
+    path: 'activate-email',
+    loadComponent: () => import('./features/auth/activate-email/activate-email').then(m => m.ActivateEmailComponent),
+    canActivate: [guestGuard],
+    title: 'Activate Email - Smart Disaster Hub'
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/dashboard/dashboard').then(m => m.DashboardComponent),
     canActivate: [authGuard],

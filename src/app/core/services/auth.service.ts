@@ -84,7 +84,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}${API_ENDPOINTS.AUTH.LOGIN}`, credentials)
       .pipe(
         tap(response => {
-          if (response.success && response.data) {
+          if (response.success && response.data?.token && response.data?.user) {
             localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.data.token);
             localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.data.user));
             this.currentUserSubject.next(response.data.user);
@@ -101,14 +101,16 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}${API_ENDPOINTS.AUTH.REGISTER}`, userData)
       .pipe(
         tap(response => {
-          if (response.success && response.data) {
-            localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.data.token);
-            localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.data.user));
-            this.currentUserSubject.next(response.data.user);
-            this.scheduleAutoLogout(response.data.token);
+          // Registration now requires email activation; do not create session here.
+          if (response.success) {
+            this.clearAuthData();
           }
         })
       );
+  }
+
+  activateEmail(token: string): Observable<ApiResponse<void>> {
+    return this.http.get<ApiResponse<void>>(`${this.apiUrl}${API_ENDPOINTS.AUTH.ACTIVATE}?token=${encodeURIComponent(token)}`);
   }
 
   /**

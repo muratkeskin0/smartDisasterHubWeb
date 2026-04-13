@@ -39,9 +39,11 @@ export interface AuthResponse {
   success: boolean;
   message: string;
   data: {
-    token: string;
-    type: string;
-    user: User;
+    token?: string | null;
+    type?: string;
+    user?: User;
+    emailVerificationRequired?: boolean;
+    activationSentTo?: string;
   };
   timestamp: string;
 }

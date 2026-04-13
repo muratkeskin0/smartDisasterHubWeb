@@ -78,6 +78,10 @@
         }
       </button>
 
+      @if (serverError()) {
+        <span class="error-message">{{ serverError() }}</span>
+      }
+
       <div class="auth-footer">
         <p>
           {{ 'login.noAccount' | transloco }}

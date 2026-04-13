@@ -189,6 +189,15 @@
     "placeholderPwMin": "En az 6 karakter",
     "placeholderConfirmPw": "Şifrenizi tekrar girin"
   },
+  "authActivation": {
+    "mailSentTitle": "Aktivasyon e-postası gönderildi",
+    "mailSentSubtitle": "Lütfen e-postanızı kontrol edip aktivasyon bağlantısına tıklayın.",
+    "activatingTitle": "Hesabınız aktive ediliyor...",
+    "activatingSubtitle": "E-posta doğrulaması yapılıyor, lütfen bekleyin.",
+    "successTitle": "E-posta doğrulandı",
+    "errorTitle": "Aktivasyon başarısız",
+    "goToLogin": "Giriş ekranına git"
+  },
   "aboutPage": {
     "loading": "İçerik yükleniyor...",
     "fallbackTitle": "Smart Disaster Hub hakkında",

@@ -2,6 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
@@ -32,6 +34,7 @@ export class RegisterComponent {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   errors = signal<{ [key: string]: string }>({});
+  serverError = signal('');
 
   constructor() {
     this.registerForm = this.fb.group({
@@ -57,22 +60,50 @@ export class RegisterComponent {
       return;
     }
 
+    this.serverError.set('');
     this.loading.set(true);
 
     const { confirmPassword, ...registerData } = this.registerForm.value;
 
-    this.authService.register(registerData).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
-        console.error('Register error:', err);
-        // Handle errors
-      },
-      complete: () => {
-        this.loading.set(false);
-      }
-    });
+    this.authService.register(registerData)
+      .pipe(
+        finalize(() => {
+          this.loading.set(false);
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          const email = response.data?.activationSentTo || registerData.email;
+          this.router.navigate(['/activation-mail-sent'], { queryParams: { email } });
+        },
+        error: (err: HttpErrorResponse) => {
+          console.error('Register error:', err);
+          this.serverError.set(this.extractErrorMessage(err));
+        }
+      });
+  }
+
+  private extractErrorMessage(error: HttpErrorResponse): string {
+    const backendMessage = error?.error?.message;
+    const backendDetails = error?.error?.error?.details;
+
+    if (typeof backendMessage === 'string' && backendMessage.trim()) {
+      return backendMessage;
+    }
+
+    if (typeof backendDetails === 'string' && backendDetails.trim()) {
+      return backendDetails;
+    }
+
+    if (error.status === 409) {
+      return 'This email is already registered.';
+    }
+
+    if (!error.status) {
+      return 'Network error. Please check your connection.';
+    }
+
+    return 'Registration failed. Please try again.';
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {
