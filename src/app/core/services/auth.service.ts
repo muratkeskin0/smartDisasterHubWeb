@@ -16,6 +16,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:8082';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  private logoutTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private http: HttpClient) {
     this.initAuth();
@@ -29,12 +30,18 @@ export class AuthService {
     const storedUser = localStorage.getItem(STORAGE_KEYS.USER_DATA);
 
     if (storedToken && storedUser) {
+      if (this.isTokenExpired(storedToken)) {
+        this.clearAuthData();
+        return;
+      }
+
       try {
         const user = JSON.parse(storedUser) as User;
         this.currentUserSubject.next(user);
+        this.scheduleAutoLogout(storedToken);
       } catch (e) {
         console.error('User parse error:', e);
-        this.logout();
+        this.clearAuthData();
       }
     }
   }
@@ -50,7 +57,8 @@ export class AuthService {
    * Check if user is authenticated
    */
   get isAuthenticated(): boolean {
-    return !!localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) && !!this.currentUserSubject.value;
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    return !!token && !this.isTokenExpired(token) && !!this.currentUserSubject.value;
   }
 
   /**
@@ -80,6 +88,7 @@ export class AuthService {
             localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.data.token);
             localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.data.user));
             this.currentUserSubject.next(response.data.user);
+            this.scheduleAutoLogout(response.data.token);
           }
         })
       );
@@ -96,6 +105,7 @@ export class AuthService {
             localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.data.token);
             localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.data.user));
             this.currentUserSubject.next(response.data.user);
+            this.scheduleAutoLogout(response.data.token);
           }
         })
       );
@@ -104,23 +114,22 @@ export class AuthService {
   /**
    * User logout
    */
-  logout(): void {
-    // Clear local storage first
-    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
-    this.currentUserSubject.next(null);
-    
-    // Call logout API (fire and forget - don't wait for response)
-    this.http.post<ApiResponse<any>>(`${this.apiUrl}${API_ENDPOINTS.AUTH.LOGOUT}`, {})
-      .subscribe({
-        next: () => {
-          // Logout successful on server
-        },
-        error: (err) => {
-          // Ignore errors - logout is primarily client-side for JWT
-          console.debug('Logout API call error (ignored):', err);
-        }
-      });
+  logout(callLogoutApi = true): void {
+    this.clearAuthData();
+
+    if (!callLogoutApi) {
+      return;
+    }
+
+    this.http.post<ApiResponse<any>>(`${this.apiUrl}${API_ENDPOINTS.AUTH.LOGOUT}`, {}).subscribe({
+      next: () => {
+        // Logout successful on server
+      },
+      error: (err) => {
+        // Ignore errors - logout is primarily client-side for JWT
+        console.debug('Logout API call error (ignored):', err);
+      }
+    });
   }
 
   /**
@@ -128,6 +137,70 @@ export class AuthService {
    */
   verifyToken(): Observable<ApiResponse<{ valid: boolean }>> {
     return this.http.get<ApiResponse<{ valid: boolean }>>(`${this.apiUrl}${API_ENDPOINTS.AUTH.VERIFY}`);
+  }
+
+  private clearAuthData(): void {
+    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+    this.currentUserSubject.next(null);
+    this.clearLogoutTimer();
+  }
+
+  private clearLogoutTimer(): void {
+    if (this.logoutTimer) {
+      clearTimeout(this.logoutTimer);
+      this.logoutTimer = null;
+    }
+  }
+
+  private scheduleAutoLogout(token: string): void {
+    this.clearLogoutTimer();
+    const expiration = this.getTokenExpirationTime(token);
+
+    if (!expiration) {
+      return;
+    }
+
+    const delay = expiration - Date.now();
+    if (delay <= 0) {
+      this.logout(false);
+      return;
+    }
+
+    this.logoutTimer = setTimeout(() => {
+      this.logout(false);
+    }, delay);
+  }
+
+  private getTokenExpirationTime(token: string): number | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) {
+        return null;
+      }
+
+      const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const paddedPayload = normalizedPayload.padEnd(Math.ceil(normalizedPayload.length / 4) * 4, '=');
+      const decodedPayload = atob(paddedPayload);
+      const parsedPayload = JSON.parse(decodedPayload) as { exp?: number };
+
+      if (!parsedPayload.exp) {
+        return null;
+      }
+
+      return parsedPayload.exp * 1000;
+    } catch {
+      return null;
+    }
+  }
+
+  private isTokenExpired(token: string): boolean {
+    const expiration = this.getTokenExpirationTime(token);
+    if (!expiration) {
+      return false;
+    }
+
+    return expiration <= Date.now();
   }
 }
 
