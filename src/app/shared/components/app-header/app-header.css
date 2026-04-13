@@ -1,5 +1,5 @@
 .app-header {
-  background: var(--color-background);
+  background: var(--color-surface-elevated);
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
@@ -8,7 +8,7 @@
 }
 
 .header-content {
-  max-width: 1600px;
+  max-width: var(--layout-max-width-wide);
   margin: 0 auto;
   padding: var(--spacing-md) var(--spacing-lg);
   display: flex;
@@ -27,6 +27,7 @@
 }
 
 .app-title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary);

@@ -11,8 +11,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 70% at 15% 5%, rgb(255 255 255 / 0.12), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 85% 95%, rgb(15 118 110 / 0.35), transparent 50%),
+    linear-gradient(155deg, #0f766e 0%, #0d9488 42%, #115e59 100%);
 }
 
 .hero-lang-bar {
@@ -59,11 +62,12 @@
 }
 
 .hero-title {
+  font-family: var(--font-family-display);
   font-size: clamp(2.5rem, 5vw, 4.5rem);
   font-weight: var(--font-weight-bold);
-  margin-bottom: 24px;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-  line-height: 1.2;
+  margin-bottom: var(--spacing-lg);
+  text-shadow: 0 2px 24px rgb(0 0 0 / 0.25);
+  line-height: 1.15;
 }
 
 .hero-subtitle {
@@ -86,12 +90,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 14px 32px;
+  padding: var(--spacing-sm) var(--spacing-xl);
   border-radius: var(--radius-md);
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-base);
+  font-family: var(--font-family);
   text-decoration: none;
-  transition: all var(--transition-fast);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
   cursor: pointer;
   border: 2px solid transparent;
 }
@@ -152,11 +157,12 @@
 }
 
 .section-title {
+  font-family: var(--font-family-display);
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: var(--spacing-2xl);
 }
 
 .features-grid {
@@ -231,9 +237,11 @@
 
 /* CTA Section */
 .cta-section {
-  padding: 80px 0;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: white;
+  padding: var(--spacing-2xl) 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgb(255 255 255 / 0.08), transparent 50%),
+    linear-gradient(155deg, #0f766e 0%, #0d9488 50%, #115e59 100%);
+  color: var(--color-text-inverse);
   text-align: center;
 }
 

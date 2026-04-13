@@ -228,7 +228,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
         width: ${size}px;
         height: ${size}px;
         border-radius: 50%;
-        background: var(--color-primary, #667eea);
+        background: #0d9488;
         color: white;
         display: flex;
         align-items: center;
@@ -264,8 +264,8 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     popupContent += `<small>${markerData.lat.toFixed(4)}, ${markerData.lng.toFixed(4)}</small><br><br>`;
     
     markerData.posts.slice(0, 3).forEach((post, index) => {
-      popupContent += `<div style="margin: 8px 0; padding: 8px; border-left: 3px solid #667eea; background: #f9fafb;">`;
-      popupContent += `<a href="${post.url}" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 500;">${post.title}</a>`;
+      popupContent += `<div style="margin: 8px 0; padding: 8px; border-left: 3px solid #0d9488; background: #f8fafc;">`;
+      popupContent += `<a href="${post.url}" target="_blank" style="color: #0f766e; text-decoration: none; font-weight: 500;">${post.title}</a>`;
       popupContent += `</div>`;
     });
     

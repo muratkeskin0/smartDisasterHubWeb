@@ -13,7 +13,7 @@
 
 .base-button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  box-shadow: var(--focus-ring);
 }
 
 /* Variants */
@@ -24,7 +24,7 @@
 
 .variant-primary:hover:not(.is-disabled):not(.is-loading) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: var(--shadow-primary-glow);
 }
 
 .variant-secondary {
@@ -63,7 +63,7 @@
 }
 
 .variant-outline:hover:not(.is-disabled):not(.is-loading) {
-  background: rgba(102, 126, 234, 0.1);
+  background: var(--color-primary-alpha-12);
 }
 
 /* Sizes */
