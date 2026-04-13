@@ -19,7 +19,10 @@ export class AppHeaderComponent {
   
   currentUser$ = this.authService.currentUser$;
   isAuthenticated = computed(() => this.authService.isAuthenticated);
+  isAdmin = computed(() => this.authService.isAdmin);
   userFullName = computed(() => this.authService.userFullName);
+
+  homeLink = computed(() => this.authService.defaultHomeRoute);
 
   get userInitials(): string {
     const user = this.authService.currentUserValue;

@@ -1,15 +1,17 @@
 <header class="app-header">
   <div class="header-content">
     <div class="header-left">
-      <a routerLink="/dashboard" class="app-title-link">
+      <a [routerLink]="homeLink()" class="app-title-link">
         <h1 class="app-title">{{ 'app.title' | transloco }}</h1>
       </a>
       @if (isAuthenticated()) {
         <nav class="header-nav">
-          <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'nav.dashboard' | transloco }}</a>
-          <a routerLink="/text-analysis" routerLinkActive="active">{{ 'nav.textAnalysis' | transloco }}</a>
-          <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | transloco }}</a>
-          <a routerLink="/authors" routerLinkActive="active">{{ 'nav.authors' | transloco }}</a>
+          @if (isAdmin()) {
+            <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'nav.dashboard' | transloco }}</a>
+            <a routerLink="/text-analysis" routerLinkActive="active">{{ 'nav.textAnalysis' | transloco }}</a>
+            <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | transloco }}</a>
+            <a routerLink="/authors" routerLinkActive="active">{{ 'nav.authors' | transloco }}</a>
+          }
           <a routerLink="/about" routerLinkActive="active">{{ 'nav.about' | transloco }}</a>
         </nav>
       }
@@ -19,12 +21,21 @@
       @if (isAuthenticated()) {
         <app-language-switcher class="header-lang" />
         <div class="user-section">
-          <a routerLink="/profile" class="user-info">
-            <div class="user-avatar">
-              {{ userInitials }}
+          @if (isAdmin()) {
+            <a routerLink="/profile" class="user-info">
+              <div class="user-avatar">
+                {{ userInitials }}
+              </div>
+              <span class="user-name">{{ userFullName() }}</span>
+            </a>
+          } @else {
+            <div class="user-info user-info--readonly">
+              <div class="user-avatar">
+                {{ userInitials }}
+              </div>
+              <span class="user-name">{{ userFullName() }}</span>
             </div>
-            <span class="user-name">{{ userFullName() }}</span>
-          </a>
+          }
           
           <app-base-button
             variant="danger"

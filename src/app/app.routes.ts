@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
@@ -35,25 +36,25 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/dashboard/dashboard').then(m => m.DashboardComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     title: 'Dashboard - Smart Disaster Hub'
   },
   {
     path: 'profile',
     loadComponent: () => import('./features/profile/profile/profile').then(m => m.ProfileComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     title: 'Profile - Smart Disaster Hub'
   },
   {
     path: 'text-analysis',
     loadComponent: () => import('./features/text-analysis/text-analysis/text-analysis').then(m => m.TextAnalysisComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     title: 'Text Analysis - Smart Disaster Hub'
   },
   {
     path: 'map',
     loadComponent: () => import('./features/map/map/map').then(m => m.MapComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     title: 'Disaster Map - Smart Disaster Hub'
   },
   {
@@ -64,7 +65,7 @@ export const routes: Routes = [
   {
     path: 'authors',
     loadComponent: () => import('./features/authors/authors/authors').then(m => m.AuthorsComponent),
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard],
     title: 'Authors - Smart Disaster Hub'
   },
   {

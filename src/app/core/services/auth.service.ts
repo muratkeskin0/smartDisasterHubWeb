@@ -68,6 +68,11 @@ export class AuthService {
     return this.currentUserSubject.value?.role?.name === 'ADMIN';
   }
 
+  /** Default home after login: admins go to dashboard, BASIC users to About only. */
+  get defaultHomeRoute(): string {
+    return this.isAdmin ? '/dashboard' : '/about';
+  }
+
   /**
    * Get user full name
    */

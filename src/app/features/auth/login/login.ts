@@ -83,8 +83,17 @@ export class LoginComponent {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-          this.router.navigate([returnUrl]);
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+          if (this.authService.isAdmin) {
+            const target = returnUrl && returnUrl !== '/' ? returnUrl : this.authService.defaultHomeRoute;
+            this.router.navigateByUrl(target);
+          } else {
+            if (returnUrl && returnUrl.startsWith('/about')) {
+              this.router.navigateByUrl(returnUrl);
+            } else {
+              this.router.navigate([this.authService.defaultHomeRoute]);
+            }
+          }
         },
         error: (err: HttpErrorResponse) => {
           console.error('Login error:', err);
