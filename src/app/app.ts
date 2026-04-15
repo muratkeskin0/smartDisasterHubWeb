@@ -19,6 +19,7 @@ export class App implements OnInit {
     }
     if (typeof document !== 'undefined') {
       document.documentElement.lang = this.transloco.getActiveLang();
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
     this.transloco.langChanges$.subscribe(lang => {
       if (typeof document !== 'undefined') {

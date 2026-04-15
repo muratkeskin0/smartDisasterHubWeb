@@ -209,13 +209,13 @@
 
 .ra-btn--primary {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-on-accent);
   border-color: var(--color-primary);
 }
 
 .ra-btn--primary:hover:not(:disabled) {
   filter: brightness(1.05);
-  color: white;
+  color: var(--color-text-on-accent);
 }
 
 .ra-loading {

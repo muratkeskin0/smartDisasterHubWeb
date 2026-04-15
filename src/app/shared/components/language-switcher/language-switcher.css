@@ -25,10 +25,10 @@
 
 .lang-switch__btn--active {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-text-on-accent, #0f172a);
 }
 
 .lang-switch__btn--active:hover {
-  background: var(--color-primary-dark, #1d4ed8);
-  color: #fff;
+  background: var(--color-primary-dark);
+  color: var(--color-text-on-accent, #0f172a);
 }

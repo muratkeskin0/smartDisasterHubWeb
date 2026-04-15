@@ -110,12 +110,6 @@ export class PostAnalysisDetailComponent implements OnInit {
     );
   }
 
-  openStreetMapUrl(post: RedditPost): string {
-    const lat = Number(post.latitude);
-    const lon = Number(post.longitude);
-    return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=12/${lat}/${lon}`;
-  }
-
   isDisplayableImageUrl(url: string | null | undefined): boolean {
     if (!url) return false;
     const u = url.toLowerCase();

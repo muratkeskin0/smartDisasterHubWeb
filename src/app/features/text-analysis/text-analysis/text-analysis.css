@@ -85,7 +85,7 @@
 }
 
 .stat-card {
-  background: var(--color-background);
+  background: var(--color-surface-card);
   padding: 20px 16px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -152,7 +152,7 @@
 
 .filter-btn.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-on-accent);
   border-color: var(--color-primary);
 }
 
@@ -204,7 +204,7 @@
 }
 
 .post-card {
-  background: var(--color-background);
+  background: var(--color-surface-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 22px 24px;
@@ -402,7 +402,7 @@
   padding: 8px 18px;
   border-radius: var(--radius-md);
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-on-accent);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   text-decoration: none;
@@ -474,7 +474,7 @@
 
 .sort-btn.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-on-accent);
   border-color: var(--color-primary);
 }
 
@@ -507,7 +507,7 @@
 .page-btn:hover:not(:disabled) {
   border-color: var(--color-primary);
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-on-accent);
 }
 
 .page-btn:disabled {
@@ -548,7 +548,7 @@
 
 .page-number-btn.active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-on-accent);
   border-color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
 }

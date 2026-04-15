@@ -13,9 +13,9 @@
   justify-content: center;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 90% 70% at 15% 5%, rgb(255 255 255 / 0.12), transparent 55%),
-    radial-gradient(ellipse 80% 60% at 85% 95%, rgb(15 118 110 / 0.35), transparent 50%),
-    linear-gradient(155deg, #0f766e 0%, #0d9488 42%, #115e59 100%);
+    radial-gradient(ellipse 90% 70% at 15% 5%, rgb(245 158 11 / 0.09), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 85% 95%, rgb(30 41 59 / 0.85), transparent 50%),
+    linear-gradient(155deg, #0f172a 0%, #1e293b 42%, #0f172a 100%);
 }
 
 .hero-lang-bar {
@@ -102,15 +102,16 @@
 }
 
 .btn-primary {
-  background: white;
-  color: var(--color-primary);
-  border-color: white;
+  background: var(--color-primary);
+  color: var(--color-text-on-accent);
+  border-color: var(--color-primary);
 }
 
 .btn-primary:hover {
-  background: var(--color-background-secondary);
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-primary-glow);
 }
 
 .btn-secondary {
@@ -195,7 +196,7 @@
   justify-content: center;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border-radius: var(--radius-lg);
-  color: white;
+  color: var(--color-text-on-accent);
 }
 
 .feature-item h3 {
@@ -239,9 +240,9 @@
 .cta-section {
   padding: var(--spacing-2xl) 0;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgb(255 255 255 / 0.08), transparent 50%),
-    linear-gradient(155deg, #0f766e 0%, #0d9488 50%, #115e59 100%);
-  color: var(--color-text-inverse);
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgb(245 158 11 / 0.08), transparent 50%),
+    linear-gradient(155deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  color: var(--color-text-primary);
   text-align: center;
 }
 

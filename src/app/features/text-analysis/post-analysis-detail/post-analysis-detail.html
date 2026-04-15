@@ -39,11 +39,7 @@
         <span class="post-location__value">{{ post.locationText }}</span>
       </div>
       <div class="post-location__coords" *ngIf="hasCoordinates(post)">
-        <a
-          [href]="openStreetMapUrl(post)"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="post-location__map-link">
+        <a [routerLink]="['/map']" [queryParams]="{ postId: post.id }" class="post-location__map-link">
           {{ post.latitude | number:'1.4-4' }}, {{ post.longitude | number:'1.4-4' }}
           <span class="post-location__map-hint">{{ 'textAnalysis.mapHint' | transloco }}</span>
         </a>

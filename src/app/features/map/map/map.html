@@ -33,7 +33,11 @@
         </button>
       </div>
       <div class="post-side-panel__list">
-        <article class="map-post-card" *ngFor="let post of cluster.posts">
+        <article
+          class="map-post-card"
+          [class.map-post-card--focused]="focusedPostId === post.id"
+          [attr.id]="'map-post-' + post.id"
+          *ngFor="let post of cluster.posts">
           <h3 class="map-post-card__title">{{ post.title }}</h3>
           <p class="map-post-card__loc" *ngIf="post.locationText">
             <span class="map-post-card__loc-label">{{ 'map.location' | transloco }}</span>

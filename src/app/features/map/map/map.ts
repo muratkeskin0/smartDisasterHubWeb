@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
@@ -23,6 +24,9 @@ interface MapMarker {
   }>;
 }
 
+/** Zoom when focusing a post from deep link (e.g. text-analysis detail). */
+const FOCUS_ZOOM = 14;
+
 @Component({
   selector: 'app-map',
   standalone: true,
@@ -32,6 +36,9 @@ interface MapMarker {
   styleUrl: './map.css'
 })
 export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
+  private route = inject(ActivatedRoute);
+  private queryParamSub: Subscription | null = null;
+
   mapOptions: any = {
     /** Turkey-centered view (approx. country mid), country-wide visibility */
     center: [39.0, 35.0] as [number, number],
@@ -51,10 +58,20 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   error: string | null = null;
   /** Marker cluster selected by click — show posts in side panel */
   selectedMarker: MapMarker | null = null;
+  /** Post id from `?postId=` — scroll/highlight in side panel */
+  focusedPostId: number | null = null;
+  /** Parsed postId from query; applied once map + markers are ready */
+  private pendingFocusPostId: number | null = null;
 
   constructor(private textAnalysisService: TextAnalysisService) {}
 
   ngOnInit(): void {
+    this.queryParamSub = this.route.queryParamMap.subscribe((params) => {
+      const raw = params.get('postId');
+      const n = raw != null && raw !== '' ? Number(raw) : NaN;
+      this.pendingFocusPostId = Number.isFinite(n) ? n : null;
+      this.tryApplyPendingFocus();
+    });
     this.loadMapMarkers();
   }
 
@@ -88,6 +105,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
             }));
           this.applyZoomFilter();
           this.scheduleMapResize();
+          this.tryApplyPendingFocus();
         }
         this.loading = false;
         this.scheduleMapResize();
@@ -99,8 +117,55 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
         // Fallback to empty array
         this.allMarkersData = [];
         this.visibleMarkers = [];
+        this.tryApplyPendingFocus();
       }
     });
+  }
+
+  /**
+   * Open the cluster that contains the post in `?postId=` and pan the map there (from post detail etc.).
+   */
+  private tryApplyPendingFocus(): void {
+    const id = this.pendingFocusPostId;
+    if (id == null || !Number.isFinite(id)) {
+      return;
+    }
+    if (!this.map || !this.mapInitialized) {
+      return;
+    }
+
+    if (!this.allMarkersData.length) {
+      if (!this.loading) {
+        this.pendingFocusPostId = null;
+      }
+      return;
+    }
+
+    let found: MapMarker | null = null;
+    for (const m of this.allMarkersData) {
+      if (m.posts.some((p) => p.id === id)) {
+        found = m;
+        break;
+      }
+    }
+
+    if (!found) {
+      this.pendingFocusPostId = null;
+      return;
+    }
+
+    this.pendingFocusPostId = null;
+    this.selectedMarker = found;
+    this.focusedPostId = id;
+    this.map.setView([found.lat, found.lng], FOCUS_ZOOM, { animate: true });
+    this.scheduleMapResize();
+
+    setTimeout(() => {
+      document.getElementById(`map-post-${id}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
+      });
+    }, 150);
   }
 
   ngAfterViewInit(): void {
@@ -111,6 +176,8 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    this.queryParamSub?.unsubscribe();
+    this.queryParamSub = null;
     if (this.map) {
       this.map.remove();
       this.map = null;
@@ -155,6 +222,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updateMapMarkers();
       this.mapInitialized = true;
       this.scheduleMapResize();
+      this.tryApplyPendingFocus();
     } catch (error) {
       console.error('Error initializing map:', error);
     }
@@ -228,7 +296,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
         width: ${size}px;
         height: ${size}px;
         border-radius: 50%;
-        background: #0d9488;
+        background: #f59e0b;
         color: white;
         display: flex;
         align-items: center;
@@ -264,8 +332,8 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     popupContent += `<small>${markerData.lat.toFixed(4)}, ${markerData.lng.toFixed(4)}</small><br><br>`;
     
     markerData.posts.slice(0, 3).forEach((post, index) => {
-      popupContent += `<div style="margin: 8px 0; padding: 8px; border-left: 3px solid #0d9488; background: #f8fafc;">`;
-      popupContent += `<a href="${post.url}" target="_blank" style="color: #0f766e; text-decoration: none; font-weight: 500;">${post.title}</a>`;
+      popupContent += `<div style="margin: 8px 0; padding: 8px; border-left: 3px solid #f59e0b; background: #1e293b;">`;
+      popupContent += `<a href="${post.url}" target="_blank" style="color: #fbbf24; text-decoration: none; font-weight: 500;">${post.title}</a>`;
       popupContent += `</div>`;
     });
     
@@ -331,6 +399,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       marker.closePopup();
       this.selectedMarker = markerData;
+      this.focusedPostId = null;
       this.scheduleMapResize();
     });
 
@@ -346,6 +415,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
 
   closePostPanel(): void {
     this.selectedMarker = null;
+    this.focusedPostId = null;
     this.scheduleMapResize();
   }
 
