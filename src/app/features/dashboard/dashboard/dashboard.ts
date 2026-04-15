@@ -61,7 +61,7 @@ export class DashboardComponent implements OnInit {
     this.locationsLoading = true;
     this.locationsError = false;
     // All analyzed posts (not only disaster-related) so rows with location in DB show up
-    this.textAnalysisService.getAnalyzedPosts(0, 60, 'analyzedAt', 'DESC').subscribe({
+    this.textAnalysisService.getAnalyzedPosts(0, 60, 'redditCreatedAt', 'DESC').subscribe({
       next: (response) => {
         this.locationsLoading = false;
         this.locationsLoaded = true;

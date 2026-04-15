@@ -46,6 +46,13 @@ export const routes: Routes = [
     title: 'Profile - Smart Disaster Hub'
   },
   {
+    path: 'text-analysis/post/:redditPostId',
+    loadComponent: () =>
+      import('./features/text-analysis/post-analysis-detail/post-analysis-detail').then(m => m.PostAnalysisDetailComponent),
+    canActivate: [authGuard, adminGuard],
+    title: 'Post analysis - Smart Disaster Hub'
+  },
+  {
     path: 'text-analysis',
     loadComponent: () => import('./features/text-analysis/text-analysis/text-analysis').then(m => m.TextAnalysisComponent),
     canActivate: [authGuard, adminGuard],

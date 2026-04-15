@@ -105,6 +105,9 @@ export interface RedditPost {
   isImageTextMatch?: boolean | null;
   imageTextMatchScore?: number | null;
   imageCaption?: string | null;
+  hasImageDamage?: boolean | null;
+  imageDamageSeverity?: 'none' | 'minor' | 'moderate' | 'severe' | 'unknown' | string | null;
+  imageDamageScore?: number | null;
   imageAnalyzedAt?: string | null;
   analyzedAt?: string | null;
   status: RedditPostStatus;

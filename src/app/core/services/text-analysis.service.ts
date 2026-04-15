@@ -40,7 +40,7 @@ export class TextAnalysisService {
   getAnalyzedPosts(
     page: number = 0,
     size: number = 50,
-    sortBy: string = 'analyzedAt',
+    sortBy: string = 'redditCreatedAt',
     sortDirection: 'ASC' | 'DESC' = 'DESC'
   ): Observable<ApiResponse<PageResponse<RedditPost>>> {
     const params = new HttpParams()
@@ -60,7 +60,7 @@ export class TextAnalysisService {
   getDisasterRelatedPosts(
     page: number = 0,
     size: number = 50,
-    sortBy: string = 'analyzedAt',
+    sortBy: string = 'redditCreatedAt',
     sortDirection: 'ASC' | 'DESC' = 'DESC'
   ): Observable<ApiResponse<PageResponse<RedditPost>>> {
     const params = new HttpParams()

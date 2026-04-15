@@ -7,6 +7,10 @@
     </div>
     <h1>{{ 'textAnalysis.title' | transloco }}</h1>
     <p class="subtitle">{{ 'textAnalysis.subtitle' | transloco }}</p>
+    <details class="header-hint">
+      <summary class="header-hint__summary">{{ 'textAnalysis.hintToggle' | transloco }}</summary>
+      <p class="header-hint__body">{{ 'textAnalysis.listUXHint' | transloco }}</p>
+    </details>
   </div>
 
   <div class="statistics-section" *ngIf="statistics">
@@ -32,13 +36,15 @@
     </div>
   </div>
 
-  <div class="controls-section">
-    <button class="filter-btn" [class.active]="filterDisasterOnly" (click)="toggleFilter()">
-      {{ filterDisasterOnly ? ('textAnalysis.filterAll' | transloco) : ('textAnalysis.filterDisaster' | transloco) }}
-    </button>
-    <button class="refresh-btn" (click)="loadData(true)" [disabled]="loading">
-      {{ 'common.refresh' | transloco }}
-    </button>
+  <div class="toolbar-row">
+    <div class="controls-section">
+      <button class="filter-btn" [class.active]="filterDisasterOnly" (click)="toggleFilter()">
+        {{ filterDisasterOnly ? ('textAnalysis.filterAll' | transloco) : ('textAnalysis.filterDisaster' | transloco) }}
+      </button>
+      <button class="refresh-btn" (click)="loadData(true)" [disabled]="loading">
+        {{ 'common.refresh' | transloco }}
+      </button>
+    </div>
   </div>
 
   <div class="loading-container" *ngIf="loading">
@@ -53,9 +59,9 @@
   <div class="sort-pagination-controls" *ngIf="!loading && !error && posts.length > 0">
     <div class="sort-controls">
       <span class="sort-label">{{ 'textAnalysis.sortByLabel' | transloco }}</span>
-      <button class="sort-btn" [class.active]="sortBy === 'analyzedAt'" (click)="changeSort('analyzedAt')">
-        {{ 'textAnalysis.sortAnalyzedDate' | transloco }}
-        <span *ngIf="sortBy === 'analyzedAt'">{{ sortDirection === 'ASC' ? '↑' : '↓' }}</span>
+      <button class="sort-btn" [class.active]="sortBy === 'redditCreatedAt'" (click)="changeSort('redditCreatedAt')">
+        {{ 'textAnalysis.sortPostedDate' | transloco }}
+        <span *ngIf="sortBy === 'redditCreatedAt'">{{ sortDirection === 'ASC' ? '↑' : '↓' }}</span>
       </button>
       <button class="sort-btn" [class.active]="sortBy === 'relevanceScore'" (click)="changeSort('relevanceScore')">
         {{ 'textAnalysis.sortRelevance' | transloco }}
@@ -80,127 +86,51 @@
     </div>
 
     <div class="posts-list">
-      <div class="post-card" *ngFor="let post of posts">
-        <div class="post-header">
-          <div class="post-title-section">
-            <h3 class="post-title" (click)="openRedditPost(post.url)">
-              {{ post.title }}
-            </h3>
-            <div class="post-meta">
-              <span class="meta-item">r/{{ post.subreddit }}</span>
-              <span class="meta-item" *ngIf="post.author">{{
-                'textAnalysis.metaBy' | transloco: { author: post.author }
-              }}</span>
-              <span class="meta-item">{{ formatDate(post.analyzedAt) }}</span>
+      <div class="post-card post-card--compact" *ngFor="let post of posts">
+        <div class="post-card__layout">
+          <div class="post-card__col post-card__col--main">
+            <div class="post-card__top">
+              <div class="post-title-section">
+                <h3 class="post-title">
+                  <a [routerLink]="['/text-analysis/post', post.redditPostId]" class="post-title-link">{{ post.title }}</a>
+                </h3>
+                <div class="post-meta">
+                  <span class="meta-item">r/{{ post.subreddit }}</span>
+                  <span class="meta-item" *ngIf="post.author">{{
+                    'textAnalysis.metaBy' | transloco: { author: post.author }
+                  }}</span>
+                  <span class="meta-item">{{ formatDate(post.redditCreatedAt) }}</span>
+                </div>
+              </div>
+              <span class="status-badge" [ngClass]="getStatusClass(post.status)">{{ post.status }}</span>
+            </div>
+
+            <div class="post-card__actions">
+              <a [routerLink]="['/text-analysis/post', post.redditPostId]" class="list-detail-btn">{{
+                'textAnalysis.openFullAnalysis' | transloco
+              }}</a>
+              <a [href]="post.url" target="_blank" rel="noopener noreferrer" class="list-external-link">{{
+                'common.viewOnReddit' | transloco
+              }}</a>
             </div>
           </div>
-          <div class="post-status">
-            <span class="status-badge" [ngClass]="getStatusClass(post.status)">
-              {{ post.status }}
-            </span>
-          </div>
-        </div>
 
-        <div class="post-content" *ngIf="post.content">
-          <p>{{ post.content.length > 300 ? (post.content.substring(0, 300) + '...') : post.content }}</p>
-        </div>
-
-        <div class="post-location" *ngIf="post.locationText || hasCoordinates(post)">
-          <div class="post-location__main" *ngIf="post.locationText">
-            <span class="post-location__label">{{ 'textAnalysis.location' | transloco }}</span>
-            <span class="post-location__value">{{ post.locationText }}</span>
-          </div>
-          <div class="post-location__coords" *ngIf="hasCoordinates(post)">
-            <a
-              [href]="openStreetMapUrl(post)"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="post-location__map-link">
-              {{ post.latitude | number:'1.4-4' }}, {{ post.longitude | number:'1.4-4' }}
-              <span class="post-location__map-hint">{{ 'textAnalysis.mapHint' | transloco }}</span>
-            </a>
-          </div>
-        </div>
-
-        <div class="post-media" *ngIf="post.mediaUrl && isDisplayableImageUrl(post.mediaUrl) && !isImageFailed(post.id)">
-          <img
-            class="post-image"
-            [src]="post.mediaUrl"
-            [alt]="post.imageCaption || post.title"
-            loading="lazy"
-            (click)="openLightbox(post)"
-            (error)="markImageFailed(post.id)"
-          />
-          <div
-            class="media-meta match"
-            *ngIf="getImageMatchStatus(post) as ms"
-            [ngClass]="ms.css"
-            [title]="ms.hint || ''">
-            {{ ms.label }}
-          </div>
-          <div class="media-meta" *ngIf="post.mediaUrls && post.mediaUrls.length > 1">
-            {{ 'textAnalysis.moreImages' | transloco: { n: post.mediaUrls.length - 1 } }}
-          </div>
-          <div
-            class="media-meta duplicate"
-            *ngIf="post.duplicateOfPostId !== null && post.duplicateOfPostId !== undefined && post.duplicateOfPostId !== post.id">
-            {{ 'textAnalysis.duplicateOf' | transloco: { id: post.duplicateOfPostId } }}
-          </div>
-        </div>
-
-        <div class="post-analysis">
-          <div class="analysis-result" *ngIf="post.isDisasterRelated !== null">
-            <span class="analysis-label">{{ 'textAnalysis.labelDisasterRelated' | transloco }}</span>
-            <span class="analysis-value" [class.disaster-yes]="post.isDisasterRelated" [class.disaster-no]="!post.isDisasterRelated">
-              {{ post.isDisasterRelated ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
-            </span>
-          </div>
-          <div class="analysis-result" *ngIf="post.relevanceScore !== null && post.relevanceScore !== undefined">
-            <span class="analysis-label">{{ 'textAnalysis.labelRelevance' | transloco }}</span>
-            <span class="analysis-value" [ngClass]="getRelevanceClass(post.relevanceScore!)">
-              {{ (post.relevanceScore! * 100).toFixed(1) }}%
-            </span>
-          </div>
-          <div class="analysis-result" *ngIf="post.isHelpRequest !== null && post.isHelpRequest !== undefined">
-            <span class="analysis-label">{{ 'textAnalysis.labelHelpT2' | transloco }}</span>
-            <span class="analysis-value" [class.disaster-yes]="post.isHelpRequest" [class.disaster-no]="!post.isHelpRequest">
-              {{ post.isHelpRequest ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
-            </span>
-          </div>
-          <div class="analysis-result" *ngIf="post.helpRequestProbability !== null && post.helpRequestProbability !== undefined">
-            <span class="analysis-label">{{ 'textAnalysis.labelHelpProb' | transloco }}</span>
-            <span class="analysis-value">
-              {{ (post.helpRequestProbability! * 100).toFixed(1) }}%
-            </span>
-          </div>
-          <div class="analysis-result" *ngIf="post.humanitarianCategories">
-            <span class="analysis-label">{{ 'textAnalysis.labelHumanitarian' | transloco }}</span>
-            <div class="analysis-chips">
-              <span class="chip" *ngFor="let cat of getHumanitarianCategories(post)">
-                {{ cat }}
-              </span>
+          <aside class="post-card__col post-card__col--score" *ngIf="post.relevanceScore !== null && post.relevanceScore !== undefined">
+            <div class="list-trust-label">{{ 'textAnalysis.listTrustLabel' | transloco }}</div>
+            <div class="list-trust-value" [ngClass]="getRelevanceClass(post.relevanceScore)">
+              {{ formatPercent01(post.relevanceScore) }}%
             </div>
-          </div>
-          <div class="analysis-result" *ngIf="post.isImageTextMatch !== null && post.isImageTextMatch !== undefined">
-            <span class="analysis-label">{{ 'textAnalysis.labelImageText' | transloco }}</span>
-            <span class="analysis-value" [class.disaster-yes]="post.isImageTextMatch" [class.disaster-no]="!post.isImageTextMatch">
-              {{ post.isImageTextMatch ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
-            </span>
-          </div>
-          <div class="analysis-result" *ngIf="post.imageTextMatchScore !== null && post.imageTextMatchScore !== undefined">
-            <span class="analysis-label">{{ 'textAnalysis.labelMatchScore' | transloco }}</span>
-            <span class="analysis-value">
-              {{ (post.imageTextMatchScore! * 100).toFixed(1) }}%
-            </span>
-          </div>
-          <div class="post-stats">
-            <span class="stat-item">{{ post.upvotes || 0 }} {{ 'textAnalysis.upvotes' | transloco }}</span>
-            <span class="stat-item">{{ post.commentCount || 0 }} {{ 'textAnalysis.comments' | transloco }}</span>
-          </div>
-        </div>
+            <div class="list-trust-track">
+              <div
+                class="list-trust-fill"
+                [ngClass]="getRelevanceClass(post.relevanceScore)"
+                [style.width.%]="post.relevanceScore * 100"></div>
+            </div>
+          </aside>
 
-        <div class="post-footer">
-          <a [href]="post.url" target="_blank" class="view-reddit-link">{{ 'common.viewOnReddit' | transloco }}</a>
+          <aside class="post-card__col post-card__col--score post-card__col--score-muted" *ngIf="post.relevanceScore === null || post.relevanceScore === undefined">
+            <span class="list-trust-block--muted">{{ 'textAnalysis.listNoScore' | transloco }}</span>
+          </aside>
         </div>
       </div>
     </div>
@@ -238,49 +168,6 @@
       <span class="page-info">
         {{ 'textAnalysis.pageInfo' | transloco: { current: currentPage + 1, total: totalPages } }}
       </span>
-    </div>
-  </div>
-</div>
-
-<div class="lightbox-backdrop" *ngIf="lightboxOpen" (click)="onLightboxBackdropClick($event)">
-  <div class="lightbox">
-    <div class="lightbox-header">
-      <div class="lightbox-title">
-        {{ lightboxTitle || ('textAnalysis.lightboxMedia' | transloco) }}
-      </div>
-      <button
-        class="lightbox-close"
-        (click)="closeLightbox()"
-        [attr.aria-label]="'textAnalysis.ariaClose' | transloco">
-        ✕
-      </button>
-    </div>
-
-    <div class="lightbox-body">
-      <button
-        class="lightbox-nav prev"
-        *ngIf="lightboxUrls.length > 1"
-        (click)="prevImage()"
-        [attr.aria-label]="'textAnalysis.ariaPrevImg' | transloco">
-        ‹
-      </button>
-
-      <img
-        class="lightbox-image"
-        [src]="lightboxUrls[lightboxIndex]"
-        [alt]="lightboxTitle || ('textAnalysis.lightboxMedia' | transloco)" />
-
-      <button
-        class="lightbox-nav next"
-        *ngIf="lightboxUrls.length > 1"
-        (click)="nextImage()"
-        [attr.aria-label]="'textAnalysis.ariaNextImg' | transloco">
-        ›
-      </button>
-    </div>
-
-    <div class="lightbox-footer" *ngIf="lightboxUrls.length > 1">
-      {{ lightboxIndex + 1 }} / {{ lightboxUrls.length }}
     </div>
   </div>
 </div>

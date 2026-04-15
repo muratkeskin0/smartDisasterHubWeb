@@ -1,0 +1,114 @@
+<div class="post-analysis">
+  <div class="analysis-summary" *ngIf="post.isDisasterRelated !== null || post.relevanceScore !== null">
+    <span
+      class="summary-pill summary-pill--disaster"
+      *ngIf="post.isDisasterRelated !== null"
+      [class.summary-pill--yes]="post.isDisasterRelated"
+      [class.summary-pill--no]="!post.isDisasterRelated">
+      {{ post.isDisasterRelated ? ('textAnalysis.summaryDisasterYes' | transloco) : ('textAnalysis.summaryDisasterNo' | transloco) }}
+    </span>
+    <span class="summary-pill summary-pill--score" *ngIf="post.relevanceScore !== null && post.relevanceScore !== undefined">
+      {{ 'textAnalysis.summaryRelevance' | transloco }} · {{ formatPercent01(post.relevanceScore) }}%
+    </span>
+    <span class="summary-pill summary-pill--help" *ngIf="post.isHelpRequest === true">
+      {{ 'textAnalysis.summaryHelpBadge' | transloco }}
+    </span>
+  </div>
+
+  <div class="analysis-grid">
+    <section class="analysis-block" *ngIf="post.isDisasterRelated !== null || post.relevanceScore !== null">
+      <h4 class="analysis-block__title">{{ 'textAnalysis.sectionText' | transloco }}</h4>
+      <p class="analysis-block__hint">{{ 'textAnalysis.sectionTextHint' | transloco }}</p>
+      <div class="analysis-kv" *ngIf="post.isDisasterRelated !== null">
+        <span class="analysis-kv__label">{{ 'textAnalysis.labelDisasterRelated' | transloco }}</span>
+        <span class="analysis-kv__value" [class.disaster-yes]="post.isDisasterRelated" [class.disaster-no]="!post.isDisasterRelated">
+          {{ post.isDisasterRelated ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
+        </span>
+      </div>
+      <div class="relevance-meter" *ngIf="post.relevanceScore !== null && post.relevanceScore !== undefined">
+        <div class="relevance-meter__head">
+          <span class="relevance-meter__label">{{ 'textAnalysis.labelRelevance' | transloco }}</span>
+          <span class="relevance-meter__pct" [ngClass]="getRelevanceClass(post.relevanceScore!)">
+            {{ formatPercent01(post.relevanceScore) }}%
+          </span>
+        </div>
+        <div class="relevance-meter__track" role="presentation">
+          <div
+            class="relevance-meter__fill"
+            [ngClass]="getRelevanceClass(post.relevanceScore!)"
+            [style.width.%]="post.relevanceScore! * 100"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="analysis-block" *ngIf="hasHumanitarianSection(post)">
+      <h4 class="analysis-block__title">{{ 'textAnalysis.sectionHumanitarian' | transloco }}</h4>
+      <p class="analysis-block__hint">{{ 'textAnalysis.sectionHumanitarianHint' | transloco }}</p>
+      <div class="analysis-kv" *ngIf="post.isHelpRequest !== null && post.isHelpRequest !== undefined">
+        <span class="analysis-kv__label">{{ 'textAnalysis.labelHelpT2' | transloco }}</span>
+        <span class="analysis-kv__value" [class.disaster-yes]="post.isHelpRequest" [class.disaster-no]="!post.isHelpRequest">
+          {{ post.isHelpRequest ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
+        </span>
+      </div>
+      <div class="analysis-kv" *ngIf="post.helpRequestProbability !== null && post.helpRequestProbability !== undefined">
+        <span class="analysis-kv__label">{{ 'textAnalysis.labelHelpProb' | transloco }}</span>
+        <span class="analysis-kv__value">{{ formatPercent01(post.helpRequestProbability) }}%</span>
+      </div>
+      <div class="analysis-chips-row" *ngIf="post.humanitarianCategories">
+        <span class="analysis-chips__label">{{ 'textAnalysis.labelHumanitarian' | transloco }}</span>
+        <div class="analysis-chips">
+          <span class="chip" *ngFor="let cat of getHumanitarianCategories(post)">{{ cat }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="analysis-block analysis-block--wide" *ngIf="hasVisualAnalysisSection(post)">
+      <h4 class="analysis-block__title">{{ 'textAnalysis.sectionVisual' | transloco }}</h4>
+      <p class="analysis-block__hint">{{ 'textAnalysis.sectionVisualHint' | transloco }}</p>
+
+      <div class="visual-split">
+        <div class="visual-col">
+          <div class="visual-col__heading">{{ 'textAnalysis.visualGroupCaption' | transloco }}</div>
+          <div class="analysis-kv" *ngIf="post.isImageTextMatch !== null && post.isImageTextMatch !== undefined">
+            <span class="analysis-kv__label">{{ 'textAnalysis.labelImageText' | transloco }}</span>
+            <span class="analysis-kv__value" [class.disaster-yes]="post.isImageTextMatch" [class.disaster-no]="!post.isImageTextMatch">
+              {{ post.isImageTextMatch ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
+            </span>
+          </div>
+          <div class="analysis-kv" *ngIf="post.imageTextMatchScore !== null && post.imageTextMatchScore !== undefined">
+            <span class="analysis-kv__label">{{ 'textAnalysis.labelMatchScore' | transloco }}</span>
+            <span class="analysis-kv__value">{{ formatPercent01(post.imageTextMatchScore) }}%</span>
+          </div>
+          <p class="visual-empty" *ngIf="post.isImageTextMatch === null && post.imageTextMatchScore === null">
+            {{ 'textAnalysis.visualCaptionPending' | transloco }}
+          </p>
+        </div>
+        <div class="visual-col">
+          <div class="visual-col__heading">{{ 'textAnalysis.visualGroupDamage' | transloco }}</div>
+          <div class="analysis-kv" *ngIf="post.hasImageDamage !== null && post.hasImageDamage !== undefined">
+            <span class="analysis-kv__label">{{ 'textAnalysis.labelDamageT3' | transloco }}</span>
+            <span class="analysis-kv__value" [class.disaster-yes]="post.hasImageDamage" [class.disaster-no]="!post.hasImageDamage">
+              {{ post.hasImageDamage ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
+            </span>
+          </div>
+          <div class="analysis-kv" *ngIf="post.imageDamageSeverity">
+            <span class="analysis-kv__label">{{ 'textAnalysis.labelDamageSeverity' | transloco }}</span>
+            <span class="analysis-kv__value">{{ formatDamageSeverity(post.imageDamageSeverity) }}</span>
+          </div>
+          <div class="analysis-kv" *ngIf="post.imageDamageScore !== null && post.imageDamageScore !== undefined">
+            <span class="analysis-kv__label">{{ 'textAnalysis.labelDamageScore' | transloco }}</span>
+            <span class="analysis-kv__value">{{ formatPercent01(post.imageDamageScore) }}%</span>
+          </div>
+          <p class="visual-empty" *ngIf="post.hasImageDamage === null && !post.imageDamageSeverity && post.imageDamageScore === null">
+            {{ 'textAnalysis.visualDamagePending' | transloco }}
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="post-stats">
+    <span class="stat-item">{{ post.upvotes || 0 }} {{ 'textAnalysis.upvotes' | transloco }}</span>
+    <span class="stat-item">{{ post.commentCount || 0 }} {{ 'textAnalysis.comments' | transloco }}</span>
+  </div>
+</div>

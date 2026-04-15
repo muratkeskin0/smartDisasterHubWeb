@@ -1,0 +1,131 @@
+<app-header></app-header>
+
+<div class="detail-container">
+  <div class="detail-header">
+    <app-back-button></app-back-button>
+    <a routerLink="/text-analysis" class="detail-back-link">{{ 'textAnalysis.backToList' | transloco }}</a>
+  </div>
+
+  <p class="detail-intro">{{ 'textAnalysis.detailReaderPath' | transloco }}</p>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>{{ 'textAnalysis.loadingPosts' | transloco }}</p>
+  </div>
+
+  <div class="error-container" *ngIf="error && !loading">
+    <p class="error-message">{{ error }}</p>
+    <a routerLink="/text-analysis" class="detail-back-link">{{ 'textAnalysis.backToList' | transloco }}</a>
+  </div>
+
+  <article class="detail-article" *ngIf="post && !loading && !error">
+    <div class="detail-article__head">
+      <h1 class="detail-title" (click)="openRedditPost(post.url)">{{ post.title }}</h1>
+      <div class="detail-meta">
+        <span>r/{{ post.subreddit }}</span>
+        <span *ngIf="post.author">{{ 'textAnalysis.metaBy' | transloco: { author: post.author } }}</span>
+        <span>{{ formatDate(post.redditCreatedAt) }}</span>
+        <span class="status-badge" [ngClass]="getStatusClass(post.status)">{{ post.status }}</span>
+      </div>
+    </div>
+
+    <div class="post-content" *ngIf="post.content">
+      <p>{{ post.content }}</p>
+    </div>
+
+    <div class="post-location" *ngIf="post.locationText || hasCoordinates(post)">
+      <div class="post-location__main" *ngIf="post.locationText">
+        <span class="post-location__label">{{ 'textAnalysis.location' | transloco }}</span>
+        <span class="post-location__value">{{ post.locationText }}</span>
+      </div>
+      <div class="post-location__coords" *ngIf="hasCoordinates(post)">
+        <a
+          [href]="openStreetMapUrl(post)"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="post-location__map-link">
+          {{ post.latitude | number:'1.4-4' }}, {{ post.longitude | number:'1.4-4' }}
+          <span class="post-location__map-hint">{{ 'textAnalysis.mapHint' | transloco }}</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="post-media" *ngIf="post.mediaUrl && isDisplayableImageUrl(post.mediaUrl) && !isImageFailed(post.id)">
+      <img
+        class="post-image"
+        [src]="post.mediaUrl"
+        [alt]="post.imageCaption || post.title"
+        loading="lazy"
+        (click)="openLightbox(post)"
+        (error)="markImageFailed(post.id)"
+      />
+      <div
+        class="media-meta match"
+        *ngIf="getImageMatchStatus(post) as ms"
+        [ngClass]="ms.css"
+        [title]="ms.hintKey ? (ms.hintKey | transloco) : ''">
+        {{ ms.labelKey | transloco }}
+      </div>
+      <div class="media-meta" *ngIf="post.mediaUrls && post.mediaUrls.length > 1">
+        {{ 'textAnalysis.moreImages' | transloco: { n: post.mediaUrls.length - 1 } }}
+      </div>
+      <div
+        class="media-meta duplicate"
+        *ngIf="post.duplicateOfPostId !== null && post.duplicateOfPostId !== undefined && post.duplicateOfPostId !== post.id">
+        {{ 'textAnalysis.duplicateOf' | transloco: { id: post.duplicateOfPostId } }}
+      </div>
+    </div>
+
+    <h2 class="detail-section-title">{{ 'textAnalysis.detailAnalysisHeading' | transloco }}</h2>
+    <app-reddit-post-analysis-panel [post]="post"></app-reddit-post-analysis-panel>
+
+    <div class="detail-footer">
+      <a [href]="post.url" target="_blank" rel="noopener noreferrer" class="view-reddit-link">
+        {{ 'common.viewOnReddit' | transloco }}
+      </a>
+    </div>
+  </article>
+</div>
+
+<div class="lightbox-backdrop" *ngIf="lightboxOpen" (click)="onLightboxBackdropClick($event)">
+  <div class="lightbox">
+    <div class="lightbox-header">
+      <div class="lightbox-title">
+        {{ lightboxTitle || ('textAnalysis.lightboxMedia' | transloco) }}
+      </div>
+      <button
+        class="lightbox-close"
+        (click)="closeLightbox()"
+        [attr.aria-label]="'textAnalysis.ariaClose' | transloco">
+        ✕
+      </button>
+    </div>
+
+    <div class="lightbox-body">
+      <button
+        class="lightbox-nav prev"
+        *ngIf="lightboxUrls.length > 1"
+        (click)="prevImage()"
+        [attr.aria-label]="'textAnalysis.ariaPrevImg' | transloco">
+        ‹
+      </button>
+
+      <img
+        class="lightbox-image"
+        [src]="lightboxUrls[lightboxIndex]"
+        [alt]="lightboxTitle || ('textAnalysis.lightboxMedia' | transloco)" />
+
+      <button
+        class="lightbox-nav next"
+        *ngIf="lightboxUrls.length > 1"
+        (click)="nextImage()"
+        [attr.aria-label]="'textAnalysis.ariaNextImg' | transloco">
+        ›
+      </button>
+    </div>
+
+    <div class="lightbox-footer" *ngIf="lightboxUrls.length > 1">
+      {{ lightboxIndex + 1 }} / {{ lightboxUrls.length }}
+    </div>
+  </div>
+</div>

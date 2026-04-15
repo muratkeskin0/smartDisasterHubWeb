@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, HostListener } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TextAnalysisService, PageResponse } from '../../../core/services/text-analysis.service';
@@ -7,6 +7,9 @@ import { AppHeaderComponent } from '../../../shared/components/app-header/app-he
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
+/**
+ * List of analyzed posts: one trust/relevance score per row; full breakdown on detail route.
+ */
 @Component({
   selector: 'app-text-analysis',
   standalone: true,
@@ -17,29 +20,19 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 export class TextAnalysisComponent implements OnInit {
   private textAnalysisService = inject(TextAnalysisService);
   private transloco = inject(TranslocoService);
-  
+
   posts: RedditPost[] = [];
   statistics: PostStatistics | null = null;
   loading = true;
   error: string | null = null;
   filterDisasterOnly = false;
 
-  // Lightbox / gallery
-  lightboxOpen = false;
-  lightboxUrls: string[] = [];
-  lightboxIndex = 0;
-  lightboxTitle: string | null = null;
-
-  private failedImageByPostId: Record<number, boolean> = {};
-  
-  // Pagination
   currentPage = 0;
   pageSize = 20;
   totalPages = 0;
   totalElements = 0;
-  
-  // Sorting
-  sortBy = 'analyzedAt';
+
+  sortBy = 'redditCreatedAt';
   sortDirection: 'ASC' | 'DESC' = 'DESC';
 
   ngOnInit(): void {
@@ -50,26 +43,16 @@ export class TextAnalysisComponent implements OnInit {
     this.loading = true;
     this.error = null;
 
-    // If refresh is requested, trigger jobs first
     if (refreshJobs) {
       this.textAnalysisService.triggerRefresh().subscribe({
         next: (response) => {
           if (response.success) {
-            console.log('Refresh jobs triggered successfully');
-            // Wait a bit for jobs to complete, then load data
-            setTimeout(() => {
-              this.loadDataInternal();
-            }, 2000); // Wait 2 seconds for jobs to process
+            setTimeout(() => this.loadDataInternal(), 2000);
           } else {
-            console.error('Error triggering refresh:', response.message);
             this.loadDataInternal();
           }
         },
-        error: (err) => {
-          console.error('Error triggering refresh:', err);
-          // Continue loading data even if refresh fails
-          this.loadDataInternal();
-        }
+        error: () => this.loadDataInternal()
       });
     } else {
       this.loadDataInternal();
@@ -77,19 +60,15 @@ export class TextAnalysisComponent implements OnInit {
   }
 
   private loadDataInternal(): void {
-    // Load statistics
     this.textAnalysisService.getStatistics().subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.statistics = response.data;
         }
       },
-      error: (err) => {
-        console.error('Error loading statistics:', err);
-      }
+      error: (err) => console.error('Error loading statistics:', err)
     });
 
-    // Load posts with pagination
     const postsObservable = this.filterDisasterOnly
       ? this.textAnalysisService.getDisasterRelatedPosts(this.currentPage, this.pageSize, this.sortBy, this.sortDirection)
       : this.textAnalysisService.getAnalyzedPosts(this.currentPage, this.pageSize, this.sortBy, this.sortDirection);
@@ -115,7 +94,7 @@ export class TextAnalysisComponent implements OnInit {
 
   toggleFilter(): void {
     this.filterDisasterOnly = !this.filterDisasterOnly;
-    this.currentPage = 0; // Reset to first page when filtering
+    this.currentPage = 0;
     this.loadData();
   }
 
@@ -128,48 +107,38 @@ export class TextAnalysisComponent implements OnInit {
 
   changeSort(field: string): void {
     if (this.sortBy === field) {
-      // Toggle direction if same field
       this.sortDirection = this.sortDirection === 'ASC' ? 'DESC' : 'ASC';
     } else {
       this.sortBy = field;
       this.sortDirection = 'DESC';
     }
-    this.currentPage = 0; // Reset to first page when sorting
+    this.currentPage = 0;
     this.loadData();
   }
 
   getPageNumbers(): number[] {
     const pages: number[] = [];
-    const maxPagesToShow = 7; // Show max 7 page numbers
-    
+    const maxPagesToShow = 7;
+
     if (this.totalPages <= maxPagesToShow) {
-      // Show all pages if total pages is less than max
       for (let i = 0; i < this.totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Show first page
       pages.push(0);
-      
       const startPage = Math.max(1, this.currentPage - 1);
       const endPage = Math.min(this.totalPages - 2, this.currentPage + 1);
-      
       if (startPage > 1) {
-        pages.push(-1); // Ellipsis
+        pages.push(-1);
       }
-      
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
-      
       if (endPage < this.totalPages - 2) {
-        pages.push(-1); // Ellipsis
+        pages.push(-1);
       }
-      
-      // Show last page
       pages.push(this.totalPages - 1);
     }
-    
     return pages;
   }
 
@@ -200,141 +169,14 @@ export class TextAnalysisComponent implements OnInit {
   }
 
   getRelevanceClass(score: number | null | undefined): string {
-    if (!score) return '';
+    if (score === null || score === undefined) return '';
     if (score >= 0.7) return 'relevance-high';
     if (score >= 0.4) return 'relevance-medium';
     return 'relevance-low';
   }
 
-  /**
-   * Split comma-separated humanitarianCategories into display-friendly chips.
-   */
-  getHumanitarianCategories(post: RedditPost): string[] {
-    if (!post.humanitarianCategories) {
-      return [];
-    }
-    return post.humanitarianCategories
-      .split(',')
-      .map(c => c.trim())
-      .filter(c => !!c)
-      .map(c =>
-        c
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, ch => ch.toUpperCase())
-      );
-  }
-
-  openRedditPost(url: string): void {
-    window.open(url, '_blank');
-  }
-
-  hasCoordinates(post: RedditPost): boolean {
-    return (
-      post.latitude != null &&
-      post.longitude != null &&
-      !Number.isNaN(Number(post.latitude)) &&
-      !Number.isNaN(Number(post.longitude))
-    );
-  }
-
-  openStreetMapUrl(post: RedditPost): string {
-    const lat = Number(post.latitude);
-    const lon = Number(post.longitude);
-    return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=12/${lat}/${lon}`;
-  }
-
-  isDisplayableImageUrl(url: string | null | undefined): boolean {
-    if (!url) return false;
-    const u = url.toLowerCase();
-    const isHttp = u.startsWith('http://') || u.startsWith('https://');
-    if (!isHttp) return false;
-    return u.includes('i.redd.it') || u.includes('preview.redd.it')
-      || u.endsWith('.jpg') || u.endsWith('.jpeg') || u.endsWith('.png') || u.endsWith('.webp') || u.endsWith('.gif');
-  }
-
-  markImageFailed(postId: number): void {
-    this.failedImageByPostId[postId] = true;
-  }
-
-  isImageFailed(postId: number): boolean {
-    return !!this.failedImageByPostId[postId];
-  }
-
-  getImageMatchStatus(post: RedditPost): { label: string; css: string; hint?: string } | null {
-    if (!post.mediaUrl || !this.isDisplayableImageUrl(post.mediaUrl) || this.isImageFailed(post.id)) return null;
-
-    // If we have a value, show it.
-    if (post.isImageTextMatch === true) {
-      return { label: 'Match: Yes', css: 'match-yes' };
-    }
-    if (post.isImageTextMatch === false) {
-      return { label: 'Match: No', css: 'match-no' };
-    }
-
-    // Otherwise it wasn't analyzed (or not applicable).
-    const score = post.relevanceScore ?? null;
-    if (score !== null && score < 0.7) {
-      return { label: 'Match: Skipped', css: 'match-skip', hint: 'Skipped because relevance score < 70%' };
-    }
-    return { label: 'Match: Not analyzed', css: 'match-na', hint: 'Not analyzed yet (or OpenAI disabled)' };
-  }
-
-  openLightbox(post: RedditPost): void {
-    const rawUrls = (post.mediaUrls && post.mediaUrls.length > 0)
-      ? post.mediaUrls
-      : (post.mediaUrl ? [post.mediaUrl] : []);
-
-    const urls = rawUrls.filter(u => this.isDisplayableImageUrl(u));
-    if (!urls || urls.length === 0) return;
-
-    this.lightboxUrls = urls;
-    this.lightboxIndex = 0;
-    this.lightboxTitle = post.title || null;
-    this.lightboxOpen = true;
-    document.body.style.overflow = 'hidden';
-  }
-
-  closeLightbox(): void {
-    this.lightboxOpen = false;
-    this.lightboxUrls = [];
-    this.lightboxIndex = 0;
-    this.lightboxTitle = null;
-    document.body.style.overflow = '';
-  }
-
-  nextImage(): void {
-    if (!this.lightboxUrls || this.lightboxUrls.length <= 1) return;
-    this.lightboxIndex = (this.lightboxIndex + 1) % this.lightboxUrls.length;
-  }
-
-  prevImage(): void {
-    if (!this.lightboxUrls || this.lightboxUrls.length <= 1) return;
-    this.lightboxIndex = (this.lightboxIndex - 1 + this.lightboxUrls.length) % this.lightboxUrls.length;
-  }
-
-  onLightboxBackdropClick(ev: MouseEvent): void {
-    // Only close when clicking the backdrop itself (not the content)
-    const target = ev.target as HTMLElement | null;
-    if (target && target.classList.contains('lightbox-backdrop')) {
-      this.closeLightbox();
-    }
-  }
-
-  @HostListener('document:keydown', ['$event'])
-  handleKeydown(event: KeyboardEvent): void {
-    if (!this.lightboxOpen) return;
-    if (event.key === 'Escape') {
-      this.closeLightbox();
-    } else if (event.key === 'ArrowRight') {
-      this.nextImage();
-    } else if (event.key === 'ArrowLeft') {
-      this.prevImage();
-    }
+  formatPercent01(value: number | null | undefined): string {
+    if (value === null || value === undefined || Number.isNaN(value)) return '—';
+    return (value * 100).toFixed(1);
   }
 }
-
-
-
-
-
-
