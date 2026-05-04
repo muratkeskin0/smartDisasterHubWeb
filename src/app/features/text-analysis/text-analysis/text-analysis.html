@@ -13,6 +13,48 @@
     </details>
   </div>
 
+  <div class="date-filter-row">
+    <span class="date-filter-label">{{ 'common.dateFilter.label' | transloco }}</span>
+    <div class="date-filter-buttons">
+      <button type="button" class="filter-btn" [class.active]="datePreset === 'all' && !useCustomRange" (click)="setDatePreset('all')">
+        {{ 'common.dateFilter.all' | transloco }}
+      </button>
+      <button type="button" class="filter-btn" [class.active]="datePreset === 'today' && !useCustomRange" (click)="setDatePreset('today')">
+        {{ 'common.dateFilter.today' | transloco }}
+      </button>
+      <button type="button" class="filter-btn" [class.active]="datePreset === 'week' && !useCustomRange" (click)="setDatePreset('week')">
+        {{ 'common.dateFilter.week' | transloco }}
+      </button>
+      <button type="button" class="filter-btn" [class.active]="datePreset === 'month' && !useCustomRange" (click)="setDatePreset('month')">
+        {{ 'common.dateFilter.month' | transloco }}
+      </button>
+    </div>
+    <p class="date-filter-hint">{{ 'common.dateFilter.hint' | transloco }}</p>
+
+    <div class="date-filter-custom">
+      <span class="date-filter-custom__title">{{ 'common.dateFilter.customRangeTitle' | transloco }}</span>
+      <div class="date-filter-custom__row">
+        <label class="date-filter-custom__field">
+          <span class="date-filter-custom__label">{{ 'common.dateFilter.customFrom' | transloco }}</span>
+          <input type="datetime-local" class="date-filter-custom__input" [(ngModel)]="customFromLocal" name="taFrom" />
+        </label>
+        <label class="date-filter-custom__field">
+          <span class="date-filter-custom__label">{{ 'common.dateFilter.customTo' | transloco }}</span>
+          <input type="datetime-local" class="date-filter-custom__input" [(ngModel)]="customToLocal" name="taTo" />
+        </label>
+        <div class="date-filter-custom__actions">
+          <button type="button" class="date-filter-custom__apply" (click)="applyCustomRange()">
+            {{ 'common.dateFilter.applyCustomRange' | transloco }}
+          </button>
+          <button type="button" class="date-filter-custom__ghost" *ngIf="useCustomRange" (click)="clearCustomRange()">
+            {{ 'common.clear' | transloco }}
+          </button>
+        </div>
+      </div>
+      <p class="date-filter-custom__error" *ngIf="customRangeError">{{ customRangeError | transloco }}</p>
+    </div>
+  </div>
+
   <div class="statistics-section" *ngIf="statistics">
     <div class="stat-card">
       <div class="stat-label">{{ 'textAnalysis.statTotal' | transloco }}</div>

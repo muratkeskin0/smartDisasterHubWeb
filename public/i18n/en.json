@@ -17,7 +17,21 @@
     "clear": "Clear",
     "openOnMap": "Open on map",
     "openPost": "Open post",
-    "viewOnReddit": "View on Reddit →"
+    "viewOnReddit": "View on Reddit →",
+    "dateFilter": {
+      "label": "Posted on Reddit:",
+      "hint": "Filters by the post’s original creation time on Reddit (not when it was analyzed here).",
+      "all": "All time",
+      "today": "Today",
+      "week": "Last 7 days",
+      "month": "Last 30 days",
+      "customRangeTitle": "Custom Reddit post date range",
+      "customFrom": "Posted from (local)",
+      "customTo": "Posted until (local)",
+      "applyCustomRange": "Apply",
+      "customNeedOne": "Enter at least one date/time.",
+      "customInvalid": "One or more dates are invalid."
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -51,6 +65,7 @@
     "colAvgFinal": "Avg final",
     "colAvgDelta": "Avg delta",
     "noTrendData": "No trend data yet.",
+    "trendUsesRange": "Daily trend uses the same Reddit post-date window as the filter above (not the “days” window).",
     "topAdjustedTitle": "Top adjusted posts",
     "colPost": "Post",
     "colSubreddit": "Subreddit",
@@ -126,7 +141,8 @@
     "pinSizeInfo": "Pin size reflects post count at that location",
     "legend12": "1-2 posts",
     "legend34": "3-4 posts",
-    "legend5": "5+ posts"
+    "legend5": "5+ posts",
+    "dateFilterForPostLink": "Opened with a post link: the post-date filter was set to all time so that post can appear on the map."
   },
   "textAnalysis": {
     "title": "Text Analysis",

@@ -1,8 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TextAnalysisService, PageResponse } from '../../../core/services/text-analysis.service';
 import { RedditPost, PostStatistics, RedditPostStatus } from '../../../models';
+import {
+  buildRedditPostRangeFromDatetimeLocals,
+  rangeForPreset,
+  ReportedRange,
+  ReportedRangePreset,
+  tryApplyCustomRedditPostDateRange
+} from '../../../core/utils/reported-date-range';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -13,7 +21,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 @Component({
   selector: 'app-text-analysis',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
+  imports: [CommonModule, FormsModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
   templateUrl: './text-analysis.html',
   styleUrl: './text-analysis.css'
 })
@@ -34,6 +42,12 @@ export class TextAnalysisComponent implements OnInit {
 
   sortBy = 'redditCreatedAt';
   sortDirection: 'ASC' | 'DESC' = 'DESC';
+
+  datePreset: ReportedRangePreset = 'all';
+  useCustomRange = false;
+  customFromLocal = '';
+  customToLocal = '';
+  customRangeError: string | null = null;
 
   ngOnInit(): void {
     this.loadData();
@@ -59,8 +73,20 @@ export class TextAnalysisComponent implements OnInit {
     }
   }
 
+  private requestRange(): ReportedRange {
+    if (this.useCustomRange) {
+      return buildRedditPostRangeFromDatetimeLocals(this.customFromLocal, this.customToLocal);
+    }
+    return rangeForPreset(this.datePreset);
+  }
+
+  private hasCustomFieldInput(): boolean {
+    return Boolean(this.customFromLocal?.trim() || this.customToLocal?.trim());
+  }
+
   private loadDataInternal(): void {
-    this.textAnalysisService.getStatistics().subscribe({
+    const range = this.requestRange();
+    this.textAnalysisService.getStatistics(range).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.statistics = response.data;
@@ -70,8 +96,20 @@ export class TextAnalysisComponent implements OnInit {
     });
 
     const postsObservable = this.filterDisasterOnly
-      ? this.textAnalysisService.getDisasterRelatedPosts(this.currentPage, this.pageSize, this.sortBy, this.sortDirection)
-      : this.textAnalysisService.getAnalyzedPosts(this.currentPage, this.pageSize, this.sortBy, this.sortDirection);
+      ? this.textAnalysisService.getDisasterRelatedPosts(
+          this.currentPage,
+          this.pageSize,
+          this.sortBy,
+          this.sortDirection,
+          range
+        )
+      : this.textAnalysisService.getAnalyzedPosts(
+          this.currentPage,
+          this.pageSize,
+          this.sortBy,
+          this.sortDirection,
+          range
+        );
 
     postsObservable.subscribe({
       next: (response) => {
@@ -90,6 +128,41 @@ export class TextAnalysisComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  setDatePreset(preset: ReportedRangePreset): void {
+    if (this.datePreset === preset && !this.useCustomRange && !this.hasCustomFieldInput()) {
+      return;
+    }
+    this.datePreset = preset;
+    this.useCustomRange = false;
+    this.customFromLocal = '';
+    this.customToLocal = '';
+    this.customRangeError = null;
+    this.currentPage = 0;
+    this.loadData();
+  }
+
+  applyCustomRange(): void {
+    this.customRangeError = null;
+    const parsed = tryApplyCustomRedditPostDateRange(this.customFromLocal, this.customToLocal);
+    if (!parsed.ok) {
+      this.customRangeError = parsed.i18nKey;
+      return;
+    }
+    this.useCustomRange = true;
+    this.currentPage = 0;
+    this.loadData();
+  }
+
+  clearCustomRange(): void {
+    this.useCustomRange = false;
+    this.datePreset = 'all';
+    this.customFromLocal = '';
+    this.customToLocal = '';
+    this.customRangeError = null;
+    this.currentPage = 0;
+    this.loadData();
   }
 
   toggleFilter(): void {

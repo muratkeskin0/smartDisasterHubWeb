@@ -17,7 +17,21 @@
     "clear": "Temizle",
     "openOnMap": "Haritada aç",
     "openPost": "Gönderiyi aç",
-    "viewOnReddit": "Reddit’te görüntüle →"
+    "viewOnReddit": "Reddit’te görüntüle →",
+    "dateFilter": {
+      "label": "Reddit’te gönderilme:",
+      "hint": "Gönderinin Reddit’te yayınlandığı zamana göre (burada analiz edildiği zaman değil).",
+      "all": "Tümü",
+      "today": "Bugün",
+      "week": "Son 7 gün",
+      "month": "Son 30 gün",
+      "customRangeTitle": "Özel Reddit gönderi tarihi aralığı",
+      "customFrom": "Gönderilme başlangıcı (yerel)",
+      "customTo": "Gönderilme bitişi (yerel)",
+      "applyCustomRange": "Uygula",
+      "customNeedOne": "En az bir tarih/saat girin.",
+      "customInvalid": "Tarihlerden biri geçersiz."
+    }
   },
   "nav": {
     "dashboard": "Panel",
@@ -51,6 +65,7 @@
     "colAvgFinal": "Ort. final",
     "colAvgDelta": "Ort. delta",
     "noTrendData": "Henüz trend verisi yok.",
+    "trendUsesRange": "Günlük trend, yukarıdaki Reddit gönderi tarihi aralığıyla aynıdır (“gün” seçimi bu modda kullanılmaz).",
     "topAdjustedTitle": "En çok etkilenen postlar",
     "colPost": "Post",
     "colSubreddit": "Subreddit",
@@ -126,7 +141,8 @@
     "pinSizeInfo": "İğne boyutu o konumdaki gönderi sayısını yansıtır",
     "legend12": "1-2 gönderi",
     "legend34": "3-4 gönderi",
-    "legend5": "5+ gönderi"
+    "legend5": "5+ gönderi",
+    "dateFilterForPostLink": "Gönderi bağlantısıyla açıldı: iğnenin görünmesi için gönderi tarihi filtresi tüm zamanlara alındı."
   },
   "textAnalysis": {
     "title": "Metin analizi",

@@ -4,8 +4,16 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
+import { FormsModule } from '@angular/forms';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
 import { TranslocoPipe } from '@jsverse/transloco';
+import {
+  buildRedditPostRangeFromDatetimeLocals,
+  rangeForPreset,
+  ReportedRange,
+  ReportedRangePreset,
+  tryApplyCustomRedditPostDateRange
+} from '../../../core/utils/reported-date-range';
 
 // Declare Leaflet types
 declare var L: any;
@@ -30,7 +38,7 @@ const FOCUS_ZOOM = 14;
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
+  imports: [CommonModule, FormsModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './map.html',
   styleUrl: './map.css'
@@ -63,23 +71,114 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   /** Parsed postId from query; applied once map + markers are ready */
   private pendingFocusPostId: number | null = null;
 
+  datePreset: ReportedRangePreset = 'all';
+  /** When true, API range comes from {@link customFromLocal} / {@link customToLocal} instead of preset pills. */
+  useCustomRange = false;
+  customFromLocal = '';
+  customToLocal = '';
+  /** Transloco key for inline validation (`common.dateFilter.*`). */
+  customRangeError: string | null = null;
+
   constructor(private textAnalysisService: TextAnalysisService) {}
 
   ngOnInit(): void {
+    let skipInitialDuplicateLoad = false;
     this.queryParamSub = this.route.queryParamMap.subscribe((params) => {
-      const raw = params.get('postId');
-      const n = raw != null && raw !== '' ? Number(raw) : NaN;
-      this.pendingFocusPostId = Number.isFinite(n) ? n : null;
+      const linkedId = this.parsePostIdParam(params.get('postId'));
+      this.pendingFocusPostId = linkedId;
+
+      if (linkedId != null) {
+        const hadRestrictedRange =
+          this.datePreset !== 'all' || this.useCustomRange || this.hasCustomFieldInput();
+        if (hadRestrictedRange) {
+          this.datePreset = 'all';
+          this.useCustomRange = false;
+          this.customFromLocal = '';
+          this.customToLocal = '';
+          this.customRangeError = null;
+          skipInitialDuplicateLoad = true;
+          this.selectedMarker = null;
+          this.focusedPostId = null;
+          this.loadMapMarkers();
+          return;
+        }
+      }
+
       this.tryApplyPendingFocus();
     });
+    if (!skipInitialDuplicateLoad) {
+      this.loadMapMarkers();
+    }
+  }
+
+  /** Exposed for template: show hint when map was opened with `?postId=`. */
+  get hasPostIdQuery(): boolean {
+    return this.pendingFocusPostId != null;
+  }
+
+  private parsePostIdParam(raw: string | null): number | null {
+    if (raw == null || raw === '') {
+      return null;
+    }
+    const n = Number(raw);
+    return Number.isFinite(n) ? Math.trunc(n) : null;
+  }
+
+  private hasCustomFieldInput(): boolean {
+    return Boolean(this.customFromLocal?.trim() || this.customToLocal?.trim());
+  }
+
+  private mapRequestRange(): ReportedRange {
+    if (this.useCustomRange) {
+      return buildRedditPostRangeFromDatetimeLocals(this.customFromLocal, this.customToLocal);
+    }
+    return rangeForPreset(this.datePreset);
+  }
+
+  setDatePreset(preset: ReportedRangePreset): void {
+    if (this.datePreset === preset && !this.useCustomRange && !this.hasCustomFieldInput()) {
+      return;
+    }
+    this.datePreset = preset;
+    this.useCustomRange = false;
+    this.customFromLocal = '';
+    this.customToLocal = '';
+    this.customRangeError = null;
+    this.selectedMarker = null;
+    this.focusedPostId = null;
+    this.loadMapMarkers();
+  }
+
+  applyCustomRange(): void {
+    this.customRangeError = null;
+    const parsed = tryApplyCustomRedditPostDateRange(this.customFromLocal, this.customToLocal);
+    if (!parsed.ok) {
+      this.customRangeError = parsed.i18nKey;
+      return;
+    }
+    this.useCustomRange = true;
+    this.selectedMarker = null;
+    this.focusedPostId = null;
+    this.loadMapMarkers();
+  }
+
+  clearCustomRange(): void {
+    this.useCustomRange = false;
+    this.datePreset = 'all';
+    this.customFromLocal = '';
+    this.customToLocal = '';
+    this.customRangeError = null;
+    this.selectedMarker = null;
+    this.focusedPostId = null;
     this.loadMapMarkers();
   }
 
   loadMapMarkers(): void {
     this.loading = true;
     this.error = null;
-    
-    this.textAnalysisService.getMapMarkers().subscribe({
+
+    const range = this.mapRequestRange();
+    this.textAnalysisService.getMapMarkers(range).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           // Convert backend MapMarker (latitude/longitude) to local MapMarker (lat/lng)

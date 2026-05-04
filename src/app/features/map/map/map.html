@@ -7,6 +7,64 @@
     </div>
     <h1>{{ 'map.title' | transloco }}</h1>
     <p class="subtitle">{{ 'map.subtitle' | transloco }}</p>
+    <div class="map-date-filter">
+      <span class="map-date-filter__label">{{ 'common.dateFilter.label' | transloco }}</span>
+      <div class="map-date-filter__buttons">
+        <button
+          type="button"
+          class="map-pill"
+          [class.map-pill--active]="datePreset === 'all' && !useCustomRange"
+          (click)="setDatePreset('all')">
+          {{ 'common.dateFilter.all' | transloco }}
+        </button>
+        <button
+          type="button"
+          class="map-pill"
+          [class.map-pill--active]="datePreset === 'today' && !useCustomRange"
+          (click)="setDatePreset('today')">
+          {{ 'common.dateFilter.today' | transloco }}
+        </button>
+        <button
+          type="button"
+          class="map-pill"
+          [class.map-pill--active]="datePreset === 'week' && !useCustomRange"
+          (click)="setDatePreset('week')">
+          {{ 'common.dateFilter.week' | transloco }}
+        </button>
+        <button
+          type="button"
+          class="map-pill"
+          [class.map-pill--active]="datePreset === 'month' && !useCustomRange"
+          (click)="setDatePreset('month')">
+          {{ 'common.dateFilter.month' | transloco }}
+        </button>
+      </div>
+      <p class="map-date-filter__hint">{{ 'common.dateFilter.hint' | transloco }}</p>
+      <p class="map-date-filter__deeplink" *ngIf="hasPostIdQuery">{{ 'map.dateFilterForPostLink' | transloco }}</p>
+
+      <div class="map-custom-range">
+        <span class="map-custom-range__title">{{ 'common.dateFilter.customRangeTitle' | transloco }}</span>
+        <div class="map-custom-range__row">
+          <label class="map-custom-range__field">
+            <span class="map-custom-range__label">{{ 'common.dateFilter.customFrom' | transloco }}</span>
+            <input type="datetime-local" class="map-custom-range__input" [(ngModel)]="customFromLocal" name="mapFrom" />
+          </label>
+          <label class="map-custom-range__field">
+            <span class="map-custom-range__label">{{ 'common.dateFilter.customTo' | transloco }}</span>
+            <input type="datetime-local" class="map-custom-range__input" [(ngModel)]="customToLocal" name="mapTo" />
+          </label>
+          <div class="map-custom-range__actions">
+            <button type="button" class="map-pill map-pill--apply" (click)="applyCustomRange()">
+              {{ 'common.dateFilter.applyCustomRange' | transloco }}
+            </button>
+            <button type="button" class="map-pill map-pill--ghost" *ngIf="useCustomRange" (click)="clearCustomRange()">
+              {{ 'common.clear' | transloco }}
+            </button>
+          </div>
+        </div>
+        <p class="map-custom-range__error" *ngIf="customRangeError">{{ customRangeError | transloco }}</p>
+      </div>
+    </div>
   </div>
 
   <div class="map-wrapper" [class.map-wrapper--split]="selectedMarker">

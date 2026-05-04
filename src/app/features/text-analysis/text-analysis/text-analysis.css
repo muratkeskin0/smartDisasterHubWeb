@@ -124,6 +124,128 @@
   color: var(--color-error);
 }
 
+.date-filter-row {
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-background-secondary);
+}
+
+.date-filter-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+}
+
+.date-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.date-filter-hint {
+  margin: 12px 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  max-width: 48rem;
+}
+
+.date-filter-custom {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.date-filter-custom__title {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+}
+
+.date-filter-custom__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: flex-end;
+}
+
+.date-filter-custom__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: min(100%, 220px);
+}
+
+.date-filter-custom__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.date-filter-custom__input {
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.date-filter-custom__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.date-filter-custom__apply {
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-text-on-accent);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+.date-filter-custom__apply:hover {
+  filter: brightness(1.05);
+}
+
+.date-filter-custom__ghost {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+}
+
+.date-filter-custom__ghost:hover {
+  border-color: var(--color-primary);
+  background: var(--color-background-secondary);
+}
+
+.date-filter-custom__error {
+  margin: 8px 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-error);
+}
+
 .toolbar-row {
   margin-bottom: 20px;
 }

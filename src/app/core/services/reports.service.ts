@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../constants/api';
 import { ApiResponse, HistoricalReportSummary, HistoricalTrendPoint, RedditPost } from '../../models';
 import { PageResponse } from './text-analysis.service';
+import { appendReportedRangeParams, hasReportedRange, ReportedRange } from '../utils/reported-date-range';
 
 @Injectable({
   providedIn: 'root'
@@ -13,24 +14,37 @@ export class ReportsService {
 
   constructor(private http: HttpClient) {}
 
-  getSummary(): Observable<ApiResponse<HistoricalReportSummary>> {
+  getSummary(range?: ReportedRange | null): Observable<ApiResponse<HistoricalReportSummary>> {
+    const params =
+      range && hasReportedRange(range) ? appendReportedRangeParams(new HttpParams(), range) : undefined;
     return this.http.get<ApiResponse<HistoricalReportSummary>>(
-      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.REPORTS_SUMMARY}`
+      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.REPORTS_SUMMARY}`,
+      { ...(params ? { params } : {}) }
     );
   }
 
-  getTrend(days: number = 14): Observable<ApiResponse<HistoricalTrendPoint[]>> {
-    const params = new HttpParams().set('days', String(days));
+  getTrend(days: number = 14, range?: ReportedRange | null): Observable<ApiResponse<HistoricalTrendPoint[]>> {
+    let params = new HttpParams();
+    if (range && hasReportedRange(range)) {
+      params = appendReportedRangeParams(params, range);
+    } else {
+      params = params.set('days', String(days));
+    }
     return this.http.get<ApiResponse<HistoricalTrendPoint[]>>(
       `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.REPORTS_TREND}`,
       { params }
     );
   }
 
-  getTopAdjusted(page: number = 0, size: number = 20): Observable<ApiResponse<PageResponse<RedditPost>>> {
-    const params = new HttpParams()
-      .set('page', String(page))
-      .set('size', String(size));
+  getTopAdjusted(
+    page: number = 0,
+    size: number = 20,
+    range?: ReportedRange | null
+  ): Observable<ApiResponse<PageResponse<RedditPost>>> {
+    let params = new HttpParams().set('page', String(page)).set('size', String(size));
+    if (range && hasReportedRange(range)) {
+      params = appendReportedRangeParams(params, range);
+    }
     return this.http.get<ApiResponse<PageResponse<RedditPost>>>(
       `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.REPORTS_TOP_ADJUSTED}`,
       { params }

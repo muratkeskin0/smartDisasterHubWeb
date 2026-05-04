@@ -8,6 +8,13 @@ import { BackButtonComponent } from '../../../shared/components/back-button/back
 import { ReportsService } from '../../../core/services/reports.service';
 import { HistoricalReportSummary, HistoricalTrendPoint, RedditPost } from '../../../models';
 import { PageResponse } from '../../../core/services/text-analysis.service';
+import {
+  buildRedditPostRangeFromDatetimeLocals,
+  rangeForPreset,
+  ReportedRange,
+  ReportedRangePreset,
+  tryApplyCustomRedditPostDateRange
+} from '../../../core/utils/reported-date-range';
 
 @Component({
   selector: 'app-reports',
@@ -25,6 +32,11 @@ export class ReportsComponent implements OnInit {
   topAdjusted: RedditPost[] = [];
 
   days = 14;
+  datePreset: ReportedRangePreset = 'all';
+  useCustomRange = false;
+  customFromLocal = '';
+  customToLocal = '';
+  customRangeError: string | null = null;
   loading = true;
   topLoading = true;
   error = false;
@@ -38,10 +50,57 @@ export class ReportsComponent implements OnInit {
     this.loadAll();
   }
 
+  private requestRange(): ReportedRange {
+    if (this.useCustomRange) {
+      return buildRedditPostRangeFromDatetimeLocals(this.customFromLocal, this.customToLocal);
+    }
+    return rangeForPreset(this.datePreset);
+  }
+
+  private hasCustomFieldInput(): boolean {
+    return Boolean(this.customFromLocal?.trim() || this.customToLocal?.trim());
+  }
+
+  setDatePreset(preset: ReportedRangePreset): void {
+    if (this.datePreset === preset && !this.useCustomRange && !this.hasCustomFieldInput()) {
+      return;
+    }
+    this.datePreset = preset;
+    this.useCustomRange = false;
+    this.customFromLocal = '';
+    this.customToLocal = '';
+    this.customRangeError = null;
+    this.currentPage = 0;
+    this.loadAll();
+  }
+
+  applyCustomRange(): void {
+    this.customRangeError = null;
+    const parsed = tryApplyCustomRedditPostDateRange(this.customFromLocal, this.customToLocal);
+    if (!parsed.ok) {
+      this.customRangeError = parsed.i18nKey;
+      return;
+    }
+    this.useCustomRange = true;
+    this.currentPage = 0;
+    this.loadAll();
+  }
+
+  clearCustomRange(): void {
+    this.useCustomRange = false;
+    this.datePreset = 'all';
+    this.customFromLocal = '';
+    this.customToLocal = '';
+    this.customRangeError = null;
+    this.currentPage = 0;
+    this.loadAll();
+  }
+
   loadAll(): void {
     this.loading = true;
     this.error = false;
-    this.reportsService.getSummary().subscribe({
+    const range = this.requestRange();
+    this.reportsService.getSummary(range).subscribe({
       next: (res) => {
         this.summary = res.success && res.data ? res.data : null;
         this.loading = false;
@@ -52,7 +111,7 @@ export class ReportsComponent implements OnInit {
       }
     });
 
-    this.reportsService.getTrend(this.days).subscribe({
+    this.reportsService.getTrend(this.days, range).subscribe({
       next: (res) => {
         this.trend = res.success && res.data ? res.data : [];
       },
@@ -65,7 +124,8 @@ export class ReportsComponent implements OnInit {
   }
 
   reloadTrend(): void {
-    this.reportsService.getTrend(this.days).subscribe({
+    const range = this.requestRange();
+    this.reportsService.getTrend(this.days, range).subscribe({
       next: (res) => {
         this.trend = res.success && res.data ? res.data : [];
       },
@@ -77,7 +137,8 @@ export class ReportsComponent implements OnInit {
 
   loadTopAdjusted(): void {
     this.topLoading = true;
-    this.reportsService.getTopAdjusted(this.currentPage, this.pageSize).subscribe({
+    const range = this.requestRange();
+    this.reportsService.getTopAdjusted(this.currentPage, this.pageSize, range).subscribe({
       next: (res) => {
         this.topLoading = false;
         if (res.success && res.data) {

@@ -7,6 +7,47 @@
     </div>
     <h1>{{ 'reports.title' | transloco }}</h1>
     <p class="rp-sub">{{ 'reports.subtitle' | transloco }}</p>
+    <div class="rp-date-filter">
+      <span class="rp-date-filter__label">{{ 'common.dateFilter.label' | transloco }}</span>
+      <div class="rp-date-filter__buttons">
+        <button type="button" class="rp-pill" [class.rp-pill--active]="datePreset === 'all' && !useCustomRange" (click)="setDatePreset('all')">
+          {{ 'common.dateFilter.all' | transloco }}
+        </button>
+        <button type="button" class="rp-pill" [class.rp-pill--active]="datePreset === 'today' && !useCustomRange" (click)="setDatePreset('today')">
+          {{ 'common.dateFilter.today' | transloco }}
+        </button>
+        <button type="button" class="rp-pill" [class.rp-pill--active]="datePreset === 'week' && !useCustomRange" (click)="setDatePreset('week')">
+          {{ 'common.dateFilter.week' | transloco }}
+        </button>
+        <button type="button" class="rp-pill" [class.rp-pill--active]="datePreset === 'month' && !useCustomRange" (click)="setDatePreset('month')">
+          {{ 'common.dateFilter.month' | transloco }}
+        </button>
+      </div>
+      <p class="rp-date-filter__hint">{{ 'common.dateFilter.hint' | transloco }}</p>
+
+      <div class="rp-custom-range">
+        <span class="rp-custom-range__title">{{ 'common.dateFilter.customRangeTitle' | transloco }}</span>
+        <div class="rp-custom-range__row">
+          <label class="rp-custom-range__field">
+            <span class="rp-custom-range__label">{{ 'common.dateFilter.customFrom' | transloco }}</span>
+            <input type="datetime-local" class="rp-custom-range__input" [(ngModel)]="customFromLocal" name="rpFrom" />
+          </label>
+          <label class="rp-custom-range__field">
+            <span class="rp-custom-range__label">{{ 'common.dateFilter.customTo' | transloco }}</span>
+            <input type="datetime-local" class="rp-custom-range__input" [(ngModel)]="customToLocal" name="rpTo" />
+          </label>
+          <div class="rp-custom-range__actions">
+            <button type="button" class="rp-pill rp-pill--apply" (click)="applyCustomRange()">
+              {{ 'common.dateFilter.applyCustomRange' | transloco }}
+            </button>
+            <button type="button" class="rp-pill rp-pill--ghost" *ngIf="useCustomRange" (click)="clearCustomRange()">
+              {{ 'common.clear' | transloco }}
+            </button>
+          </div>
+        </div>
+        <p class="rp-custom-range__error" *ngIf="customRangeError">{{ customRangeError | transloco }}</p>
+      </div>
+    </div>
   </section>
 
   <section class="rp-loading" *ngIf="loading">
@@ -52,7 +93,7 @@
   <section class="rp-trend">
     <div class="rp-trend-head">
       <h2>{{ 'reports.trendTitle' | transloco }}</h2>
-      <div class="rp-trend-controls">
+      <div class="rp-trend-controls" *ngIf="datePreset === 'all' && !useCustomRange">
         <label>{{ 'reports.days' | transloco }}</label>
         <select [(ngModel)]="days" (ngModelChange)="reloadTrend()">
           <option [ngValue]="7">7</option>
@@ -61,6 +102,7 @@
           <option [ngValue]="60">60</option>
         </select>
       </div>
+      <p class="rp-trend-range-note" *ngIf="datePreset !== 'all' || useCustomRange">{{ 'reports.trendUsesRange' | transloco }}</p>
     </div>
     <div class="rp-table-wrap">
       <table class="rp-table">
