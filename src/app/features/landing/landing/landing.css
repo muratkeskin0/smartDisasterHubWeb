@@ -59,6 +59,11 @@
   padding: 60px 32px;
   max-width: 900px;
   margin: 0 auto;
+  border: 1px solid rgb(148 163 184 / 0.2);
+  border-radius: 24px;
+  background: linear-gradient(170deg, rgb(15 23 42 / 0.45) 0%, rgb(30 41 59 / 0.3) 100%);
+  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-lg);
 }
 
 .hero-title {
@@ -175,7 +180,7 @@
 .feature-item {
   text-align: center;
   padding: 32px 24px;
-  background: var(--color-background-secondary);
+  background: linear-gradient(170deg, rgb(30 41 59 / 0.85) 0%, rgb(15 23 42 / 0.82) 100%);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   transition: all var(--transition-fast);
@@ -223,6 +228,10 @@
   max-width: 800px;
   margin: 0 auto;
   text-align: center;
+  padding: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(165deg, rgb(30 41 59 / 0.68) 0%, rgb(15 23 42 / 0.66) 100%);
 }
 
 .about-text {

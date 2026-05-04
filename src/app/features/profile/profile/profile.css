@@ -107,10 +107,11 @@
 }
 
 .details-card {
-  background: var(--color-background);
+  background: linear-gradient(165deg, rgb(30 41 59 / 0.85) 0%, rgb(15 23 42 / 0.8) 100%);
   padding: 30px;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
 }
 
 .details-card h3 {
@@ -130,7 +131,7 @@
 
 .detail-item {
   padding: 20px;
-  background: var(--color-background-secondary);
+  background: linear-gradient(170deg, rgb(30 41 59 / 0.78) 0%, rgb(15 23 42 / 0.78) 100%);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
 }
