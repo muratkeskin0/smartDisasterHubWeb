@@ -124,6 +124,7 @@
 
 html {
   font-size: 16px;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -140,6 +141,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
+}
+
+::selection {
+  background: rgb(245 158 11 / 0.28);
+  color: var(--color-text-primary);
 }
 
 body::before {
@@ -353,6 +359,50 @@ h3,
 
 .link:hover {
   text-decoration: underline;
+}
+
+/* Global accessibility polish */
+a,
+button,
+input,
+select,
+textarea,
+[role='button'],
+[tabindex]:not([tabindex='-1']) {
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@supports selector(:focus-visible) {
+  :focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Dashboard (legacy global helpers; feature pages may override) */
