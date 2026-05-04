@@ -1,0 +1,31 @@
+<article class="rbl-card">
+  <header class="rbl-head">
+    <h3>{{ titleKey | transloco }}</h3>
+    <div class="rbl-legend">
+      <span class="rbl-legend__item">
+        <span class="rbl-dot rbl-dot--bar"></span>
+        {{ 'reports.barLabelPosts' | transloco }}
+      </span>
+    </div>
+  </header>
+
+  <div class="rbl-empty" *ngIf="isEmpty">
+    {{ emptyKey | transloco }}
+  </div>
+
+  <div class="rbl-wrap rbl-wrap--single-axis" *ngIf="!isEmpty">
+    <div class="rbl-axis rbl-axis--left">
+      <div class="rbl-axis__tick" *ngFor="let t of axisLeftDisplay">{{ t }}</div>
+    </div>
+
+    <div class="rbl-plot">
+      <div class="rbl-bars">
+        <div class="rbl-bar" *ngFor="let v of bars; let i = index" [style.height.%]="barPct(v)">
+          <span class="rbl-bar__label" *ngIf="labels[i] && showLabel(i)">{{ labels[i] }}</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</article>
+

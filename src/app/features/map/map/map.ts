@@ -29,6 +29,9 @@ interface MapMarker {
     url: string;
     contentPreview?: string | null;
     locationText?: string | null;
+    locationCountry?: string | null;
+    locationCity?: string | null;
+    locationRegionKey?: string | null;
   }>;
 }
 
@@ -199,7 +202,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
                 title: post.title,
                 url: post.url,
                 contentPreview: post.contentPreview ?? null,
-                locationText: post.locationText ?? null
+                locationText: post.locationText ?? null,
+                locationCountry: post.locationCountry ?? null,
+                locationCity: post.locationCity ?? null,
+                locationRegionKey: post.locationRegionKey ?? null
               }))
             }));
           this.applyZoomFilter();

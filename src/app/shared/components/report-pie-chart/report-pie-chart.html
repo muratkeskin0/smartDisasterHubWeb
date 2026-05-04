@@ -1,0 +1,18 @@
+<figure class="rpc">
+  <figcaption class="rpc__title">{{ titleKey | transloco }}</figcaption>
+  <div class="rpc__body" *ngIf="total > 0; else empty">
+    <div class="rpc__pie-wrap">
+      <div class="rpc__pie" [style.background]="pieBackground" aria-hidden="true"></div>
+    </div>
+    <ul class="rpc__legend">
+      <li *ngFor="let row of legend" class="rpc__legend-row">
+        <span class="rpc__dot" [style.background]="row.color"></span>
+        <span class="rpc__label">{{ row.label }}</span>
+        <span class="rpc__count">{{ row.count }}</span>
+      </li>
+    </ul>
+  </div>
+  <ng-template #empty>
+    <p class="rpc__empty">{{ emptyKey | transloco }}</p>
+  </ng-template>
+</figure>

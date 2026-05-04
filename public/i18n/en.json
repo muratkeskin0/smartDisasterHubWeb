@@ -39,6 +39,8 @@
     "map": "Map",
     "authors": "Authors",
     "reports": "Reports",
+    "reportsCharts": "Charts",
+    "reportsTables": "Tables",
     "about": "About",
     "logout": "Logout",
     "profile": "Profile"
@@ -74,7 +76,44 @@
     "colDelta": "Delta",
     "colReasons": "Reasons",
     "colAnalyzedAt": "Analyzed at",
-    "noTopAdjusted": "No adjusted posts found."
+    "noTopAdjusted": "No adjusted posts found.",
+    "breakdownSectionTitle": "Distributions (disaster-related posts)",
+    "breakdownSectionHint": "Counts use the same Reddit post date filter as above. Disaster type comes from humanitarian labels; region uses stored location metadata (country / province → TÜİK region) when present, otherwise a coarse coordinate-box estimate.",
+    "breakdownLoading": "Loading chart data…",
+    "pieEmpty": "No data in this range.",
+    "sectionDisasterType": "Disaster Type Distribution",
+    "sectionDisasterTypeDesc": "Humanitarian-category breakdown of disaster-related posts.",
+    "sectionPostDate": "Post Date Flow",
+    "sectionPostDateDesc": "Daily post count (empty days are 0) and cumulative total (line).",
+    "sectionRegion": "Regional Distribution",
+    "sectionRegionDesc": "Distribution of posts by region (province/TÜİK first).",
+    "barLabelPosts": "Posts / day",
+    "lineLabelCumulative": "Cumulative",
+    "pieDisasterTypes": "By disaster / humanitarian type",
+    "pieByPostDate": "By Reddit post date (day)",
+    "pieByRegion": "By region (province / TÜİK or coordinate estimate)",
+    "breakdown": {
+      "otherDays": "Other days",
+      "type": {
+        "urgent_needs": "Urgent needs",
+        "infrastructure_damage": "Infrastructure damage",
+        "donations_volunteering": "Donations / volunteering",
+        "other": "Other",
+        "uncategorized": "Uncategorized"
+      },
+      "region": {
+        "unknown": "No coordinates",
+        "outside_tr": "Outside Turkey",
+        "marmara": "Marmara",
+        "aegean": "Aegean",
+        "mediterranean": "Mediterranean",
+        "east_anatolia": "Eastern Anatolia",
+        "southeast_anatolia": "Southeastern Anatolia",
+        "central": "Central Anatolia",
+        "black_sea": "Black Sea",
+        "other_tr": "Turkey (unknown province)"
+      }
+    }
   },
   "dashboard": {
     "welcome": "Welcome, {{name}}",
@@ -134,6 +173,8 @@
     "postSingular": "post",
     "postPlural": "posts",
     "location": "Location",
+    "placeFromGeocoder": "Place (address)",
+    "regionLabel": "Region",
     "loading": "Loading map data...",
     "closePanel": "Close panel",
     "mapLoading": "Map is loading...",

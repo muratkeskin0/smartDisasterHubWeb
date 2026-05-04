@@ -32,7 +32,8 @@ export const API_ENDPOINTS = {
     ANALYZE_JOB: '/api/reddit-posts/jobs/analyze',
     REPORTS_SUMMARY: '/api/reddit-posts/reports/summary',
     REPORTS_TREND: '/api/reddit-posts/reports/trend',
-    REPORTS_TOP_ADJUSTED: '/api/reddit-posts/reports/top-adjusted'
+    REPORTS_TOP_ADJUSTED: '/api/reddit-posts/reports/top-adjusted',
+    REPORTS_BREAKDOWN: '/api/reddit-posts/reports/breakdown'
   },
   ABOUT: {
     GET: '/api/about',

@@ -58,7 +58,7 @@
     {{ 'reports.loadError' | transloco }}
   </section>
 
-  <section class="rp-summary" *ngIf="!loading && !error && summary">
+  <section class="rp-summary" *ngIf="!loading && !error && summary && showChartsSection">
     <article class="rp-kpi">
       <p>{{ 'reports.kpiHistoricalCount' | transloco }}</p>
       <h3>{{ summary.analyzedWithHistoricalScores }}</h3>
@@ -77,7 +77,7 @@
     </article>
   </section>
 
-  <section class="rp-breakdown" *ngIf="summary">
+  <section class="rp-breakdown" *ngIf="summary && showChartsSection">
     <div class="rp-breakdown-card">
       <h2>{{ 'reports.adjustmentImpact' | transloco }}</h2>
       <ul>
@@ -90,7 +90,47 @@
     </div>
   </section>
 
-  <section class="rp-trend">
+  <section id="report-charts" class="rp-pies rp-anchor" *ngIf="!loading && !error && showChartsSection">
+    <div class="rp-pies__intro">
+      <h2 class="rp-pies__title">{{ 'reports.breakdownSectionTitle' | transloco }}</h2>
+      <p class="rp-pies__hint">{{ 'reports.breakdownSectionHint' | transloco }}</p>
+      <p class="rp-pies__loading" *ngIf="breakdownLoading">{{ 'reports.breakdownLoading' | transloco }}</p>
+    </div>
+    <div class="rp-sections" *ngIf="!breakdownLoading">
+      <article class="rp-section">
+        <h3 class="rp-section__title">{{ 'reports.sectionDisasterType' | transloco }}</h3>
+        <p class="rp-section__desc">{{ 'reports.sectionDisasterTypeDesc' | transloco }}</p>
+        <app-report-pie-chart
+          titleKey="reports.pieDisasterTypes"
+          emptyKey="reports.pieEmpty"
+          [slices]="disasterPieSlices()"
+        />
+      </article>
+
+      <article class="rp-section">
+        <h3 class="rp-section__title">{{ 'reports.sectionPostDate' | transloco }}</h3>
+        <p class="rp-section__desc">{{ 'reports.sectionPostDateDesc' | transloco }}</p>
+        <app-report-bar-line-chart
+          titleKey="reports.pieByPostDate"
+          emptyKey="reports.pieEmpty"
+          [labels]="dayChartLabels()"
+          [bars]="dayChartBars()"
+        />
+      </article>
+
+      <article class="rp-section">
+        <h3 class="rp-section__title">{{ 'reports.sectionRegion' | transloco }}</h3>
+        <p class="rp-section__desc">{{ 'reports.sectionRegionDesc' | transloco }}</p>
+        <app-report-pie-chart
+          titleKey="reports.pieByRegion"
+          emptyKey="reports.pieEmpty"
+          [slices]="regionPieSlices()"
+        />
+      </article>
+    </div>
+  </section>
+
+  <section id="report-tables" class="rp-trend rp-anchor" *ngIf="showTablesSection">
     <div class="rp-trend-head">
       <h2>{{ 'reports.trendTitle' | transloco }}</h2>
       <div class="rp-trend-controls" *ngIf="datePreset === 'all' && !useCustomRange">
@@ -131,7 +171,7 @@
     </div>
   </section>
 
-  <section class="rp-top">
+  <section class="rp-top" *ngIf="showTablesSection">
     <h2>{{ 'reports.topAdjustedTitle' | transloco }}</h2>
     <div class="rp-loading" *ngIf="topLoading">{{ 'common.loading' | transloco }}</div>
     <div class="rp-table-wrap" *ngIf="!topLoading">

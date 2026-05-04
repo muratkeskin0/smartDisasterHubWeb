@@ -101,6 +101,16 @@
             <span class="map-post-card__loc-label">{{ 'map.location' | transloco }}</span>
             {{ post.locationText }}
           </p>
+          <p class="map-post-card__loc map-post-card__loc--muted" *ngIf="post.locationCity || post.locationCountry">
+            <span class="map-post-card__loc-label">{{ 'map.placeFromGeocoder' | transloco }}</span>
+            <ng-container *ngIf="post.locationCity">{{ post.locationCity }}</ng-container>
+            <ng-container *ngIf="post.locationCity && post.locationCountry">, </ng-container>
+            <ng-container *ngIf="post.locationCountry">{{ post.locationCountry }}</ng-container>
+          </p>
+          <p class="map-post-card__loc map-post-card__loc--muted" *ngIf="post.locationRegionKey">
+            <span class="map-post-card__loc-label">{{ 'map.regionLabel' | transloco }}</span>
+            {{ ('textAnalysis.breakdown.region.' + post.locationRegionKey) | transloco }}
+          </p>
           <p class="map-post-card__body" *ngIf="post.contentPreview">{{ post.contentPreview }}</p>
           <button type="button" class="map-post-card__link" (click)="openPostOnReddit(post.url)">
             {{ 'common.openPost' | transloco }}

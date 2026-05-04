@@ -122,6 +122,10 @@ export interface RedditPost {
   locationText?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  locationCountry?: string | null;
+  locationCity?: string | null;
+  /** Report / chart key: marmara, aegean, southeast_anatolia, … */
+  locationRegionKey?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -181,6 +185,9 @@ export interface MapPostInfo {
   url: string;
   contentPreview?: string | null;
   locationText?: string | null;
+  locationCountry?: string | null;
+  locationCity?: string | null;
+  locationRegionKey?: string | null;
 }
 
 export interface HistoricalReportSummary {
@@ -201,5 +208,16 @@ export interface HistoricalTrendPoint {
   avgBaseScore: number;
   avgFinalScore: number;
   avgDelta: number;
+}
+
+export interface NamedCount {
+  key: string;
+  count: number;
+}
+
+export interface ReportBreakdown {
+  disasterTypes: NamedCount[];
+  postsByRedditDay: NamedCount[];
+  postsByRegion: NamedCount[];
 }
 

@@ -39,6 +39,8 @@
     "map": "Harita",
     "authors": "Yazarlar",
     "reports": "Raporlar",
+    "reportsCharts": "Grafikler",
+    "reportsTables": "Tablolar",
     "about": "Hakkında",
     "logout": "Çıkış",
     "profile": "Profil"
@@ -74,7 +76,44 @@
     "colDelta": "Delta",
     "colReasons": "Nedenler",
     "colAnalyzedAt": "Analiz zamanı",
-    "noTopAdjusted": "Adjustment uygulanmış post bulunamadı."
+    "noTopAdjusted": "Adjustment uygulanmış post bulunamadı.",
+    "breakdownSectionTitle": "Dağılımlar (afet ile ilgili gönderiler)",
+    "breakdownSectionHint": "Sayılar yukarıdaki Reddit gönderi tarihi filtresiyle aynıdır. Afet türü insani etiketlerden; bölge mümkünse gönderi konumundan (ülke / il → TÜİK coğrafi bölge) kaydedilir, yoksa koordinat kutularıyla kabaca tahmin edilir.",
+    "breakdownLoading": "Grafik verisi yükleniyor…",
+    "pieEmpty": "Bu aralıkta veri yok.",
+    "sectionDisasterType": "Afet Türü Dağılımı",
+    "sectionDisasterTypeDesc": "Afet ile ilgili gönderilerin insani kategori kırılımı.",
+    "sectionPostDate": "Gönderi Tarihi Akışı",
+    "sectionPostDateDesc": "Günlük post sayısı (boş günler 0) ve kümülatif toplam (çizgi).",
+    "sectionRegion": "Bölgesel Dağılım",
+    "sectionRegionDesc": "Gönderilerin bölgelere göre dağılımı (il/TÜİK öncelikli).",
+    "barLabelPosts": "Günlük post",
+    "lineLabelCumulative": "Kümülatif",
+    "pieDisasterTypes": "Afet / insani türe göre",
+    "pieByPostDate": "Reddit gönderi tarihine göre (gün)",
+    "pieByRegion": "Bölgeye göre (il / TÜİK veya koordinat tahmini)",
+    "breakdown": {
+      "otherDays": "Diğer günler",
+      "type": {
+        "urgent_needs": "Acil ihtiyaç",
+        "infrastructure_damage": "Altyapı hasarı",
+        "donations_volunteering": "Bağış / gönüllülük",
+        "other": "Diğer",
+        "uncategorized": "Sınıflandırılmamış"
+      },
+      "region": {
+        "unknown": "Koordinat yok",
+        "outside_tr": "Türkiye dışı",
+        "marmara": "Marmara",
+        "aegean": "Ege",
+        "mediterranean": "Akdeniz",
+        "east_anatolia": "Doğu Anadolu",
+        "southeast_anatolia": "Güneydoğu Anadolu",
+        "central": "İç Anadolu",
+        "black_sea": "Karadeniz",
+        "other_tr": "Türkiye (bilinmeyen il)"
+      }
+    }
   },
   "dashboard": {
     "welcome": "Hoş geldin, {{name}}",
@@ -134,6 +173,8 @@
     "postSingular": "gönderi",
     "postPlural": "gönderi",
     "location": "Konum",
+    "placeFromGeocoder": "Yer (adres)",
+    "regionLabel": "Bölge",
     "loading": "Harita verisi yükleniyor...",
     "closePanel": "Paneli kapat",
     "mapLoading": "Harita yükleniyor...",

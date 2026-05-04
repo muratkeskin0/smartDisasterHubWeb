@@ -296,6 +296,10 @@
   margin-bottom: 2px;
 }
 
+.map-post-card__loc--muted {
+  opacity: 0.95;
+}
+
 .map-post-card__body {
   margin: 0 0 10px 0;
   font-size: var(--font-size-xs);
