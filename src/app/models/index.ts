@@ -96,6 +96,11 @@ export interface RedditPost {
   fetchedAt: string;
   isDisasterRelated?: boolean | null;
   relevanceScore?: number | null;
+  baseRelevanceScore?: number | null;
+  finalRelevanceScore?: number | null;
+  relevanceAdjustmentDelta?: number | null;
+  relevanceAdjustmentReasons?: string | null;
+  appliedAuthorTrustScore?: number | null;
   analysisMessage?: string | null;
   // T2 fields (help request + humanitarian categories)
   isHelpRequest?: boolean | null;
@@ -174,5 +179,25 @@ export interface MapPostInfo {
   url: string;
   contentPreview?: string | null;
   locationText?: string | null;
+}
+
+export interface HistoricalReportSummary {
+  analyzedWithHistoricalScores: number;
+  averageBaseScore: number;
+  averageFinalScore: number;
+  averageAdjustmentDelta: number;
+  penalizedCount: number;
+  boostedCount: number;
+  imageMismatchCount: number;
+  noImagePenaltyCount: number;
+  lowTrustPenaltyCount: number;
+}
+
+export interface HistoricalTrendPoint {
+  day: string;
+  postCount: number;
+  avgBaseScore: number;
+  avgFinalScore: number;
+  avgDelta: number;
 }
 

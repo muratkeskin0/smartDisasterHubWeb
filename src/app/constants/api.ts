@@ -29,7 +29,10 @@ export const API_ENDPOINTS = {
     MAP: '/api/reddit-posts/map',
     REFRESH: '/api/reddit-posts/jobs/refresh',
     FETCH_JOB: '/api/reddit-posts/jobs/fetch',
-    ANALYZE_JOB: '/api/reddit-posts/jobs/analyze'
+    ANALYZE_JOB: '/api/reddit-posts/jobs/analyze',
+    REPORTS_SUMMARY: '/api/reddit-posts/reports/summary',
+    REPORTS_TREND: '/api/reddit-posts/reports/trend',
+    REPORTS_TOP_ADJUSTED: '/api/reddit-posts/reports/top-adjusted'
   },
   ABOUT: {
     GET: '/api/about',

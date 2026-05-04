@@ -285,7 +285,7 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  background: #0b0b0b;
+  background: var(--color-background);
 }
 
 .lightbox-image {

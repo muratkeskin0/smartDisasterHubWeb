@@ -11,8 +11,8 @@
   border-radius: var(--radius-xl);
   border: 1px solid var(--color-border);
   background:
-    radial-gradient(ellipse 80% 70% at 8% 0%, rgb(245 158 11 / 0.12), transparent 62%),
-    linear-gradient(165deg, rgb(30 41 59 / 0.82) 0%, rgb(15 23 42 / 0.82) 100%);
+    radial-gradient(ellipse 80% 70% at 8% 0%, var(--color-primary-faint), transparent 62%),
+    linear-gradient(165deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
   box-shadow: var(--shadow-md);
 }
 
@@ -58,7 +58,7 @@
   line-height: var(--line-height-relaxed);
   margin-bottom: 20px;
   padding: 20px;
-  background: linear-gradient(175deg, rgb(30 41 59 / 0.86) 0%, rgb(15 23 42 / 0.85) 100%);
+  background: linear-gradient(175deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
   border-radius: var(--radius-md);
   border-left: 4px solid var(--color-primary);
 }

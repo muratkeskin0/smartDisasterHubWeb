@@ -11,9 +11,9 @@
 
 .mission-hero {
   background:
-    radial-gradient(ellipse 90% 80% at 10% 0%, rgb(245 158 11 / 0.18), transparent 55%),
-    radial-gradient(ellipse 70% 60% at 95% 100%, rgb(56 189 248 / 0.12), transparent 60%),
-    linear-gradient(155deg, #0b1222 0%, #1b2940 48%, #0f172a 100%);
+    radial-gradient(ellipse 90% 80% at 10% 0%, var(--color-primary-faint), transparent 55%),
+    radial-gradient(ellipse 70% 60% at 95% 100%, var(--color-info-lighter), transparent 60%),
+    linear-gradient(155deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 48%, var(--color-background-secondary) 100%);
   padding: 40px;
   border-radius: 20px;
   color: var(--color-text-primary);
@@ -31,8 +31,8 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-primary-light);
-  background: rgb(245 158 11 / 0.12);
-  border: 1px solid rgb(245 158 11 / 0.28);
+  background: var(--color-primary-alpha-12);
+  border: 1px solid var(--color-primary);
 }
 
 .mission-hero h2 {
@@ -58,7 +58,7 @@
 .mission-chip {
   padding: 8px 12px;
   border-radius: var(--radius-full);
-  background: rgb(15 23 42 / 0.4);
+  background: var(--color-background);
   border: 1px solid var(--color-border);
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
@@ -74,7 +74,7 @@
 .kpi-card {
   padding: var(--spacing-lg);
   border-radius: var(--radius-lg);
-  background: linear-gradient(160deg, rgb(15 23 42 / 0.75) 0%, rgb(30 41 59 / 0.7) 100%);
+  background: linear-gradient(160deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 }

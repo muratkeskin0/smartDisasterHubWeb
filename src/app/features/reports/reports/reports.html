@@ -1,0 +1,137 @@
+<app-header></app-header>
+
+<div class="rp-page">
+  <section class="rp-header">
+    <div class="rp-header-top">
+      <app-back-button></app-back-button>
+    </div>
+    <h1>{{ 'reports.title' | transloco }}</h1>
+    <p class="rp-sub">{{ 'reports.subtitle' | transloco }}</p>
+  </section>
+
+  <section class="rp-loading" *ngIf="loading">
+    {{ 'common.loading' | transloco }}
+  </section>
+
+  <section class="rp-error" *ngIf="error && !loading">
+    {{ 'reports.loadError' | transloco }}
+  </section>
+
+  <section class="rp-summary" *ngIf="!loading && !error && summary">
+    <article class="rp-kpi">
+      <p>{{ 'reports.kpiHistoricalCount' | transloco }}</p>
+      <h3>{{ summary.analyzedWithHistoricalScores }}</h3>
+    </article>
+    <article class="rp-kpi">
+      <p>{{ 'reports.kpiAvgBase' | transloco }}</p>
+      <h3>{{ pct(summary.averageBaseScore) }}</h3>
+    </article>
+    <article class="rp-kpi">
+      <p>{{ 'reports.kpiAvgFinal' | transloco }}</p>
+      <h3>{{ pct(summary.averageFinalScore) }}</h3>
+    </article>
+    <article class="rp-kpi">
+      <p>{{ 'reports.kpiAvgDelta' | transloco }}</p>
+      <h3>{{ signedPct(summary.averageAdjustmentDelta) }}</h3>
+    </article>
+  </section>
+
+  <section class="rp-breakdown" *ngIf="summary">
+    <div class="rp-breakdown-card">
+      <h2>{{ 'reports.adjustmentImpact' | transloco }}</h2>
+      <ul>
+        <li>{{ 'reports.penalized' | transloco }}: <strong>{{ summary.penalizedCount }}</strong></li>
+        <li>{{ 'reports.boosted' | transloco }}: <strong>{{ summary.boostedCount }}</strong></li>
+        <li>{{ 'reports.imageMismatch' | transloco }}: <strong>{{ summary.imageMismatchCount }}</strong></li>
+        <li>{{ 'reports.noImage' | transloco }}: <strong>{{ summary.noImagePenaltyCount }}</strong></li>
+        <li>{{ 'reports.lowTrust' | transloco }}: <strong>{{ summary.lowTrustPenaltyCount }}</strong></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="rp-trend">
+    <div class="rp-trend-head">
+      <h2>{{ 'reports.trendTitle' | transloco }}</h2>
+      <div class="rp-trend-controls">
+        <label>{{ 'reports.days' | transloco }}</label>
+        <select [(ngModel)]="days" (ngModelChange)="reloadTrend()">
+          <option [ngValue]="7">7</option>
+          <option [ngValue]="14">14</option>
+          <option [ngValue]="30">30</option>
+          <option [ngValue]="60">60</option>
+        </select>
+      </div>
+    </div>
+    <div class="rp-table-wrap">
+      <table class="rp-table">
+        <thead>
+          <tr>
+            <th>{{ 'reports.colDay' | transloco }}</th>
+            <th>{{ 'reports.colCount' | transloco }}</th>
+            <th>{{ 'reports.colAvgBase' | transloco }}</th>
+            <th>{{ 'reports.colAvgFinal' | transloco }}</th>
+            <th>{{ 'reports.colAvgDelta' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of trend">
+            <td>{{ row.day }}</td>
+            <td>{{ row.postCount }}</td>
+            <td>{{ pct(row.avgBaseScore) }}</td>
+            <td>{{ pct(row.avgFinalScore) }}</td>
+            <td>{{ signedPct(row.avgDelta) }}</td>
+          </tr>
+          <tr *ngIf="trend.length === 0">
+            <td colspan="5">{{ 'reports.noTrendData' | transloco }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="rp-top">
+    <h2>{{ 'reports.topAdjustedTitle' | transloco }}</h2>
+    <div class="rp-loading" *ngIf="topLoading">{{ 'common.loading' | transloco }}</div>
+    <div class="rp-table-wrap" *ngIf="!topLoading">
+      <table class="rp-table">
+        <thead>
+          <tr>
+            <th>{{ 'reports.colPost' | transloco }}</th>
+            <th>{{ 'reports.colSubreddit' | transloco }}</th>
+            <th>{{ 'reports.colBase' | transloco }}</th>
+            <th>{{ 'reports.colFinal' | transloco }}</th>
+            <th>{{ 'reports.colDelta' | transloco }}</th>
+            <th>{{ 'reports.colReasons' | transloco }}</th>
+            <th>{{ 'reports.colAnalyzedAt' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let post of topAdjusted">
+            <td>
+              <a [routerLink]="['/text-analysis/post', post.redditPostId]">{{ post.title }}</a>
+            </td>
+            <td>r/{{ post.subreddit }}</td>
+            <td>{{ pct(post.baseRelevanceScore) }}</td>
+            <td>{{ pct(post.finalRelevanceScore) }}</td>
+            <td>{{ signedPct(post.relevanceAdjustmentDelta) }}</td>
+            <td>{{ post.relevanceAdjustmentReasons || '—' }}</td>
+            <td>{{ formatDate(post.analyzedAt) }}</td>
+          </tr>
+          <tr *ngIf="topAdjusted.length === 0">
+            <td colspan="7">{{ 'reports.noTopAdjusted' | transloco }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="rp-pagination" *ngIf="totalPages > 1">
+      <button type="button" (click)="goPage(currentPage - 1)" [disabled]="currentPage === 0">
+        {{ 'common.previous' | transloco }}
+      </button>
+      <span>{{ currentPage + 1 }} / {{ totalPages }}</span>
+      <button type="button" (click)="goPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">
+        {{ 'common.next' | transloco }}
+      </button>
+    </div>
+  </section>
+</div>
+

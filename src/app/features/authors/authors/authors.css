@@ -10,8 +10,8 @@
   border-radius: var(--radius-xl);
   border: 1px solid var(--color-border);
   background:
-    radial-gradient(ellipse 90% 70% at 8% 0%, rgb(245 158 11 / 0.1), transparent 60%),
-    linear-gradient(160deg, rgb(15 23 42 / 0.9) 0%, rgb(30 41 59 / 0.85) 100%);
+    radial-gradient(ellipse 90% 70% at 8% 0%, var(--color-primary-faint), transparent 60%),
+    linear-gradient(160deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
   box-shadow: var(--shadow-md);
 }
 
@@ -48,7 +48,7 @@
 }
 
 .ra-kpi {
-  background: linear-gradient(170deg, rgb(30 41 59 / 0.88) 0%, rgb(15 23 42 / 0.8) 100%);
+  background: linear-gradient(170deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 16px 24px;
@@ -78,7 +78,7 @@
 }
 
 .ra-chart-card {
-  background: linear-gradient(165deg, rgb(30 41 59 / 0.88) 0%, rgb(15 23 42 / 0.85) 100%);
+  background: linear-gradient(165deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 20px;
@@ -155,7 +155,7 @@
   padding: 18px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  background: linear-gradient(170deg, rgb(30 41 59 / 0.68) 0%, rgb(15 23 42 / 0.66) 100%);
+  background: linear-gradient(170deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
 }
 
 .ra-search {
@@ -273,7 +273,7 @@
   overflow-x: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: linear-gradient(170deg, rgb(30 41 59 / 0.82) 0%, rgb(15 23 42 / 0.82) 100%);
+  background: linear-gradient(170deg, var(--color-background-secondary) 0%, var(--color-background-tertiary) 100%);
 }
 
 .ra-table {

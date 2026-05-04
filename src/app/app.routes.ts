@@ -76,6 +76,12 @@ export const routes: Routes = [
     title: 'Authors - Smart Disaster Hub'
   },
   {
+    path: 'reports',
+    loadComponent: () => import('./features/reports/reports/reports').then(m => m.ReportsComponent),
+    canActivate: [authGuard, adminGuard],
+    title: 'Reports - Smart Disaster Hub'
+  },
+  {
     path: 'about',
     loadComponent: () => import('./features/about/about/about').then(m => m.AboutComponent),
     canActivate: [authGuard],
