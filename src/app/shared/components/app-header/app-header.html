@@ -3,9 +3,6 @@
     <div class="header-left">
       <a [routerLink]="homeLink()" class="app-title-link">
         <h1 class="app-title">{{ 'app.title' | transloco }}</h1>
-        @if (isAuthenticated()) {
-          <span class="app-title-badge">Live Ops</span>
-        }
       </a>
       @if (isAuthenticated()) {
         <nav class="header-nav">

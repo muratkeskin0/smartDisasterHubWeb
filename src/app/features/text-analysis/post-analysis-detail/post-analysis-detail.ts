@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
 import { RedditPost, RedditPostStatus } from '../../../models';
@@ -24,8 +24,12 @@ import { RedditPostAnalysisPanelComponent } from '../reddit-post-analysis-panel/
 })
 export class PostAnalysisDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private textAnalysisService = inject(TextAnalysisService);
   private transloco = inject(TranslocoService);
+
+  /** Sanitized in-app path from `?returnUrl=` (e.g. /reports, /text-analysis). */
+  returnUrl: string | null = null;
 
   post: RedditPost | null = null;
   loading = true;
@@ -39,6 +43,9 @@ export class PostAnalysisDetailComponent implements OnInit {
   private failedImageByPostId: Record<number, boolean> = {};
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(q => {
+      this.returnUrl = PostAnalysisDetailComponent.sanitizeReturnUrl(q['returnUrl']);
+    });
     this.route.paramMap.subscribe(params => {
       const redditPostId = params.get('redditPostId');
       if (!redditPostId) {
@@ -48,6 +55,33 @@ export class PostAnalysisDetailComponent implements OnInit {
       }
       this.loadPost(redditPostId);
     });
+  }
+
+  private static sanitizeReturnUrl(value: unknown): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    let t = value.trim();
+    try {
+      t = decodeURIComponent(t);
+    } catch {
+      return null;
+    }
+    t = t.trim();
+    if (!t.startsWith('/') || t.startsWith('//')) {
+      return null;
+    }
+    if (t.includes('://') || t.includes('\\')) {
+      return null;
+    }
+    const lower = t.toLowerCase();
+    if (lower.startsWith('javascript:') || lower.startsWith('data:')) {
+      return null;
+    }
+    if (t.length > 256) {
+      return null;
+    }
+    return t;
   }
 
   private loadPost(redditPostId: string): void {
@@ -194,5 +228,14 @@ export class PostAnalysisDetailComponent implements OnInit {
     } else if (event.key === 'ArrowLeft') {
       this.prevImage();
     }
+  }
+
+  /** `returnUrl` when opening the canonical duplicate post so user can come back here. */
+  duplicateBackReturnUrl(): string {
+    const id = this.post?.redditPostId;
+    if (!id) {
+      return this.router.url.split('?')[0] || '/text-analysis';
+    }
+    return `/text-analysis/post/${encodeURIComponent(id)}`;
   }
 }

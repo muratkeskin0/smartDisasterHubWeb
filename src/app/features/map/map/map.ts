@@ -193,19 +193,25 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     try {
-      // Initialize map
+      const worldBounds = L.latLngBounds(L.latLng(-85.0511287798, -180), L.latLng(85.0511287798, 180));
+
+      // Initialize map — single world: no repeating panes, pan clamped to globe
       this.map = L.map('map', {
         center: [39.0, 35.0],
         zoom: 6,
         minZoom: 3,
         maxZoom: 18,
-        zoomControl: true
+        zoomControl: true,
+        maxBounds: worldBounds,
+        maxBoundsViscosity: 1.0,
+        worldCopyJump: false
       });
 
-      // Add OpenStreetMap tile layer
+      // Add OpenStreetMap tile layer (noWrap = one horizontal world, no infinite scroll)
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
+        maxZoom: 19,
+        noWrap: true
       }).addTo(this.map);
 
       // Handle zoom events

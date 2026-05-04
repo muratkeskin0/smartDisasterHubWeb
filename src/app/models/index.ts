@@ -88,6 +88,8 @@ export interface RedditPost {
   mediaUrls?: string[] | null;
   mediaContentHash?: string | null;
   duplicateOfPostId?: number | null;
+  /** Reddit post id of the canonical row when this post duplicates another (same image). */
+  duplicateOfRedditPostId?: string | null;
   author?: string | null;
   subreddit: string;
   upvotes?: number | null;

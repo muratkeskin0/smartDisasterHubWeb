@@ -202,6 +202,28 @@
   color: var(--color-success-dark);
 }
 
+/* Image/text match: "yes" is good signal — use clear positive styling (not error red). */
+.match-yes {
+  background: var(--color-success-lighter);
+  color: var(--color-success-dark);
+}
+
+.match-no {
+  background: var(--color-error-lighter);
+  color: var(--color-error-dark);
+}
+
+/* Visible damage: yes = caution; no = calm */
+.damage-yes {
+  background: var(--color-warning-lighter);
+  color: var(--color-warning-dark);
+}
+
+.damage-no {
+  background: var(--color-success-lighter);
+  color: var(--color-success-dark);
+}
+
 .relevance-high {
   background: var(--color-error-lighter);
   color: var(--color-error-dark);

@@ -49,11 +49,10 @@
     </div>
 
     <div class="back-section">
-      @if (authService.isAdmin) {
-        <app-back-button route="/dashboard"></app-back-button>
-      } @else {
-        <app-back-button route="/" [label]="'common.back' | transloco"></app-back-button>
-      }
+      <app-back-button
+        [strategy]="'home'"
+        [fallbackRoute]="authService.isAdmin ? '/dashboard' : '/'"
+      />
     </div>
   </div>
 </div>

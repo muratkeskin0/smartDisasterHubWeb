@@ -92,7 +92,11 @@
             <div class="post-card__top">
               <div class="post-title-section">
                 <h3 class="post-title">
-                  <a [routerLink]="['/text-analysis/post', post.redditPostId]" class="post-title-link">{{ post.title }}</a>
+                  <a
+                    [routerLink]="['/text-analysis/post', post.redditPostId]"
+                    [queryParams]="{ returnUrl: '/text-analysis' }"
+                    class="post-title-link"
+                    >{{ post.title }}</a>
                 </h3>
                 <div class="post-meta">
                   <span class="meta-item">r/{{ post.subreddit }}</span>
@@ -106,9 +110,11 @@
             </div>
 
             <div class="post-card__actions">
-              <a [routerLink]="['/text-analysis/post', post.redditPostId]" class="list-detail-btn">{{
-                'textAnalysis.openFullAnalysis' | transloco
-              }}</a>
+              <a
+                [routerLink]="['/text-analysis/post', post.redditPostId]"
+                [queryParams]="{ returnUrl: '/text-analysis' }"
+                class="list-detail-btn"
+                >{{ 'textAnalysis.openFullAnalysis' | transloco }}</a>
               <a [href]="post.url" target="_blank" rel="noopener noreferrer" class="list-external-link">{{
                 'common.viewOnReddit' | transloco
               }}</a>

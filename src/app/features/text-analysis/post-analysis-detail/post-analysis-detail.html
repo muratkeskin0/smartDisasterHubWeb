@@ -2,8 +2,7 @@
 
 <div class="detail-container">
   <div class="detail-header">
-    <app-back-button></app-back-button>
-    <a routerLink="/text-analysis" class="detail-back-link">{{ 'textAnalysis.backToList' | transloco }}</a>
+    <app-back-button [returnUrl]="returnUrl" [fallbackRoute]="'/text-analysis'" />
   </div>
 
   <p class="detail-intro">{{ 'textAnalysis.detailReaderPath' | transloco }}</p>
@@ -15,7 +14,9 @@
 
   <div class="error-container" *ngIf="error && !loading">
     <p class="error-message">{{ error }}</p>
-    <a routerLink="/text-analysis" class="detail-back-link">{{ 'textAnalysis.backToList' | transloco }}</a>
+    <div class="detail-back-inline">
+      <app-back-button [returnUrl]="returnUrl" [fallbackRoute]="'/text-analysis'" [block]="true" />
+    </div>
   </div>
 
   <article class="detail-article" *ngIf="post && !loading && !error">
@@ -65,11 +66,21 @@
       <div class="media-meta" *ngIf="post.mediaUrls && post.mediaUrls.length > 1">
         {{ 'textAnalysis.moreImages' | transloco: { n: post.mediaUrls.length - 1 } }}
       </div>
-      <div
+      <a
         class="media-meta duplicate"
-        *ngIf="post.duplicateOfPostId !== null && post.duplicateOfPostId !== undefined && post.duplicateOfPostId !== post.id">
-        {{ 'textAnalysis.duplicateOf' | transloco: { id: post.duplicateOfPostId } }}
-      </div>
+        *ngIf="post.duplicateOfRedditPostId"
+        [routerLink]="['/text-analysis/post', post.duplicateOfRedditPostId]"
+        [queryParams]="{ returnUrl: duplicateBackReturnUrl() }"
+        (click)="$event.stopPropagation()"
+      >
+        {{ 'textAnalysis.duplicateOpenOriginal' | transloco }}
+      </a>
+      <span
+        class="media-meta duplicate media-meta-duplicate--readonly"
+        *ngIf="!post.duplicateOfRedditPostId && post.duplicateOfPostId !== null && post.duplicateOfPostId !== undefined && post.duplicateOfPostId !== post.id"
+      >
+        {{ 'textAnalysis.duplicateUnavailable' | transloco: { id: post.duplicateOfPostId } }}
+      </span>
     </div>
 
     <h2 class="detail-section-title">{{ 'textAnalysis.detailAnalysisHeading' | transloco }}</h2>

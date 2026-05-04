@@ -108,7 +108,9 @@
         <tbody>
           <tr *ngFor="let post of topAdjusted">
             <td>
-              <a [routerLink]="['/text-analysis/post', post.redditPostId]">{{ post.title }}</a>
+              <a [routerLink]="['/text-analysis/post', post.redditPostId]" [queryParams]="{ returnUrl: '/reports' }">{{
+                post.title
+              }}</a>
             </td>
             <td>r/{{ post.subreddit }}</td>
             <td>{{ pct(post.baseRelevanceScore) }}</td>

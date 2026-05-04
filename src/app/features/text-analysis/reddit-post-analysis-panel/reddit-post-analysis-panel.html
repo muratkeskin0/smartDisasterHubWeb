@@ -71,7 +71,7 @@
           <div class="visual-col__heading">{{ 'textAnalysis.visualGroupCaption' | transloco }}</div>
           <div class="analysis-kv" *ngIf="post.isImageTextMatch !== null && post.isImageTextMatch !== undefined">
             <span class="analysis-kv__label">{{ 'textAnalysis.labelImageText' | transloco }}</span>
-            <span class="analysis-kv__value" [class.disaster-yes]="post.isImageTextMatch" [class.disaster-no]="!post.isImageTextMatch">
+            <span class="analysis-kv__value" [class.match-yes]="post.isImageTextMatch" [class.match-no]="!post.isImageTextMatch">
               {{ post.isImageTextMatch ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
             </span>
           </div>
@@ -87,7 +87,7 @@
           <div class="visual-col__heading">{{ 'textAnalysis.visualGroupDamage' | transloco }}</div>
           <div class="analysis-kv" *ngIf="post.hasImageDamage !== null && post.hasImageDamage !== undefined">
             <span class="analysis-kv__label">{{ 'textAnalysis.labelDamageT3' | transloco }}</span>
-            <span class="analysis-kv__value" [class.disaster-yes]="post.hasImageDamage" [class.disaster-no]="!post.hasImageDamage">
+            <span class="analysis-kv__value" [class.damage-yes]="post.hasImageDamage" [class.damage-no]="!post.hasImageDamage">
               {{ post.hasImageDamage ? ('textAnalysis.yes' | transloco) : ('textAnalysis.no' | transloco) }}
             </span>
           </div>
