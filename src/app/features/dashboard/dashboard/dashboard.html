@@ -2,13 +2,34 @@
   <app-header></app-header>
 
   <main class="dashboard-main">
-    <div class="welcome-section">
+    <section class="mission-hero">
+      <p class="mission-hero__eyebrow">Crisis Intelligence Hub</p>
       <h2>{{ 'dashboard.welcome' | transloco: { name: firstName } }}</h2>
       <p>{{ 'dashboard.tagline' | transloco }}</p>
-    </div>
 
-    <!-- Features Grid -->
-    <div class="features-grid">
+      <div class="mission-hero__chips">
+        <span class="mission-chip">AI Triage</span>
+        <span class="mission-chip">Geo Signals</span>
+        <span class="mission-chip">Fast Response</span>
+      </div>
+    </section>
+
+    <section class="kpi-strip">
+      <article class="kpi-card">
+        <p class="kpi-card__label">Core Module</p>
+        <h3 class="kpi-card__value">{{ 'dashboard.featureTextAnalysisTitle' | transloco }}</h3>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-card__label">Spatial View</p>
+        <h3 class="kpi-card__value">{{ 'dashboard.featureMapTitle' | transloco }}</h3>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-card__label">Trust Signals</p>
+        <h3 class="kpi-card__value">{{ 'dashboard.featureAuthorsTitle' | transloco }}</h3>
+      </article>
+    </section>
+
+    <section class="features-grid">
       <a routerLink="/text-analysis" class="feature-card">
         <div class="feature-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -69,7 +90,7 @@
         </div>
         <div class="feature-arrow">→</div>
       </a>
-    </div>
+    </section>
 
     <section class="dashboard-location" *ngIf="locationsLoading || locationsLoaded">
       <div class="dashboard-location__head">
