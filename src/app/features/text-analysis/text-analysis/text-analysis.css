@@ -1,5 +1,5 @@
 .text-analysis-container {
-  max-width: 1200px;
+  max-width: var(--layout-max-width-wide);
   margin: 0 auto;
   padding: 40px 28px 56px;
   width: 100%;
@@ -8,6 +8,13 @@
 
 .header-section {
   margin-bottom: 36px;
+  padding: 28px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(ellipse 85% 70% at 8% 0%, rgb(245 158 11 / 0.12), transparent 60%),
+    linear-gradient(155deg, rgb(15 23 42 / 0.88) 0%, rgb(30 41 59 / 0.84) 100%);
+  box-shadow: var(--shadow-md);
 }
 
 .header-top {
@@ -85,7 +92,7 @@
 }
 
 .stat-card {
-  background: var(--color-surface-card);
+  background: linear-gradient(170deg, rgb(30 41 59 / 0.9) 0%, rgb(15 23 42 / 0.82) 100%);
   padding: 20px 16px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -204,7 +211,7 @@
 }
 
 .post-card {
-  background: var(--color-surface-card);
+  background: linear-gradient(165deg, rgb(30 41 59 / 0.92) 0%, rgb(15 23 42 / 0.86) 100%);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 22px 24px;
@@ -434,7 +441,7 @@
 .sort-pagination-controls {
   margin-bottom: 24px;
   padding: 18px 20px;
-  background: var(--color-background-secondary);
+  background: linear-gradient(160deg, rgb(30 41 59 / 0.72) 0%, rgb(15 23 42 / 0.7) 100%);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
 }
@@ -485,7 +492,7 @@
   gap: 8px;
   margin-top: 40px;
   padding: 24px;
-  background: var(--color-background-secondary);
+  background: linear-gradient(170deg, rgb(30 41 59 / 0.75) 0%, rgb(15 23 42 / 0.7) 100%);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   flex-wrap: wrap;
@@ -571,6 +578,10 @@
 @media (max-width: 768px) {
   .text-analysis-container {
     padding: 20px 16px;
+  }
+
+  .header-section {
+    padding: 18px;
   }
 
   .statistics-section {
