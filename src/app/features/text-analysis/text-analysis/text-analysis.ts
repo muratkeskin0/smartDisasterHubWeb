@@ -3,25 +3,31 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TextAnalysisService, PageResponse } from '../../../core/services/text-analysis.service';
-import { RedditPost, PostStatistics, RedditPostStatus } from '../../../models';
-import {
-  buildRedditPostRangeFromDatetimeLocals,
-  rangeForPreset,
-  ReportedRange,
-  ReportedRangePreset,
-  tryApplyCustomRedditPostDateRange
-} from '../../../core/utils/reported-date-range';
+import { PostModerationStatus, RedditPost, PostStatistics } from '../../../models';
+import { ReportedRange, ReportedRangePreset } from '../../../core/utils/reported-date-range';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { RedditDateFilterComponent } from '../../../shared/components/reddit-date-filter/reddit-date-filter';
+import { ListSortOption, ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
+import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
 
-/**
- * List of analyzed posts: one trust/relevance score per row; full breakdown on detail route.
- */
+export type ListFilterMode = 'all' | 'disaster' | 'pending' | 'approved' | 'rejected' | 'notRequired';
+
 @Component({
   selector: 'app-text-analysis',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AppHeaderComponent,
+    BackButtonComponent,
+    TranslocoPipe,
+    RedditDateFilterComponent,
+    ListToolbarComponent,
+    PostStatusBadgesComponent
+  ],
   templateUrl: './text-analysis.html',
   styleUrl: './text-analysis.css'
 })
@@ -33,7 +39,8 @@ export class TextAnalysisComponent implements OnInit {
   statistics: PostStatistics | null = null;
   loading = true;
   error: string | null = null;
-  filterDisasterOnly = false;
+  listFilter: ListFilterMode = 'all';
+  activeRange: ReportedRange = { fromIso: null, toIso: null };
 
   currentPage = 0;
   pageSize = 20;
@@ -49,6 +56,23 @@ export class TextAnalysisComponent implements OnInit {
   customToLocal = '';
   customRangeError: string | null = null;
 
+  readonly sortOptions: ListSortOption[] = [
+    { value: 'redditCreatedAt', labelKey: 'common.sortPostedDate' },
+    { value: 'analyzedAt', labelKey: 'common.sortAnalyzedDate' },
+    { value: 'relevanceScore', labelKey: 'common.sortRelevance' },
+    { value: 'finalRelevanceScore', labelKey: 'common.sortFinalRelevance' },
+    { value: 'upvotes', labelKey: 'common.sortUpvotes' }
+  ];
+
+  readonly filterChips: { id: ListFilterMode; labelKey: string }[] = [
+    { id: 'all', labelKey: 'textAnalysis.filterAllPosts' },
+    { id: 'disaster', labelKey: 'textAnalysis.filterDisaster' },
+    { id: 'pending', labelKey: 'moderation.statusPending' },
+    { id: 'approved', labelKey: 'moderation.statusApproved' },
+    { id: 'rejected', labelKey: 'moderation.statusRejected' },
+    { id: 'notRequired', labelKey: 'moderation.statusNotRequired' }
+  ];
+
   ngOnInit(): void {
     this.loadData();
   }
@@ -59,7 +83,7 @@ export class TextAnalysisComponent implements OnInit {
 
     if (refreshJobs) {
       this.textAnalysisService.triggerRefresh().subscribe({
-        next: (response) => {
+        next: response => {
           if (response.success) {
             setTimeout(() => this.loadDataInternal(), 2000);
           } else {
@@ -73,46 +97,62 @@ export class TextAnalysisComponent implements OnInit {
     }
   }
 
-  private requestRange(): ReportedRange {
-    if (this.useCustomRange) {
-      return buildRedditPostRangeFromDatetimeLocals(this.customFromLocal, this.customToLocal);
-    }
-    return rangeForPreset(this.datePreset);
+  onRangeChange(range: ReportedRange): void {
+    this.activeRange = range;
+    this.currentPage = 0;
+    this.loadDataInternal();
   }
 
-  private hasCustomFieldInput(): boolean {
-    return Boolean(this.customFromLocal?.trim() || this.customToLocal?.trim());
+  onDatePresetChange(preset: ReportedRangePreset): void {
+    this.datePreset = preset;
+  }
+
+  setListFilter(mode: ListFilterMode): void {
+    if (this.listFilter === mode) return;
+    this.listFilter = mode;
+    this.currentPage = 0;
+    this.loadDataInternal();
+  }
+
+  onToolbarChange(): void {
+    this.currentPage = 0;
+    this.loadDataInternal();
   }
 
   private loadDataInternal(): void {
-    const range = this.requestRange();
+    const range = this.activeRange;
     this.textAnalysisService.getStatistics(range).subscribe({
-      next: (response) => {
+      next: response => {
         if (response.success && response.data) {
           this.statistics = response.data;
         }
       },
-      error: (err) => console.error('Error loading statistics:', err)
+      error: err => console.error('Error loading statistics:', err)
     });
 
-    const postsObservable = this.filterDisasterOnly
-      ? this.textAnalysisService.getDisasterRelatedPosts(
-          this.currentPage,
-          this.pageSize,
-          this.sortBy,
-          this.sortDirection,
-          range
-        )
-      : this.textAnalysisService.getAnalyzedPosts(
-          this.currentPage,
-          this.pageSize,
-          this.sortBy,
-          this.sortDirection,
-          range
-        );
+    let request$;
+    if (this.listFilter === 'disaster') {
+      request$ = this.textAnalysisService.getDisasterRelatedPosts(
+        this.currentPage,
+        this.pageSize,
+        this.sortBy,
+        this.sortDirection,
+        range
+      );
+    } else {
+      const modStatus = this.moderationParamForFilter();
+      request$ = this.textAnalysisService.getAnalyzedPosts(
+        this.currentPage,
+        this.pageSize,
+        this.sortBy,
+        this.sortDirection,
+        range,
+        modStatus
+      );
+    }
 
-    postsObservable.subscribe({
-      next: (response) => {
+    request$.subscribe({
+      next: response => {
         if (response.success && response.data) {
           const pageData: PageResponse<RedditPost> = response.data;
           this.posts = pageData.content;
@@ -122,94 +162,47 @@ export class TextAnalysisComponent implements OnInit {
         }
         this.loading = false;
       },
-      error: (err) => {
-        console.error('Error loading posts:', err);
-        this.error = 'Failed to load posts. Please try again later.';
+      error: () => {
+        this.error = 'textAnalysis.loadError';
         this.loading = false;
       }
     });
   }
 
-  setDatePreset(preset: ReportedRangePreset): void {
-    if (this.datePreset === preset && !this.useCustomRange && !this.hasCustomFieldInput()) {
-      return;
+  private moderationParamForFilter(): string | null {
+    switch (this.listFilter) {
+      case 'pending':
+        return PostModerationStatus.PENDING_REVIEW;
+      case 'approved':
+        return PostModerationStatus.APPROVED;
+      case 'rejected':
+        return PostModerationStatus.REJECTED;
+      case 'notRequired':
+        return PostModerationStatus.NOT_REQUIRED;
+      default:
+        return null;
     }
-    this.datePreset = preset;
-    this.useCustomRange = false;
-    this.customFromLocal = '';
-    this.customToLocal = '';
-    this.customRangeError = null;
-    this.currentPage = 0;
-    this.loadData();
-  }
-
-  applyCustomRange(): void {
-    this.customRangeError = null;
-    const parsed = tryApplyCustomRedditPostDateRange(this.customFromLocal, this.customToLocal);
-    if (!parsed.ok) {
-      this.customRangeError = parsed.i18nKey;
-      return;
-    }
-    this.useCustomRange = true;
-    this.currentPage = 0;
-    this.loadData();
-  }
-
-  clearCustomRange(): void {
-    this.useCustomRange = false;
-    this.datePreset = 'all';
-    this.customFromLocal = '';
-    this.customToLocal = '';
-    this.customRangeError = null;
-    this.currentPage = 0;
-    this.loadData();
-  }
-
-  toggleFilter(): void {
-    this.filterDisasterOnly = !this.filterDisasterOnly;
-    this.currentPage = 0;
-    this.loadData();
   }
 
   changePage(page: number): void {
     if (page >= 0 && page < this.totalPages) {
       this.currentPage = page;
-      this.loadData();
+      this.loadDataInternal();
     }
-  }
-
-  changeSort(field: string): void {
-    if (this.sortBy === field) {
-      this.sortDirection = this.sortDirection === 'ASC' ? 'DESC' : 'ASC';
-    } else {
-      this.sortBy = field;
-      this.sortDirection = 'DESC';
-    }
-    this.currentPage = 0;
-    this.loadData();
   }
 
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxPagesToShow = 7;
-
     if (this.totalPages <= maxPagesToShow) {
-      for (let i = 0; i < this.totalPages; i++) {
-        pages.push(i);
-      }
+      for (let i = 0; i < this.totalPages; i++) pages.push(i);
     } else {
       pages.push(0);
       const startPage = Math.max(1, this.currentPage - 1);
       const endPage = Math.min(this.totalPages - 2, this.currentPage + 1);
-      if (startPage > 1) {
-        pages.push(-1);
-      }
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-      if (endPage < this.totalPages - 2) {
-        pages.push(-1);
-      }
+      if (startPage > 1) pages.push(-1);
+      for (let i = startPage; i <= endPage; i++) pages.push(i);
+      if (endPage < this.totalPages - 2) pages.push(-1);
       pages.push(this.totalPages - 1);
     }
     return pages;
@@ -217,28 +210,14 @@ export class TextAnalysisComponent implements OnInit {
 
   formatDate(dateString: string | null | undefined): string {
     if (!dateString) return '-';
-    const date = new Date(dateString);
     const locale = this.transloco.getActiveLang() === 'tr' ? 'tr-TR' : 'en-US';
-    return date.toLocaleDateString(locale, {
+    return new Date(dateString).toLocaleDateString(locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     });
-  }
-
-  getStatusClass(status: RedditPostStatus): string {
-    switch (status) {
-      case RedditPostStatus.ANALYZED:
-        return 'status-analyzed';
-      case RedditPostStatus.PENDING:
-        return 'status-pending';
-      case RedditPostStatus.FAILED:
-        return 'status-failed';
-      default:
-        return '';
-    }
   }
 
   getRelevanceClass(score: number | null | undefined): string {

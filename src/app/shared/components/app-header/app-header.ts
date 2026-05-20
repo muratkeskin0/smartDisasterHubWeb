@@ -1,10 +1,11 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { BaseButtonComponent } from '../base-button/base-button';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher';
+import { AdminStatsService } from '../../../core/services/admin-stats.service';
 
 @Component({
   selector: 'app-header',
@@ -13,16 +14,24 @@ import { LanguageSwitcherComponent } from '../language-switcher/language-switche
   templateUrl: './app-header.html',
   styleUrl: './app-header.css'
 })
-export class AppHeaderComponent {
+export class AppHeaderComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
-  
+  private adminStats = inject(AdminStatsService);
+
   currentUser$ = this.authService.currentUser$;
   isAuthenticated = computed(() => this.authService.isAuthenticated);
   isAdmin = computed(() => this.authService.isAdmin);
   userFullName = computed(() => this.authService.userFullName);
+  pendingModerationCount = computed(() => this.adminStats.snapshot?.pendingModerationPosts ?? 0);
 
   homeLink = computed(() => this.authService.defaultHomeRoute);
+
+  ngOnInit(): void {
+    if (this.isAdmin()) {
+      this.adminStats.refresh().subscribe();
+    }
+  }
 
   get userInitials(): string {
     const user = this.authService.currentUserValue;

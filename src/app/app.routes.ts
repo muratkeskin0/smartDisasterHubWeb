@@ -59,6 +59,12 @@ export const routes: Routes = [
     title: 'Text Analysis - Smart Disaster Hub'
   },
   {
+    path: 'moderation',
+    loadComponent: () => import('./features/moderation/moderation/moderation').then(m => m.ModerationComponent),
+    canActivate: [authGuard, adminGuard],
+    title: 'Moderation - Smart Disaster Hub'
+  },
+  {
     path: 'map',
     loadComponent: () => import('./features/map/map/map').then(m => m.MapComponent),
     canActivate: [authGuard, adminGuard],

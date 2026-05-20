@@ -133,6 +133,26 @@
 
 .feature-content {
   flex: 1;
+  position: relative;
+}
+
+.feature-card__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 1.5rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-full);
+  background: var(--color-warning, #d97706);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.feature-card--moderation .feature-icon {
+  background: linear-gradient(135deg, var(--color-warning, #d97706) 0%, #b45309 100%);
 }
 
 .feature-content h3 {

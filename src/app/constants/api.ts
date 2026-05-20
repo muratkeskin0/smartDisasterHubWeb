@@ -33,7 +33,10 @@ export const API_ENDPOINTS = {
     REPORTS_SUMMARY: '/api/reddit-posts/reports/summary',
     REPORTS_TREND: '/api/reddit-posts/reports/trend',
     REPORTS_TOP_ADJUSTED: '/api/reddit-posts/reports/top-adjusted',
-    REPORTS_BREAKDOWN: '/api/reddit-posts/reports/breakdown'
+    REPORTS_BREAKDOWN: '/api/reddit-posts/reports/breakdown',
+    MODERATION_PENDING: '/api/reddit-posts/moderation/pending',
+    MODERATION_APPROVE: '/api/reddit-posts/moderation',
+    MODERATION_REJECT: '/api/reddit-posts/moderation'
   },
   ABOUT: {
     GET: '/api/about',

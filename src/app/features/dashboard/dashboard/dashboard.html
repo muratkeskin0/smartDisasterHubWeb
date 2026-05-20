@@ -30,6 +30,21 @@
     </section>
 
     <section class="features-grid">
+      <a routerLink="/moderation" class="feature-card feature-card--moderation">
+        <div class="feature-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+        </div>
+        <div class="feature-content">
+          <h3>{{ 'dashboard.featureModerationTitle' | transloco }}</h3>
+          <p>{{ 'dashboard.featureModerationDesc' | transloco }}</p>
+          <span class="feature-card__badge" *ngIf="pendingModerationCount > 0">{{ pendingModerationCount }}</span>
+        </div>
+        <div class="feature-arrow">→</div>
+      </a>
+
       <a routerLink="/text-analysis" class="feature-card">
         <div class="feature-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

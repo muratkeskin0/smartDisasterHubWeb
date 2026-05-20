@@ -43,13 +43,17 @@ export class TextAnalysisService {
     size: number = 50,
     sortBy: string = 'redditCreatedAt',
     sortDirection: 'ASC' | 'DESC' = 'DESC',
-    range?: ReportedRange | null
+    range?: ReportedRange | null,
+    moderationStatus?: string | null
   ): Observable<ApiResponse<PageResponse<RedditPost>>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sortBy', sortBy)
       .set('sortDirection', sortDirection);
+    if (moderationStatus) {
+      params = params.set('moderationStatus', moderationStatus);
+    }
     if (range && hasReportedRange(range)) {
       params = appendReportedRangeParams(params, range);
     }
@@ -142,6 +146,37 @@ export class TextAnalysisService {
     return this.http.post<ApiResponse<any>>(
       `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.ANALYZE_JOB}`,
       {}
+    );
+  }
+
+  getModerationPending(
+    page: number = 0,
+    size: number = 20,
+    sortBy: string = 'relevanceScore',
+    sortDirection: 'ASC' | 'DESC' = 'DESC'
+  ): Observable<ApiResponse<PageResponse<RedditPost>>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('sortDirection', sortDirection);
+    return this.http.get<ApiResponse<PageResponse<RedditPost>>>(
+      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.MODERATION_PENDING}`,
+      { params }
+    );
+  }
+
+  approvePost(postId: number): Observable<ApiResponse<RedditPost>> {
+    return this.http.post<ApiResponse<RedditPost>>(
+      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.MODERATION_APPROVE}/${postId}/approve`,
+      {}
+    );
+  }
+
+  rejectPost(postId: number, notes?: string | null): Observable<ApiResponse<RedditPost>> {
+    return this.http.post<ApiResponse<RedditPost>>(
+      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.MODERATION_REJECT}/${postId}/reject`,
+      notes ? { notes } : {}
     );
   }
 }

@@ -1,0 +1,150 @@
+<app-header></app-header>
+
+<div class="moderation-page">
+  <div class="moderation-header">
+    <app-back-button fallbackRoute="/dashboard"></app-back-button>
+    <div class="moderation-header__text">
+      <h1>{{ 'moderation.title' | transloco }}</h1>
+      <p class="moderation-header__sub">{{ 'moderation.subtitle' | transloco }}</p>
+      <p class="moderation-header__keys">{{ 'moderation.keyboardHint' | transloco }}</p>
+    </div>
+    <div class="moderation-header__meta" *ngIf="!loading">
+      <span class="queue-badge">{{ 'moderation.queueCount' | transloco: { count: totalElements } }}</span>
+      <button type="button" class="refresh-btn" (click)="loadQueue()" [disabled]="loading || acting">
+        {{ 'common.refresh' | transloco }}
+      </button>
+    </div>
+  </div>
+
+  <app-list-toolbar
+    class="moderation-toolbar"
+    [sortOptions]="sortOptions"
+    [sortBy]="sortBy"
+    [sortDirection]="sortDirection"
+    [pageSize]="pageSize"
+    [pageSizes]="[10, 20, 50]"
+    (sortByChange)="sortBy = $event"
+    (sortDirectionChange)="sortDirection = $event"
+    (pageSizeChange)="pageSize = $event"
+    (paramsChange)="onToolbarChange()">
+    <label class="auto-advance">
+      <input type="checkbox" [(ngModel)]="autoAdvance" />
+      {{ 'moderation.autoAdvance' | transloco }}
+    </label>
+  </app-list-toolbar>
+
+  <p class="action-toast" *ngIf="actionMessage">{{ actionMessage | transloco }}</p>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>{{ 'moderation.loading' | transloco }}</p>
+  </div>
+
+  <div class="error-container" *ngIf="error && !loading">
+    <p>{{ error | transloco }}</p>
+    <button type="button" class="refresh-btn" (click)="loadQueue()">{{ 'common.retry' | transloco }}</button>
+  </div>
+
+  <div class="moderation-empty" *ngIf="!loading && !error && posts.length === 0">
+    <p>{{ 'moderation.empty' | transloco }}</p>
+  </div>
+
+  <div class="moderation-layout" *ngIf="!loading && !error && posts.length > 0">
+    <aside class="moderation-queue">
+      <h2 class="moderation-queue__title">{{ 'moderation.queueTitle' | transloco }}</h2>
+      <button
+        type="button"
+        class="queue-item"
+        *ngFor="let post of posts; let i = index"
+        [class.queue-item--active]="selectedPost?.id === post.id"
+        (click)="selectPost(post)">
+        <span class="queue-item__title">{{ post.title }}</span>
+        <span class="queue-item__meta">
+          r/{{ post.subreddit }}
+          <span *ngIf="post.relevanceScore != null" [ngClass]="getRelevanceClass(post.relevanceScore)">
+            · {{ formatPercent01(post.relevanceScore) }}%
+          </span>
+          <span *ngIf="post.appliedAuthorTrustScore != null" class="queue-item__trust">
+            · {{ 'moderation.trustShort' | transloco }} {{ formatPercent01(post.appliedAuthorTrustScore) }}%
+          </span>
+        </span>
+        <span class="queue-item__date">{{ formatDate(post.analyzedAt) }}</span>
+      </button>
+
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button type="button" class="page-btn" [disabled]="currentPage === 0" (click)="changePage(currentPage - 1)">
+          {{ 'textAnalysis.pagePrev' | transloco }}
+        </button>
+        <span class="page-info">{{ 'textAnalysis.pageInfo' | transloco: { current: currentPage + 1, total: totalPages } }}</span>
+        <button
+          type="button"
+          class="page-btn"
+          [disabled]="currentPage >= totalPages - 1"
+          (click)="changePage(currentPage + 1)">
+          {{ 'textAnalysis.pageNext' | transloco }}
+        </button>
+      </div>
+    </aside>
+
+    <section class="moderation-detail" *ngIf="selectedPost">
+      <div class="moderation-detail__body">
+      <div class="moderation-detail__head">
+        <h2 class="moderation-detail__title">{{ selectedPost.title }}</h2>
+        <div class="moderation-detail__meta">
+          <span>r/{{ selectedPost.subreddit }}</span>
+          <span *ngIf="selectedPost.author">{{ 'textAnalysis.metaBy' | transloco: { author: selectedPost.author } }}</span>
+          <span>{{ formatDate(selectedPost.redditCreatedAt) }}</span>
+          <app-post-status-badges
+            [status]="selectedPost.status"
+            [moderationStatus]="selectedPost.moderationStatus"
+            [showMlStatus]="false"></app-post-status-badges>
+        </div>
+        <div class="moderation-detail__links">
+          <a
+            [routerLink]="['/text-analysis/post', selectedPost.redditPostId]"
+            [queryParams]="{
+              returnUrl: '/moderation',
+              queuePage: currentPage,
+              queueIndex: selectedIndex,
+              queueSort: sortBy,
+              queueDir: sortDirection,
+              queueSize: pageSize
+            }"
+            class="link-secondary">
+            {{ 'moderation.openFullDetail' | transloco }}
+          </a>
+          <a [href]="selectedPost.url" target="_blank" rel="noopener noreferrer" class="link-secondary">
+            {{ 'common.viewOnReddit' | transloco }}
+          </a>
+        </div>
+      </div>
+
+      <div class="moderation-detail__content" *ngIf="selectedPost.content">
+        <p>{{ selectedPost.content }}</p>
+      </div>
+
+      <app-reddit-post-analysis-panel [post]="selectedPost"></app-reddit-post-analysis-panel>
+      </div>
+
+      <div class="moderation-actions moderation-actions--footer">
+        <label class="reject-notes">
+          <span>{{ 'moderation.rejectNotesLabel' | transloco }}</span>
+          <textarea
+            [(ngModel)]="rejectNotes"
+            rows="2"
+            [placeholder]="'moderation.rejectNotesPlaceholder' | transloco"
+            [disabled]="acting"></textarea>
+        </label>
+        <div class="moderation-actions__buttons">
+          <button type="button" class="btn-approve" (click)="approveSelected()" [disabled]="acting">
+            {{ 'moderation.approve' | transloco }}
+          </button>
+          <button type="button" class="btn-reject" (click)="rejectSelected()" [disabled]="acting">
+            {{ 'moderation.reject' | transloco }}
+          </button>
+        </div>
+        <p class="moderation-actions__hint">{{ 'moderation.actionsHint' | transloco }}</p>
+      </div>
+    </section>
+  </div>
+</div>

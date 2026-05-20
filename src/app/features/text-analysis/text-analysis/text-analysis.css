@@ -78,17 +78,94 @@
 }
 
 .statistics-section {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 16px 20px;
+  display: block;
   margin-bottom: 36px;
   width: 100%;
 }
 
-@media (max-width: 900px) {
-  .statistics-section {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  }
+.stat-group {
+  margin-bottom: 16px;
+}
+
+.stat-group__label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.stat-group__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat-card--link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.stat-card--link:hover {
+  border-color: var(--color-primary);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filter-chip {
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-background-primary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+.filter-chip--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-faint, rgba(59, 130, 246, 0.12));
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.toolbar-row app-list-toolbar {
+  flex: 1 1 320px;
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.help-badge {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 11px;
+  font-weight: bold;
+  align-items: center;
+  justify-content: center;
 }
 
 .stat-card {
@@ -444,6 +521,54 @@
 .status-failed {
   background: var(--color-error-lighter);
   color: var(--color-error-dark);
+}
+
+.post-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.mod-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.mod-badge--pending {
+  background: rgba(234, 179, 8, 0.18);
+  color: #b45309;
+}
+
+.mod-badge--approved {
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+}
+
+.mod-badge--rejected {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
+
+.mod-badge--skipped {
+  background: var(--color-background-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.stat-card--highlight .stat-value {
+  color: var(--color-warning-dark, #b45309);
+}
+
+.moderation-link-btn {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
 }
 
 .list-trust-block--muted {

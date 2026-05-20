@@ -1,0 +1,71 @@
+<div class="reddit-date-filter" [ngClass]="cssClass">
+  <span class="reddit-date-filter__label">{{ 'common.dateFilter.label' | transloco }}</span>
+  <div class="reddit-date-filter__pills">
+    <button
+      type="button"
+      class="reddit-date-filter__pill"
+      [class.reddit-date-filter__pill--active]="datePreset === 'all' && !useCustomRange"
+      (click)="setDatePreset('all')">
+      {{ 'common.dateFilter.all' | transloco }}
+    </button>
+    <button
+      type="button"
+      class="reddit-date-filter__pill"
+      [class.reddit-date-filter__pill--active]="datePreset === 'today' && !useCustomRange"
+      (click)="setDatePreset('today')">
+      {{ 'common.dateFilter.today' | transloco }}
+    </button>
+    <button
+      type="button"
+      class="reddit-date-filter__pill"
+      [class.reddit-date-filter__pill--active]="datePreset === 'week' && !useCustomRange"
+      (click)="setDatePreset('week')">
+      {{ 'common.dateFilter.week' | transloco }}
+    </button>
+    <button
+      type="button"
+      class="reddit-date-filter__pill"
+      [class.reddit-date-filter__pill--active]="datePreset === 'month' && !useCustomRange"
+      (click)="setDatePreset('month')">
+      {{ 'common.dateFilter.month' | transloco }}
+    </button>
+  </div>
+  <p class="reddit-date-filter__hint">{{ 'common.dateFilter.hint' | transloco }}</p>
+
+  <details class="reddit-date-filter__custom">
+    <summary class="reddit-date-filter__custom-summary">{{ 'common.dateFilter.customRangeTitle' | transloco }}</summary>
+    <div class="reddit-date-filter__custom-body">
+      <label class="reddit-date-filter__field">
+        <span>{{ 'common.dateFilter.customFrom' | transloco }}</span>
+        <input
+          type="datetime-local"
+          class="reddit-date-filter__input"
+          [ngModel]="customFromLocal"
+          (ngModelChange)="customFromLocalChange.emit($event)"
+          name="rdfFrom" />
+      </label>
+      <label class="reddit-date-filter__field">
+        <span>{{ 'common.dateFilter.customTo' | transloco }}</span>
+        <input
+          type="datetime-local"
+          class="reddit-date-filter__input"
+          [ngModel]="customToLocal"
+          (ngModelChange)="customToLocalChange.emit($event)"
+          name="rdfTo" />
+      </label>
+      <div class="reddit-date-filter__actions">
+        <button type="button" class="reddit-date-filter__apply" (click)="applyCustomRange()">
+          {{ 'common.dateFilter.applyCustomRange' | transloco }}
+        </button>
+        @if (useCustomRange) {
+          <button type="button" class="reddit-date-filter__ghost" (click)="clearCustomRange()">
+            {{ 'common.clear' | transloco }}
+          </button>
+        }
+      </div>
+      @if (customRangeError) {
+        <p class="reddit-date-filter__error">{{ customRangeError | transloco }}</p>
+      }
+    </div>
+  </details>
+</div>

@@ -78,6 +78,14 @@ export enum RedditPostStatus {
   FAILED = 'FAILED'
 }
 
+export enum PostModerationStatus {
+  PENDING_REVIEW = 'PENDING_REVIEW',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  /** Afet adayı değil; moderasyon/harita dışı (APPROVED değil). */
+  NOT_REQUIRED = 'NOT_REQUIRED'
+}
+
 export interface RedditPost {
   id: number;
   redditPostId: string;
@@ -118,6 +126,10 @@ export interface RedditPost {
   imageAnalyzedAt?: string | null;
   analyzedAt?: string | null;
   status: RedditPostStatus;
+  moderationStatus?: PostModerationStatus | null;
+  moderationReviewedAt?: string | null;
+  moderationReviewedBy?: string | null;
+  moderationNotes?: string | null;
   /** Extracted after Location: / Konum: markers in post text */
   locationText?: string | null;
   latitude?: number | null;
@@ -137,6 +149,9 @@ export interface PostStatistics {
   failedPosts: number;
   disasterRelatedPosts: number;
   disasterPercentage: number;
+  approvedDisasterPosts?: number;
+  pendingModerationPosts?: number;
+  rejectedModerationPosts?: number;
 }
 
 // About Types

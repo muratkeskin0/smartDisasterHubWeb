@@ -8,11 +8,20 @@ import { AuthorService } from '../../../core/services/author.service';
 import { RedditAuthor, RedditAuthorInsights } from '../../../models';
 import { PageResponse } from '../../../core/services/text-analysis.service';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { ListSortOption, ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
 
 @Component({
   selector: 'app-authors',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AppHeaderComponent,
+    BackButtonComponent,
+    TranslocoPipe,
+    ListToolbarComponent
+  ],
   templateUrl: './authors.html',
   styleUrl: './authors.css'
 })
@@ -35,6 +44,15 @@ export class AuthorsComponent implements OnInit {
   currentPage = 0;
   totalPages = 0;
   totalElements = 0;
+
+  readonly sortOptions: ListSortOption[] = [
+    { value: 'trustScore', labelKey: 'authors.trustScore' },
+    { value: 'totalPosts', labelKey: 'authors.totalPosts' },
+    { value: 'analyzedPosts', labelKey: 'authors.analyzedPosts' },
+    { value: 'disasterRelatedPosts', labelKey: 'authors.disasterRelated' },
+    { value: 'redditUsername', labelKey: 'authors.username' },
+    { value: 'lastPostAt', labelKey: 'authors.lastPost' }
+  ];
 
   ngOnInit(): void {
     this.loadInsights();

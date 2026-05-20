@@ -10,13 +10,10 @@ import { HistoricalReportSummary, HistoricalTrendPoint, RedditPost, ReportBreakd
 import { PageResponse } from '../../../core/services/text-analysis.service';
 import { ReportPieChartComponent, ReportPieSlice } from '../../../shared/components/report-pie-chart/report-pie-chart';
 import { ReportBarLineChartComponent } from '../../../shared/components/report-bar-line-chart/report-bar-line-chart';
-import {
-  buildRedditPostRangeFromDatetimeLocals,
-  rangeForPreset,
-  ReportedRange,
-  ReportedRangePreset,
-  tryApplyCustomRedditPostDateRange
-} from '../../../core/utils/reported-date-range';
+import { ReportedRange, ReportedRangePreset } from '../../../core/utils/reported-date-range';
+import { RedditDateFilterComponent } from '../../../shared/components/reddit-date-filter/reddit-date-filter';
+import { ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
+import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
 
 type ReportView = 'all' | 'charts' | 'tables';
 
@@ -31,7 +28,10 @@ type ReportView = 'all' | 'charts' | 'tables';
     AppHeaderComponent,
     BackButtonComponent,
     ReportPieChartComponent,
-    ReportBarLineChartComponent
+    ReportBarLineChartComponent,
+    RedditDateFilterComponent,
+    ListToolbarComponent,
+    PostStatusBadgesComponent
   ],
   templateUrl: './reports.html',
   styleUrl: './reports.css'
@@ -48,6 +48,7 @@ export class ReportsComponent implements OnInit {
   breakdownLoading = false;
 
   days = 14;
+  activeRange: ReportedRange = { fromIso: null, toIso: null };
   datePreset: ReportedRangePreset = 'all';
   useCustomRange = false;
   customFromLocal = '';
@@ -77,56 +78,25 @@ export class ReportsComponent implements OnInit {
     return this.reportView === 'all' || this.reportView === 'tables';
   }
 
-  private requestRange(): ReportedRange {
-    if (this.useCustomRange) {
-      return buildRedditPostRangeFromDatetimeLocals(this.customFromLocal, this.customToLocal);
-    }
-    return rangeForPreset(this.datePreset);
+  onRangeChange(range: ReportedRange): void {
+    this.activeRange = range;
+    this.currentPage = 0;
+    this.loadAll();
   }
 
-  private hasCustomFieldInput(): boolean {
-    return Boolean(this.customFromLocal?.trim() || this.customToLocal?.trim());
-  }
-
-  setDatePreset(preset: ReportedRangePreset): void {
-    if (this.datePreset === preset && !this.useCustomRange && !this.hasCustomFieldInput()) {
-      return;
-    }
+  onDatePresetChange(preset: ReportedRangePreset): void {
     this.datePreset = preset;
-    this.useCustomRange = false;
-    this.customFromLocal = '';
-    this.customToLocal = '';
-    this.customRangeError = null;
-    this.currentPage = 0;
-    this.loadAll();
   }
 
-  applyCustomRange(): void {
-    this.customRangeError = null;
-    const parsed = tryApplyCustomRedditPostDateRange(this.customFromLocal, this.customToLocal);
-    if (!parsed.ok) {
-      this.customRangeError = parsed.i18nKey;
-      return;
-    }
-    this.useCustomRange = true;
+  onTopPageSizeChange(): void {
     this.currentPage = 0;
-    this.loadAll();
-  }
-
-  clearCustomRange(): void {
-    this.useCustomRange = false;
-    this.datePreset = 'all';
-    this.customFromLocal = '';
-    this.customToLocal = '';
-    this.customRangeError = null;
-    this.currentPage = 0;
-    this.loadAll();
+    this.loadTopAdjusted();
   }
 
   loadAll(): void {
     this.loading = true;
     this.error = false;
-    const range = this.requestRange();
+    const range = this.activeRange;
     this.reportsService.getSummary(range).subscribe({
       next: (res) => {
         this.summary = res.success && res.data ? res.data : null;
@@ -153,7 +123,7 @@ export class ReportsComponent implements OnInit {
 
   loadBreakdown(): void {
     this.breakdownLoading = true;
-    const range = this.requestRange();
+    const range = this.activeRange;
     this.reportsService.getBreakdown(range).subscribe({
       next: (res) => {
         this.breakdownLoading = false;
@@ -265,7 +235,7 @@ export class ReportsComponent implements OnInit {
   }
 
   reloadTrend(): void {
-    const range = this.requestRange();
+    const range = this.activeRange;
     this.reportsService.getTrend(this.days, range).subscribe({
       next: (res) => {
         this.trend = res.success && res.data ? res.data : [];
@@ -278,7 +248,7 @@ export class ReportsComponent implements OnInit {
 
   loadTopAdjusted(): void {
     this.topLoading = true;
-    const range = this.requestRange();
+    const range = this.activeRange;
     this.reportsService.getTopAdjusted(this.currentPage, this.pageSize, range).subscribe({
       next: (res) => {
         this.topLoading = false;

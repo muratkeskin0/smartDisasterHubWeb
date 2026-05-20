@@ -7,13 +7,8 @@ import { BackButtonComponent } from '../../../shared/components/back-button/back
 import { FormsModule } from '@angular/forms';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
 import { TranslocoPipe } from '@jsverse/transloco';
-import {
-  buildRedditPostRangeFromDatetimeLocals,
-  rangeForPreset,
-  ReportedRange,
-  ReportedRangePreset,
-  tryApplyCustomRedditPostDateRange
-} from '../../../core/utils/reported-date-range';
+import { ReportedRange, ReportedRangePreset } from '../../../core/utils/reported-date-range';
+import { RedditDateFilterComponent } from '../../../shared/components/reddit-date-filter/reddit-date-filter';
 
 // Declare Leaflet types
 declare var L: any;
@@ -41,7 +36,15 @@ const FOCUS_ZOOM = 14;
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AppHeaderComponent,
+    BackButtonComponent,
+    TranslocoPipe,
+    RedditDateFilterComponent
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './map.html',
   styleUrl: './map.css'
@@ -74,6 +77,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   /** Parsed postId from query; applied once map + markers are ready */
   private pendingFocusPostId: number | null = null;
 
+  activeRange: ReportedRange = { fromIso: null, toIso: null };
   datePreset: ReportedRangePreset = 'all';
   /** When true, API range comes from {@link customFromLocal} / {@link customToLocal} instead of preset pills. */
   useCustomRange = false;
@@ -131,56 +135,27 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     return Boolean(this.customFromLocal?.trim() || this.customToLocal?.trim());
   }
 
-  private mapRequestRange(): ReportedRange {
-    if (this.useCustomRange) {
-      return buildRedditPostRangeFromDatetimeLocals(this.customFromLocal, this.customToLocal);
-    }
-    return rangeForPreset(this.datePreset);
+  onRangeChange(range: ReportedRange): void {
+    this.activeRange = range;
+    this.selectedMarker = null;
+    this.focusedPostId = null;
+    this.loadMapMarkers();
   }
 
-  setDatePreset(preset: ReportedRangePreset): void {
-    if (this.datePreset === preset && !this.useCustomRange && !this.hasCustomFieldInput()) {
-      return;
-    }
+  onDatePresetChange(preset: ReportedRangePreset): void {
     this.datePreset = preset;
-    this.useCustomRange = false;
-    this.customFromLocal = '';
-    this.customToLocal = '';
-    this.customRangeError = null;
-    this.selectedMarker = null;
-    this.focusedPostId = null;
-    this.loadMapMarkers();
   }
 
-  applyCustomRange(): void {
-    this.customRangeError = null;
-    const parsed = tryApplyCustomRedditPostDateRange(this.customFromLocal, this.customToLocal);
-    if (!parsed.ok) {
-      this.customRangeError = parsed.i18nKey;
-      return;
-    }
-    this.useCustomRange = true;
-    this.selectedMarker = null;
-    this.focusedPostId = null;
-    this.loadMapMarkers();
-  }
-
-  clearCustomRange(): void {
-    this.useCustomRange = false;
-    this.datePreset = 'all';
-    this.customFromLocal = '';
-    this.customToLocal = '';
-    this.customRangeError = null;
-    this.selectedMarker = null;
-    this.focusedPostId = null;
-    this.loadMapMarkers();
+  /** Client-side ordering for cluster panel (API has no per-post score on map). */
+  sortedClusterPosts(cluster: MapMarker): MapMarker['posts'] {
+    return [...cluster.posts].sort((a, b) => b.id - a.id);
   }
 
   loadMapMarkers(): void {
     this.loading = true;
     this.error = null;
 
-    const range = this.mapRequestRange();
+    const range = this.activeRange;
     this.textAnalysisService.getMapMarkers(range).subscribe({
       next: (response) => {
         if (response.success && response.data) {
@@ -260,7 +235,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.pendingFocusPostId = null;
-    this.selectedMarker = found;
+    this.selectedMarker = {
+      ...found,
+      posts: this.sortedClusterPosts(found)
+    };
     this.focusedPostId = id;
     this.map.setView([found.lat, found.lng], FOCUS_ZOOM, { animate: true });
     this.scheduleMapResize();
@@ -509,7 +487,10 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
         closePopupTimeout = null;
       }
       marker.closePopup();
-      this.selectedMarker = markerData;
+      this.selectedMarker = {
+        ...markerData,
+        posts: this.sortedClusterPosts(markerData)
+      };
       this.focusedPostId = null;
       this.scheduleMapResize();
     });

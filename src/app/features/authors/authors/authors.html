@@ -70,35 +70,18 @@
       <button type="button" class="ra-btn ra-btn--primary" (click)="applySearch()">{{ 'common.search' | transloco }}</button>
       <button type="button" class="ra-btn" (click)="clearSearch()" *ngIf="search || searchDraft">{{ 'common.clear' | transloco }}</button>
     </div>
-    <div class="ra-filters">
-      <label class="ra-field">
-        <span>{{ 'authors.sortBy' | transloco }}</span>
-        <select class="ra-select" [(ngModel)]="sortBy" (ngModelChange)="onSortChange()">
-          <option value="trustScore">{{ 'authors.trustScore' | transloco }}</option>
-          <option value="totalPosts">{{ 'authors.totalPosts' | transloco }}</option>
-          <option value="analyzedPosts">{{ 'authors.analyzedPosts' | transloco }}</option>
-          <option value="disasterRelatedPosts">{{ 'authors.disasterRelated' | transloco }}</option>
-          <option value="redditUsername">{{ 'authors.username' | transloco }}</option>
-          <option value="lastPostAt">{{ 'authors.lastPost' | transloco }}</option>
-        </select>
-      </label>
-      <label class="ra-field">
-        <span>{{ 'authors.direction' | transloco }}</span>
-        <select class="ra-select" [(ngModel)]="sortDirection" (ngModelChange)="onSortChange()">
-          <option value="DESC">{{ 'authors.descending' | transloco }}</option>
-          <option value="ASC">{{ 'authors.ascending' | transloco }}</option>
-        </select>
-      </label>
-      <label class="ra-field">
-        <span>{{ 'authors.pageSize' | transloco }}</span>
-        <select class="ra-select" [(ngModel)]="pageSize" (ngModelChange)="currentPage = 0; loadAuthors()">
-          <option [ngValue]="10">10</option>
-          <option [ngValue]="15">15</option>
-          <option [ngValue]="25">25</option>
-          <option [ngValue]="50">50</option>
-        </select>
-      </label>
-    </div>
+    <app-list-toolbar
+      class="ra-list-toolbar"
+      [sortOptions]="sortOptions"
+      [sortBy]="sortBy"
+      [sortDirection]="sortDirection"
+      [pageSize]="pageSize"
+      [pageSizes]="[10, 15, 25, 50]"
+      (sortByChange)="sortBy = $any($event)"
+      (sortDirectionChange)="sortDirection = $event"
+      (pageSizeChange)="pageSize = $event"
+      (paramsChange)="currentPage = 0; onSortChange()">
+    </app-list-toolbar>
   </section>
 
   <div class="ra-loading" *ngIf="loading">

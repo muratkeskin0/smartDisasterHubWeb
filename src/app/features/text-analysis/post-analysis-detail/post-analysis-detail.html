@@ -3,6 +3,14 @@
 <div class="detail-container">
   <div class="detail-header">
     <app-back-button [returnUrl]="returnUrl" [fallbackRoute]="'/text-analysis'" />
+    <nav class="detail-queue-nav" *ngIf="isModerationQueue && post && !loading" [attr.aria-label]="'moderation.queueNav' | transloco">
+      <button type="button" class="detail-queue-nav__btn" (click)="goPrevInQueue()" [disabled]="!canGoPrevInQueue || queueLoading">
+        ← {{ 'moderation.prevInQueue' | transloco }}
+      </button>
+      <button type="button" class="detail-queue-nav__btn" (click)="goNextInQueue()" [disabled]="!canGoNextInQueue || queueLoading">
+        {{ 'moderation.nextInQueue' | transloco }} →
+      </button>
+    </nav>
   </div>
 
   <p class="detail-intro">{{ 'textAnalysis.detailReaderPath' | transloco }}</p>
@@ -27,8 +35,16 @@
         <span *ngIf="post.author">{{ 'textAnalysis.metaBy' | transloco: { author: post.author } }}</span>
         <span>{{ formatDate(post.redditCreatedAt) }}</span>
         <span class="status-badge" [ngClass]="getStatusClass(post.status)">{{ post.status }}</span>
+        <span
+          class="mod-badge"
+          *ngIf="moderationLabelKey(post.moderationStatus) as modKey"
+          [ngClass]="getModerationClass(post.moderationStatus)">
+          {{ modKey | transloco }}
+        </span>
       </div>
     </div>
+
+    <p class="moderation-toast" *ngIf="moderationMessage">{{ moderationMessage | transloco }}</p>
 
     <div class="post-content" *ngIf="post.content">
       <p>{{ post.content }}</p>
@@ -85,6 +101,27 @@
 
     <h2 class="detail-section-title">{{ 'textAnalysis.detailAnalysisHeading' | transloco }}</h2>
     <app-reddit-post-analysis-panel [post]="post"></app-reddit-post-analysis-panel>
+
+    <section class="detail-moderation" *ngIf="isPendingModeration">
+      <h2 class="detail-section-title">{{ 'moderation.reviewTitle' | transloco }}</h2>
+      <p class="detail-moderation__hint">{{ 'moderation.actionsHint' | transloco }}</p>
+      <label class="reject-notes">
+        <span>{{ 'moderation.rejectNotesLabel' | transloco }}</span>
+        <textarea
+          [(ngModel)]="rejectNotes"
+          rows="2"
+          [placeholder]="'moderation.rejectNotesPlaceholder' | transloco"
+          [disabled]="moderating"></textarea>
+      </label>
+      <div class="detail-moderation__buttons">
+        <button type="button" class="btn-approve" (click)="approvePost()" [disabled]="moderating">
+          {{ 'moderation.approve' | transloco }}
+        </button>
+        <button type="button" class="btn-reject" (click)="rejectPost()" [disabled]="moderating">
+          {{ 'moderation.reject' | transloco }}
+        </button>
+      </div>
+    </section>
 
     <div class="detail-footer">
       <a [href]="post.url" target="_blank" rel="noopener noreferrer" class="view-reddit-link">

@@ -7,47 +7,19 @@
     </div>
     <h1>{{ 'reports.title' | transloco }}</h1>
     <p class="rp-sub">{{ 'reports.subtitle' | transloco }}</p>
-    <div class="rp-date-filter">
-      <span class="rp-date-filter__label">{{ 'common.dateFilter.label' | transloco }}</span>
-      <div class="rp-date-filter__buttons">
-        <button type="button" class="rp-pill" [class.rp-pill--active]="datePreset === 'all' && !useCustomRange" (click)="setDatePreset('all')">
-          {{ 'common.dateFilter.all' | transloco }}
-        </button>
-        <button type="button" class="rp-pill" [class.rp-pill--active]="datePreset === 'today' && !useCustomRange" (click)="setDatePreset('today')">
-          {{ 'common.dateFilter.today' | transloco }}
-        </button>
-        <button type="button" class="rp-pill" [class.rp-pill--active]="datePreset === 'week' && !useCustomRange" (click)="setDatePreset('week')">
-          {{ 'common.dateFilter.week' | transloco }}
-        </button>
-        <button type="button" class="rp-pill" [class.rp-pill--active]="datePreset === 'month' && !useCustomRange" (click)="setDatePreset('month')">
-          {{ 'common.dateFilter.month' | transloco }}
-        </button>
-      </div>
-      <p class="rp-date-filter__hint">{{ 'common.dateFilter.hint' | transloco }}</p>
-
-      <div class="rp-custom-range">
-        <span class="rp-custom-range__title">{{ 'common.dateFilter.customRangeTitle' | transloco }}</span>
-        <div class="rp-custom-range__row">
-          <label class="rp-custom-range__field">
-            <span class="rp-custom-range__label">{{ 'common.dateFilter.customFrom' | transloco }}</span>
-            <input type="datetime-local" class="rp-custom-range__input" [(ngModel)]="customFromLocal" name="rpFrom" />
-          </label>
-          <label class="rp-custom-range__field">
-            <span class="rp-custom-range__label">{{ 'common.dateFilter.customTo' | transloco }}</span>
-            <input type="datetime-local" class="rp-custom-range__input" [(ngModel)]="customToLocal" name="rpTo" />
-          </label>
-          <div class="rp-custom-range__actions">
-            <button type="button" class="rp-pill rp-pill--apply" (click)="applyCustomRange()">
-              {{ 'common.dateFilter.applyCustomRange' | transloco }}
-            </button>
-            <button type="button" class="rp-pill rp-pill--ghost" *ngIf="useCustomRange" (click)="clearCustomRange()">
-              {{ 'common.clear' | transloco }}
-            </button>
-          </div>
-        </div>
-        <p class="rp-custom-range__error" *ngIf="customRangeError">{{ customRangeError | transloco }}</p>
-      </div>
-    </div>
+    <app-reddit-date-filter
+      [datePreset]="datePreset"
+      [useCustomRange]="useCustomRange"
+      [customFromLocal]="customFromLocal"
+      [customToLocal]="customToLocal"
+      [customRangeError]="customRangeError"
+      (rangeChange)="onRangeChange($event)"
+      (datePresetChange)="onDatePresetChange($event)"
+      (useCustomRangeChange)="useCustomRange = $event"
+      (customFromLocalChange)="customFromLocal = $event"
+      (customToLocalChange)="customToLocal = $event"
+      (customRangeErrorChange)="customRangeError = $event">
+    </app-reddit-date-filter>
   </section>
 
   <section class="rp-loading" *ngIf="loading">
@@ -172,13 +144,26 @@
   </section>
 
   <section class="rp-top" *ngIf="showTablesSection">
-    <h2>{{ 'reports.topAdjustedTitle' | transloco }}</h2>
+    <div class="rp-top-head">
+      <div>
+        <h2>{{ 'reports.topAdjustedTitle' | transloco }}</h2>
+        <p class="rp-top-note">{{ 'reports.topAdjustedSortNote' | transloco }}</p>
+      </div>
+      <app-list-toolbar
+        [sortOptions]="[]"
+        [showSort]="false"
+        [pageSize]="pageSize"
+        [pageSizes]="[10, 20, 50]"
+        (pageSizeChange)="pageSize = $event; onTopPageSizeChange()">
+      </app-list-toolbar>
+    </div>
     <div class="rp-loading" *ngIf="topLoading">{{ 'common.loading' | transloco }}</div>
     <div class="rp-table-wrap" *ngIf="!topLoading">
       <table class="rp-table">
         <thead>
           <tr>
             <th>{{ 'reports.colPost' | transloco }}</th>
+            <th>{{ 'reports.colStatus' | transloco }}</th>
             <th>{{ 'reports.colSubreddit' | transloco }}</th>
             <th>{{ 'reports.colBase' | transloco }}</th>
             <th>{{ 'reports.colFinal' | transloco }}</th>
@@ -194,6 +179,13 @@
                 post.title
               }}</a>
             </td>
+            <td>
+              <app-post-status-badges
+                [status]="post.status"
+                [moderationStatus]="post.moderationStatus"
+                [showMlStatus]="false">
+              </app-post-status-badges>
+            </td>
             <td>r/{{ post.subreddit }}</td>
             <td>{{ pct(post.baseRelevanceScore) }}</td>
             <td>{{ pct(post.finalRelevanceScore) }}</td>
@@ -202,7 +194,7 @@
             <td>{{ formatDate(post.analyzedAt) }}</td>
           </tr>
           <tr *ngIf="topAdjusted.length === 0">
-            <td colspan="7">{{ 'reports.noTopAdjusted' | transloco }}</td>
+            <td colspan="8">{{ 'reports.noTopAdjusted' | transloco }}</td>
           </tr>
         </tbody>
       </table>

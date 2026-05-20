@@ -9,6 +9,10 @@
           @if (isAdmin()) {
             <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'nav.dashboard' | transloco }}</a>
             <a routerLink="/text-analysis" routerLinkActive="active">{{ 'nav.textAnalysis' | transloco }}</a>
+            <a routerLink="/moderation" routerLinkActive="active" class="nav-moderation">
+              {{ 'nav.moderation' | transloco }}
+              <span class="nav-badge" *ngIf="pendingModerationCount() > 0">{{ pendingModerationCount() }}</span>
+            </a>
             <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | transloco }}</a>
             <a routerLink="/authors" routerLinkActive="active">{{ 'nav.authors' | transloco }}</a>
             <div class="nav-dropdown" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">

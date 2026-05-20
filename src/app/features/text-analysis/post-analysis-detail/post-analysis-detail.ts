@@ -1,9 +1,10 @@
 import { Component, OnInit, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
-import { RedditPost, RedditPostStatus } from '../../../models';
+import { PostModerationStatus, RedditPost, RedditPostStatus } from '../../../models';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { RedditPostAnalysisPanelComponent } from '../reddit-post-analysis-panel/reddit-post-analysis-panel';
@@ -13,6 +14,7 @@ import { RedditPostAnalysisPanelComponent } from '../reddit-post-analysis-panel/
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     AppHeaderComponent,
     BackButtonComponent,
@@ -34,6 +36,19 @@ export class PostAnalysisDetailComponent implements OnInit {
   post: RedditPost | null = null;
   loading = true;
   error: string | null = null;
+  moderating = false;
+  moderationMessage: string | null = null;
+  rejectNotes = '';
+
+  /** Moderation queue context when opened from `/moderation`. */
+  queuePage = 0;
+  queueIndex = 0;
+  queueSortBy = 'relevanceScore';
+  queueSortDirection: 'ASC' | 'DESC' = 'DESC';
+  queuePageSize = 10;
+  queuePosts: RedditPost[] = [];
+  totalQueuePages = 0;
+  queueLoading = false;
 
   lightboxOpen = false;
   lightboxUrls: string[] = [];
@@ -45,6 +60,17 @@ export class PostAnalysisDetailComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(q => {
       this.returnUrl = PostAnalysisDetailComponent.sanitizeReturnUrl(q['returnUrl']);
+      this.queuePage = PostAnalysisDetailComponent.parseNonNegInt(q['queuePage'], 0);
+      this.queueIndex = PostAnalysisDetailComponent.parseNonNegInt(q['queueIndex'], 0);
+      const sort = typeof q['queueSort'] === 'string' ? q['queueSort'].trim() : '';
+      if (sort) {
+        this.queueSortBy = sort;
+      }
+      this.queueSortDirection = q['queueDir'] === 'ASC' ? 'ASC' : 'DESC';
+      const size = PostAnalysisDetailComponent.parseNonNegInt(q['queueSize'], 0);
+      if (size > 0) {
+        this.queuePageSize = size;
+      }
     });
     this.route.paramMap.subscribe(params => {
       const redditPostId = params.get('redditPostId');
@@ -55,6 +81,26 @@ export class PostAnalysisDetailComponent implements OnInit {
       }
       this.loadPost(redditPostId);
     });
+  }
+
+  get isModerationQueue(): boolean {
+    return this.returnUrl === '/moderation';
+  }
+
+  get canGoPrevInQueue(): boolean {
+    return this.isModerationQueue && (this.queueIndex > 0 || this.queuePage > 0);
+  }
+
+  get canGoNextInQueue(): boolean {
+    return (
+      this.isModerationQueue &&
+      (this.queueIndex < this.queuePosts.length - 1 || this.queuePage < this.totalQueuePages - 1)
+    );
+  }
+
+  private static parseNonNegInt(value: unknown, fallback: number): number {
+    const n = Number(value);
+    return Number.isFinite(n) && n >= 0 ? Math.trunc(n) : fallback;
   }
 
   private static sanitizeReturnUrl(value: unknown): string | null {
@@ -93,6 +139,9 @@ export class PostAnalysisDetailComponent implements OnInit {
       next: res => {
         if (res.success && res.data) {
           this.post = res.data;
+          if (this.isModerationQueue) {
+            this.loadQueueContext();
+          }
         } else {
           this.error = res.message || 'Post not found';
         }
@@ -115,6 +164,171 @@ export class PostAnalysisDetailComponent implements OnInit {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
+    });
+  }
+
+  get isPendingModeration(): boolean {
+    return this.post?.moderationStatus === PostModerationStatus.PENDING_REVIEW;
+  }
+
+  getModerationClass(status: PostModerationStatus | null | undefined): string {
+    switch (status) {
+      case PostModerationStatus.PENDING_REVIEW:
+        return 'mod-badge--pending';
+      case PostModerationStatus.APPROVED:
+        return 'mod-badge--approved';
+      case PostModerationStatus.REJECTED:
+        return 'mod-badge--rejected';
+      case PostModerationStatus.NOT_REQUIRED:
+        return 'mod-badge--skipped';
+      default:
+        return '';
+    }
+  }
+
+  moderationLabelKey(status: PostModerationStatus | null | undefined): string | null {
+    switch (status) {
+      case PostModerationStatus.PENDING_REVIEW:
+        return 'moderation.statusPending';
+      case PostModerationStatus.APPROVED:
+        return 'moderation.statusApproved';
+      case PostModerationStatus.REJECTED:
+        return 'moderation.statusRejected';
+      case PostModerationStatus.NOT_REQUIRED:
+        return 'moderation.statusNotRequired';
+      default:
+        return null;
+    }
+  }
+
+  loadQueueContext(page = this.queuePage): void {
+    if (!this.isModerationQueue) {
+      return;
+    }
+    this.queueLoading = true;
+    this.textAnalysisService
+      .getModerationPending(page, this.queuePageSize, this.queueSortBy, this.queueSortDirection)
+      .subscribe({
+        next: res => {
+          this.queueLoading = false;
+          if (res.success && res.data) {
+            this.queuePosts = res.data.content;
+            this.queuePage = res.data.page;
+            this.totalQueuePages = res.data.totalPages;
+            const idx = this.post ? this.queuePosts.findIndex(p => p.id === this.post!.id) : -1;
+            if (idx >= 0) {
+              this.queueIndex = idx;
+            }
+          }
+        },
+        error: () => {
+          this.queueLoading = false;
+        }
+      });
+  }
+
+  goPrevInQueue(): void {
+    if (!this.canGoPrevInQueue || this.queueLoading) {
+      return;
+    }
+    if (this.queueIndex > 0) {
+      const target = this.queuePosts[this.queueIndex - 1];
+      this.navigateToQueuePost(target, this.queuePage, this.queueIndex - 1);
+      return;
+    }
+    if (this.queuePage > 0) {
+      this.loadQueuePageAndSelect(this.queuePage - 1, 'last');
+    }
+  }
+
+  goNextInQueue(): void {
+    if (!this.canGoNextInQueue || this.queueLoading) {
+      return;
+    }
+    if (this.queueIndex < this.queuePosts.length - 1) {
+      const target = this.queuePosts[this.queueIndex + 1];
+      this.navigateToQueuePost(target, this.queuePage, this.queueIndex + 1);
+      return;
+    }
+    if (this.queuePage < this.totalQueuePages - 1) {
+      this.loadQueuePageAndSelect(this.queuePage + 1, 'first');
+    }
+  }
+
+  private loadQueuePageAndSelect(page: number, which: 'first' | 'last'): void {
+    this.queueLoading = true;
+    this.textAnalysisService
+      .getModerationPending(page, this.queuePageSize, this.queueSortBy, this.queueSortDirection)
+      .subscribe({
+        next: res => {
+          this.queueLoading = false;
+          if (!res.success || !res.data?.content?.length) {
+            return;
+          }
+          const posts = res.data.content;
+          const target = which === 'first' ? posts[0] : posts[posts.length - 1];
+          const index = which === 'first' ? 0 : posts.length - 1;
+          this.navigateToQueuePost(target, page, index);
+        },
+        error: () => {
+          this.queueLoading = false;
+        }
+      });
+  }
+
+  private navigateToQueuePost(post: RedditPost, page: number, index: number): void {
+    this.router.navigate(['/text-analysis/post', post.redditPostId], {
+      queryParams: {
+        returnUrl: '/moderation',
+        queuePage: page,
+        queueIndex: index,
+        queueSort: this.queueSortBy,
+        queueDir: this.queueSortDirection,
+        queueSize: this.queuePageSize
+      }
+    });
+  }
+
+  approvePost(): void {
+    if (!this.post || this.moderating) return;
+    this.moderating = true;
+    this.textAnalysisService.approvePost(this.post.id).subscribe({
+      next: res => {
+        this.moderating = false;
+        if (res.success && res.data) {
+          this.post = res.data;
+          this.moderationMessage = 'moderation.actionSuccess';
+          if (this.isModerationQueue) {
+            this.goNextInQueue();
+          }
+        }
+      },
+      error: () => {
+        this.moderating = false;
+        this.error = 'moderation.actionFailed';
+      }
+    });
+  }
+
+  rejectPost(): void {
+    if (!this.post || this.moderating) return;
+    this.moderating = true;
+    const notes = this.rejectNotes.trim() || null;
+    this.textAnalysisService.rejectPost(this.post.id, notes).subscribe({
+      next: res => {
+        this.moderating = false;
+        if (res.success && res.data) {
+          this.post = res.data;
+          this.moderationMessage = 'moderation.actionSuccess';
+          if (this.isModerationQueue) {
+            this.goNextInQueue();
+          }
+        }
+      },
+      error: () => {
+        this.moderating = false;
+        this.error = 'moderation.actionFailed';
+      }
     });
   }
 

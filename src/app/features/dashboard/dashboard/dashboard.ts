@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
+import { AdminStatsService } from '../../../core/services/admin-stats.service';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -24,6 +25,8 @@ export interface DashboardLocationRow {
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private textAnalysisService = inject(TextAnalysisService);
+  private adminStats = inject(AdminStatsService);
+  pendingModerationCount = 0;
 
   /** Recent disaster-related posts that have extracted location text or coordinates */
   locationRows: DashboardLocationRow[] = [];
@@ -54,6 +57,13 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.adminStats.refresh().subscribe({
+      next: res => {
+        if (res.success && res.data) {
+          this.pendingModerationCount = res.data.pendingModerationPosts ?? 0;
+        }
+      }
+    });
     this.loadRecentLocations();
   }
 
