@@ -6,11 +6,12 @@ import { BaseButtonComponent } from '../base-button/base-button';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher';
 import { AdminStatsService } from '../../../core/services/admin-stats.service';
+import { AppLogoComponent } from '../app-logo/app-logo';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, BaseButtonComponent, TranslocoPipe, LanguageSwitcherComponent],
+  imports: [CommonModule, RouterModule, BaseButtonComponent, TranslocoPipe, LanguageSwitcherComponent, AppLogoComponent],
   templateUrl: './app-header.html',
   styleUrl: './app-header.css'
 })
@@ -26,7 +27,9 @@ export class AppHeaderComponent implements OnInit {
   userFullName = computed(() => this.authService.userFullName);
   pendingModerationCount = computed(() => this.adminStats.snapshot?.pendingModerationPosts ?? 0);
 
-  homeLink = computed(() => this.authService.defaultHomeRoute);
+  homeLink = computed(() =>
+    this.authService.isAuthenticated ? this.authService.defaultHomeRoute : '/'
+  );
 
   ngOnInit(): void {
     if (this.isStaff()) {

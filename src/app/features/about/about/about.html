@@ -51,8 +51,10 @@
     <div class="back-section">
       <app-back-button
         [strategy]="'home'"
-        [fallbackRoute]="authService.isAdmin ? '/dashboard' : '/'"
+        [fallbackRoute]="authService.isAuthenticated ? authService.defaultHomeRoute : '/'"
       />
     </div>
   </div>
 </div>
+
+<app-public-footer />

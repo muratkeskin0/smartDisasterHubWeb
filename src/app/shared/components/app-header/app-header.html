@@ -1,11 +1,11 @@
 <header class="app-header">
   <div class="header-content">
     <div class="header-left">
-      <a [routerLink]="homeLink()" class="app-title-link">
-        <h1 class="app-title">{{ 'app.title' | transloco }}</h1>
+      <a [routerLink]="homeLink()" class="app-title-link" [attr.aria-label]="'app.title' | transloco">
+        <app-logo size="header" />
       </a>
-      @if (isAuthenticated()) {
-        <nav class="header-nav">
+      <nav class="header-nav" [class.header-nav--guest]="!isAuthenticated()">
+          @if (isAuthenticated()) {
           @if (isAdmin()) {
             <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'nav.dashboard' | transloco }}</a>
             <a routerLink="/text-analysis" routerLinkActive="active">{{ 'nav.textAnalysis' | transloco }}</a>
@@ -36,13 +36,18 @@
             <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | transloco }}</a>
           }
           <a routerLink="/about" routerLinkActive="active">{{ 'nav.about' | transloco }}</a>
+          } @else {
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ 'nav.home' | transloco }}</a>
+            <a routerLink="/about" routerLinkActive="active">{{ 'nav.about' | transloco }}</a>
+            <a routerLink="/login" routerLinkActive="active">{{ 'nav.signIn' | transloco }}</a>
+            <a routerLink="/register" routerLinkActive="active">{{ 'nav.register' | transloco }}</a>
+          }
         </nav>
-      }
     </div>
 
     <div class="header-right">
+      <app-language-switcher class="header-lang" />
       @if (isAuthenticated()) {
-        <app-language-switcher class="header-lang" />
         <div class="user-section">
           @if (isStaff()) {
             <a routerLink="/profile" class="user-info">

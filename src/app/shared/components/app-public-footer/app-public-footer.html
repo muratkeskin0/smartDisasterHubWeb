@@ -1,0 +1,20 @@
+<footer class="public-footer">
+  <div class="public-footer__inner">
+    <div class="public-footer__brand">
+      <p class="public-footer__tagline">{{ 'footer.tagline' | transloco }}</p>
+    </div>
+
+    <nav class="public-footer__nav" aria-label="Footer">
+      <a routerLink="/about">{{ 'footer.about' | transloco }}</a>
+      <a routerLink="/login">{{ 'footer.signIn' | transloco }}</a>
+      <a routerLink="/register">{{ 'footer.register' | transloco }}</a>
+    </nav>
+
+    <div class="public-footer__contact">
+      <span class="public-footer__contact-label">{{ 'footer.contact' | transloco }}</span>
+      <a class="public-footer__email" [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>
+    </div>
+
+    <p class="public-footer__copy">{{ 'footer.copyright' | transloco: { year: year } }}</p>
+  </div>
+</footer>

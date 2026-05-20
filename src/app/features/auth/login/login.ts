@@ -6,12 +6,13 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
+import { AppLogoComponent } from '../../../shared/components/app-logo/app-logo';
 import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslocoPipe, LanguageSwitcherComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslocoPipe, LanguageSwitcherComponent, AppLogoComponent],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })

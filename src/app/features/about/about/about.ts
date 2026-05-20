@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
+import { AppPublicFooterComponent } from '../../../shared/components/app-public-footer/app-public-footer';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
@@ -13,7 +14,7 @@ import { AuthService } from '../../../core/services/auth.service';
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppHeaderComponent, BackButtonComponent, TranslocoPipe],
+  imports: [CommonModule, RouterModule, AppHeaderComponent, AppPublicFooterComponent, BackButtonComponent, TranslocoPipe],
   templateUrl: './about.html',
   styleUrl: './about.css'
 })

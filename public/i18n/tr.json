@@ -54,6 +54,9 @@
     "reportsCharts": "Grafikler",
     "reportsTables": "Tablolar",
     "about": "Hakkında",
+    "home": "Ana sayfa",
+    "signIn": "Giriş",
+    "register": "Kayıt",
     "logout": "Çıkış",
     "profile": "Profil",
     "team": "Moderasyon ekibi"
@@ -361,25 +364,23 @@
     "createError": "Manager oluşturulamadı."
   },
   "landing": {
-    "heroSubtitle": "Gerçek zamanlı müdahale için akıllı afet tespiti ve izleme sistemi",
-    "getStarted": "Başla",
+    "heroSubtitle": "Acil ekipler için akıllı afet tespiti ve izleme",
+    "signIn": "Giriş yap",
     "createAccount": "Hesap oluştur",
-    "howWeHelp": "Nasıl yardımcı oluyoruz",
-    "featAiTitle": "Yapay zekâ destekli analiz",
-    "featAiDesc": "Gelişmiş makine öğrenmesi afet ile ilgili içeriği gerçek zamanlı analiz eder",
-    "featMapTitle": "Etkileşimli haritalama",
-    "featMapDesc": "Durum farkındalığı için afet aktivitesini konum üzerinde görselleştirin",
-    "featRtTitle": "Gerçek zamanlı izleme",
-    "featRtDesc": "Anında uyarılar için afet ile ilgili bilgiler 15 dakikada bir izlenir",
-    "featRespTitle": "Hızlı müdahale",
-    "featRespDesc": "Acil müdahale ekipleri ve topluluklar için daha hızlı karar verin",
-    "aboutTitle": "Teknoloji ile toplulukları koruma",
-    "aboutP1": "Smart Disaster Hub, afetlere nasıl yanıt verdiğimizi dönüştürmek için ileri teknolojiden yararlanır. Sosyal medya içeriğini otomatik toplayıp analiz ederek hayat kurtaran ve her saniyenin önemli olduğu anlarda toplulukları koruyan kritik bilgi sunarız.",
-    "aboutP2": "Platformumuz; acil müdahale ekipleri, kamu kurumları ve afet yönetimi ekipleri için yapay zekâ ve gerçek zamanlı veri işlemeyi birleştirerek eyleme geçirilebilir istihbarat sağlar.",
-    "ctaTitle": "Başlamaya hazır mısınız?",
-    "ctaSubtitle": "Bugün Smart Disaster Hub’a katılın, toplulukları daha güvenli hale getirin",
-    "ctaRegister": "Ücretsiz hesap oluştur",
-    "ctaSignIn": "Giriş yap"
+    "previewImage1Alt": "Smart Disaster Hub genel görünüm: izleme, tespit, doğrulama ve haritada koordinasyon",
+    "previewImage2Alt": "Afet alanında harita ve cihaz kullanan müdahale ekipleri",
+    "previewImage2Caption": "Sahada koordinasyon için paneller ve konum istihbaratı",
+    "scrollHint": "Keşfetmek için kaydırın",
+    "hoverHint": "Görselleri görmek için imleci yukarı kaydırın",
+    "skipToContent": "İçeriğe atla"
+  },
+  "footer": {
+    "tagline": "Daha akıllı veri, daha hızlı karar, daha güvenli topluluklar.",
+    "about": "Hakkında",
+    "contact": "İletişim",
+    "signIn": "Giriş yap",
+    "register": "Kayıt ol",
+    "copyright": "© {{year}} Smart Disaster Hub. Tüm hakları saklıdır."
   },
   "login": {
     "title": "Giriş yap",

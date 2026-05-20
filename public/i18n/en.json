@@ -54,6 +54,9 @@
     "reportsCharts": "Charts",
     "reportsTables": "Tables",
     "about": "About",
+    "home": "Home",
+    "signIn": "Sign in",
+    "register": "Register",
     "logout": "Logout",
     "profile": "Profile",
     "team": "Moderation team"
@@ -361,25 +364,23 @@
     "createError": "Could not create manager."
   },
   "landing": {
-    "heroSubtitle": "Intelligent disaster detection and monitoring system for real-time emergency response",
-    "getStarted": "Get Started",
-    "createAccount": "Create Account",
-    "howWeHelp": "How We Help",
-    "featAiTitle": "AI-Powered Analysis",
-    "featAiDesc": "Advanced machine learning algorithms analyze disaster-related content in real-time",
-    "featMapTitle": "Interactive Mapping",
-    "featMapDesc": "Visualize disaster activity by location on an interactive map for better situational awareness",
-    "featRtTitle": "Real-Time Monitoring",
-    "featRtDesc": "Continuous monitoring of disaster-related information every 15 minutes for immediate alerts",
-    "featRespTitle": "Rapid Response",
-    "featRespDesc": "Enable faster decision-making for emergency responders and communities",
-    "aboutTitle": "Protecting Communities Through Technology",
-    "aboutP1": "Smart Disaster Hub leverages cutting-edge technology to transform how we respond to disasters. By automatically collecting and analyzing social media content, we provide critical information that helps save lives and protect communities when every second counts.",
-    "aboutP2": "Our platform combines artificial intelligence with real-time data processing to deliver actionable intelligence for emergency responders, government agencies, and disaster management teams.",
-    "ctaTitle": "Ready to Get Started?",
-    "ctaSubtitle": "Join Smart Disaster Hub today and help make communities safer",
-    "ctaRegister": "Create Free Account",
-    "ctaSignIn": "Sign In"
+    "heroSubtitle": "Intelligent disaster detection and monitoring for emergency teams",
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "previewImage1Alt": "Smart Disaster Hub overview: monitor, detect, verify, and coordinate on a live map",
+    "previewImage2Alt": "Response teams using maps and devices in the field during a disaster",
+    "previewImage2Caption": "Dashboards and location intelligence for coordination in the field",
+    "scrollHint": "Scroll to explore",
+    "hoverHint": "Move the cursor upward to explore the visuals",
+    "skipToContent": "Skip to content"
+  },
+  "footer": {
+    "tagline": "Smarter data, faster decisions, safer communities.",
+    "about": "About",
+    "contact": "Contact us",
+    "signIn": "Sign in",
+    "register": "Register",
+    "copyright": "© {{year}} Smart Disaster Hub. All rights reserved."
   },
   "login": {
     "title": "Sign In",

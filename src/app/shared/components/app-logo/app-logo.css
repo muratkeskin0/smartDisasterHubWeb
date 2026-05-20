@@ -1,0 +1,28 @@
+.app-logo {
+  display: block;
+  object-fit: contain;
+}
+
+/* Cropped wordmark (public/logo.png): scale by height for crisp header bar */
+.app-logo--header {
+  height: 72px;
+  width: auto;
+}
+
+.app-logo--auth {
+  height: 80px;
+  width: auto;
+  margin: 0 auto var(--spacing-md);
+}
+
+.app-logo--hero {
+  height: clamp(88px, 16vw, 128px);
+  width: auto;
+  margin: 0;
+}
+
+.app-logo--splash {
+  height: clamp(96px, 22vw, 160px);
+  width: auto;
+  margin: 0;
+}
