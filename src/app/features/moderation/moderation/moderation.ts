@@ -5,7 +5,9 @@ import { RouterModule } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextAnalysisService, PageResponse } from '../../../core/services/text-analysis.service';
 import { AdminStatsService } from '../../../core/services/admin-stats.service';
-import { RedditPost } from '../../../models';
+import { AuthService } from '../../../core/services/auth.service';
+import { ModerationQueueScope } from '../../../constants/roles';
+import { ModerationStats, RedditPost } from '../../../models';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { RedditPostAnalysisPanelComponent } from '../../text-analysis/reddit-post-analysis-panel/reddit-post-analysis-panel';
@@ -32,7 +34,10 @@ import { PostStatusBadgesComponent } from '../../../shared/components/post-statu
 export class ModerationComponent implements OnInit {
   private textAnalysisService = inject(TextAnalysisService);
   private adminStats = inject(AdminStatsService);
+  private authService = inject(AuthService);
   private transloco = inject(TranslocoService);
+
+  queueScope: ModerationQueueScope = 'UNASSIGNED';
 
   posts: RedditPost[] = [];
   selectedPost: RedditPost | null = null;
@@ -48,9 +53,20 @@ export class ModerationComponent implements OnInit {
   pageSize = 10;
   totalPages = 0;
   totalElements = 0;
+  pendingTotal = 0;
+  stats: ModerationStats | null = null;
+  showWorkflowHint = false;
+
+  private readonly workflowHintKey = 'sdh_moderation_workflow_hint_dismissed';
 
   sortBy = 'relevanceScore';
   sortDirection: 'ASC' | 'DESC' = 'DESC';
+
+  readonly scopeChips: { id: ModerationQueueScope; labelKey: string; adminOnly?: boolean }[] = [
+    { id: 'UNASSIGNED', labelKey: 'moderation.scopeUnassigned' },
+    { id: 'MINE', labelKey: 'moderation.scopeMine' },
+    { id: 'ALL', labelKey: 'moderation.scopeAll', adminOnly: true }
+  ];
 
   readonly sortOptions: ListSortOption[] = [
     { value: 'relevanceScore', labelKey: 'common.sortRelevance' },
@@ -60,8 +76,77 @@ export class ModerationComponent implements OnInit {
     { value: 'upvotes', labelKey: 'common.sortUpvotes' }
   ];
 
+  get isAdmin(): boolean {
+    return this.authService.isAdmin;
+  }
+
+  get isManager(): boolean {
+    return this.authService.isManager;
+  }
+
+  get backFallback(): string {
+    return this.isAdmin ? '/dashboard' : '/moderation';
+  }
+
+  get assignedToOther(): boolean {
+    if (!this.selectedPost || this.isAdmin) return false;
+    const uid = this.authService.currentUserValue?.id;
+    return (
+      this.selectedPost.assignedModeratorId != null &&
+      uid != null &&
+      this.selectedPost.assignedModeratorId !== uid
+    );
+  }
+
+  scopeCount(scope: ModerationQueueScope): number | null {
+    if (!this.stats) return null;
+    switch (scope) {
+      case 'UNASSIGNED':
+        return this.stats.unassignedCount;
+      case 'MINE':
+        return this.stats.mineCount;
+      case 'ALL':
+        return this.stats.allPendingCount;
+      default:
+        return null;
+    }
+  }
+
+  visibleScopeChips() {
+    return this.scopeChips.filter(c => !c.adminOnly || this.isAdmin);
+  }
+
   ngOnInit(): void {
+    this.queueScope = 'UNASSIGNED';
+    if (this.isManager && !localStorage.getItem(this.workflowHintKey)) {
+      this.showWorkflowHint = true;
+    }
+    this.refreshStats();
+    this.loadQueue();
+  }
+
+  dismissWorkflowHint(): void {
+    this.showWorkflowHint = false;
+    localStorage.setItem(this.workflowHintKey, '1');
+  }
+
+  refreshStats(): void {
+    this.textAnalysisService.getModerationStats().subscribe({
+      next: res => {
+        if (res.success && res.data) {
+          this.stats = res.data;
+          this.pendingTotal = res.data.allPendingCount;
+        }
+      }
+    });
     this.adminStats.refresh().subscribe();
+  }
+
+  setQueueScope(scope: ModerationQueueScope): void {
+    if (this.queueScope === scope) return;
+    this.queueScope = scope;
+    this.currentPage = 0;
+    this.selectedPost = null;
     this.loadQueue();
   }
 
@@ -69,7 +154,7 @@ export class ModerationComponent implements OnInit {
     this.loading = true;
     this.error = null;
     this.textAnalysisService
-      .getModerationPending(this.currentPage, this.pageSize, this.sortBy, this.sortDirection)
+      .getModerationPending(this.currentPage, this.pageSize, this.sortBy, this.sortDirection, this.queueScope)
       .subscribe({
         next: res => {
           if (res.success && res.data) {
@@ -124,13 +209,70 @@ export class ModerationComponent implements OnInit {
     this.actionMessage = null;
   }
 
-  approveSelected(): void {
+  get canDecideSelected(): boolean {
+    if (!this.selectedPost) return false;
+    if (this.isAdmin) return true;
+    const uid = this.authService.currentUserValue?.id;
+    return uid != null && this.selectedPost.assignedModeratorId === uid;
+  }
+
+  get needsClaimSelected(): boolean {
+    if (!this.selectedPost || this.isAdmin) return false;
+    return this.selectedPost.assignedModeratorId == null;
+  }
+
+  get canReleaseSelected(): boolean {
+    if (!this.selectedPost || this.isAdmin) return false;
+    const uid = this.authService.currentUserValue?.id;
+    return uid != null && this.selectedPost.assignedModeratorId === uid;
+  }
+
+  claimSelected(): void {
     if (!this.selectedPost || this.acting) return;
+    this.acting = true;
+    this.textAnalysisService.claimModerationPost(this.selectedPost.id).subscribe({
+      next: res => {
+        this.acting = false;
+        if (res.success && res.data) {
+          this.selectedPost = res.data;
+          this.posts[this.selectedIndex] = res.data;
+          this.actionMessage = 'moderation.claimSuccess';
+          this.refreshStats();
+        }
+      },
+      error: () => {
+        this.acting = false;
+        this.error = 'moderation.claimFailed';
+      }
+    });
+  }
+
+  releaseSelected(): void {
+    if (!this.selectedPost || this.acting) return;
+    this.acting = true;
+    this.textAnalysisService.releaseModerationPost(this.selectedPost.id).subscribe({
+      next: res => {
+        this.acting = false;
+        if (res.success && res.data) {
+          this.actionMessage = 'moderation.releaseSuccess';
+          this.refreshStats();
+          this.loadQueue();
+        }
+      },
+      error: () => {
+        this.acting = false;
+        this.error = 'moderation.releaseFailed';
+      }
+    });
+  }
+
+  approveSelected(): void {
+    if (!this.selectedPost || this.acting || !this.canDecideSelected) return;
     this.runAction(() => this.textAnalysisService.approvePost(this.selectedPost!.id));
   }
 
   rejectSelected(): void {
-    if (!this.selectedPost || this.acting) return;
+    if (!this.selectedPost || this.acting || !this.canDecideSelected) return;
     const msg = this.transloco.translate('moderation.confirmReject');
     if (!confirm(msg)) return;
     const notes = this.rejectNotes.trim() || null;
@@ -145,7 +287,7 @@ export class ModerationComponent implements OnInit {
         this.acting = false;
         if (res.success) {
           this.actionMessage = 'moderation.actionSuccess';
-          this.adminStats.refresh().subscribe();
+          this.refreshStats();
           if (this.posts.length <= 1 && this.currentPage > 0) {
             this.currentPage--;
           }
@@ -164,7 +306,7 @@ export class ModerationComponent implements OnInit {
 
   private loadQueueAfterAction(prevIndex: number): void {
     this.textAnalysisService
-      .getModerationPending(this.currentPage, this.pageSize, this.sortBy, this.sortDirection)
+      .getModerationPending(this.currentPage, this.pageSize, this.sortBy, this.sortDirection, this.queueScope)
       .subscribe({
         next: res => {
           if (res.success && res.data) {

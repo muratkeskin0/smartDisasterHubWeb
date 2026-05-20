@@ -17,9 +17,15 @@ export const API_ENDPOINTS = {
   },
   USER: {
     PROFILE: '/api/user/profile',
-    UPDATE: '/api/user/update',
-    DELETE: '/api/user/delete',
-    CHANGE_PASSWORD: '/api/user/change-password'
+    CANCEL_PENDING_EMAIL: '/api/user/profile/pending-email',
+    MANAGERS: '/api/users/managers'
+  },
+  MODERATION: {
+    STATS: '/api/moderation/stats',
+    PENDING: '/api/moderation/pending',
+    APPROVE: '/api/moderation',
+    CLAIM: '/api/moderation/pending',
+    RELEASE: '/api/moderation/pending'
   },
   REDDIT_POSTS: {
     ANALYZED: '/api/reddit-posts/analyzed',
@@ -34,9 +40,6 @@ export const API_ENDPOINTS = {
     REPORTS_TREND: '/api/reddit-posts/reports/trend',
     REPORTS_TOP_ADJUSTED: '/api/reddit-posts/reports/top-adjusted',
     REPORTS_BREAKDOWN: '/api/reddit-posts/reports/breakdown',
-    MODERATION_PENDING: '/api/reddit-posts/moderation/pending',
-    MODERATION_APPROVE: '/api/reddit-posts/moderation',
-    MODERATION_REJECT: '/api/reddit-posts/moderation'
   },
   ABOUT: {
     GET: '/api/about',

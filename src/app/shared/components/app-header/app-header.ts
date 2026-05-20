@@ -22,13 +22,14 @@ export class AppHeaderComponent implements OnInit {
   currentUser$ = this.authService.currentUser$;
   isAuthenticated = computed(() => this.authService.isAuthenticated);
   isAdmin = computed(() => this.authService.isAdmin);
+  isStaff = computed(() => this.authService.isStaff);
   userFullName = computed(() => this.authService.userFullName);
   pendingModerationCount = computed(() => this.adminStats.snapshot?.pendingModerationPosts ?? 0);
 
   homeLink = computed(() => this.authService.defaultHomeRoute);
 
   ngOnInit(): void {
-    if (this.isAdmin()) {
+    if (this.isStaff()) {
       this.adminStats.refresh().subscribe();
     }
   }

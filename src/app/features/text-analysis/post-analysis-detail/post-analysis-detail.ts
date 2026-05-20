@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { ModerationQueueScope } from '../../../constants/roles';
 import { PostModerationStatus, RedditPost, RedditPostStatus } from '../../../models';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
@@ -28,6 +30,7 @@ export class PostAnalysisDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private textAnalysisService = inject(TextAnalysisService);
+  private authService = inject(AuthService);
   private transloco = inject(TranslocoService);
 
   /** Sanitized in-app path from `?returnUrl=` (e.g. /reports, /text-analysis). */
@@ -46,6 +49,7 @@ export class PostAnalysisDetailComponent implements OnInit {
   queueSortBy = 'relevanceScore';
   queueSortDirection: 'ASC' | 'DESC' = 'DESC';
   queuePageSize = 10;
+  queueScope: ModerationQueueScope = 'MINE';
   queuePosts: RedditPost[] = [];
   totalQueuePages = 0;
   queueLoading = false;
@@ -70,6 +74,12 @@ export class PostAnalysisDetailComponent implements OnInit {
       const size = PostAnalysisDetailComponent.parseNonNegInt(q['queueSize'], 0);
       if (size > 0) {
         this.queuePageSize = size;
+      }
+      const scope = typeof q['queueScope'] === 'string' ? q['queueScope'].toUpperCase() : '';
+      if (scope === 'MINE' || scope === 'UNASSIGNED' || scope === 'ALL') {
+        this.queueScope = scope as ModerationQueueScope;
+      } else {
+        this.queueScope = this.authService.isAdmin ? 'ALL' : 'MINE';
       }
     });
     this.route.paramMap.subscribe(params => {
@@ -207,7 +217,7 @@ export class PostAnalysisDetailComponent implements OnInit {
     }
     this.queueLoading = true;
     this.textAnalysisService
-      .getModerationPending(page, this.queuePageSize, this.queueSortBy, this.queueSortDirection)
+      .getModerationPending(page, this.queuePageSize, this.queueSortBy, this.queueSortDirection, this.queueScope)
       .subscribe({
         next: res => {
           this.queueLoading = false;
@@ -258,7 +268,7 @@ export class PostAnalysisDetailComponent implements OnInit {
   private loadQueuePageAndSelect(page: number, which: 'first' | 'last'): void {
     this.queueLoading = true;
     this.textAnalysisService
-      .getModerationPending(page, this.queuePageSize, this.queueSortBy, this.queueSortDirection)
+      .getModerationPending(page, this.queuePageSize, this.queueSortBy, this.queueSortDirection, this.queueScope)
       .subscribe({
         next: res => {
           this.queueLoading = false;
@@ -284,7 +294,8 @@ export class PostAnalysisDetailComponent implements OnInit {
         queueIndex: index,
         queueSort: this.queueSortBy,
         queueDir: this.queueSortDirection,
-        queueSize: this.queuePageSize
+        queueSize: this.queuePageSize,
+        queueScope: this.queueScope
       }
     });
   }

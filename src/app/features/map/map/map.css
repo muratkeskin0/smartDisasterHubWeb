@@ -93,6 +93,13 @@
   color: var(--color-text-secondary);
 }
 
+.map-manager-note {
+  margin: 0 0 8px;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
 .map-date-filter__deeplink {
   margin: 10px 0 0;
   padding: 10px 12px;

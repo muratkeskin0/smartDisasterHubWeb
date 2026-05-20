@@ -6,6 +6,7 @@ import { AppHeaderComponent } from '../../../shared/components/app-header/app-he
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { FormsModule } from '@angular/forms';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ReportedRange, ReportedRangePreset } from '../../../core/utils/reported-date-range';
 import { RedditDateFilterComponent } from '../../../shared/components/reddit-date-filter/reddit-date-filter';
@@ -51,6 +52,7 @@ const FOCUS_ZOOM = 14;
 })
 export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
   private queryParamSub: Subscription | null = null;
 
   mapOptions: any = {
@@ -119,6 +121,14 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /** Exposed for template: show hint when map was opened with `?postId=`. */
+  get isManagerView(): boolean {
+    return this.authService.isManager && !this.authService.isAdmin;
+  }
+
+  get mapBackFallback(): string {
+    return this.authService.defaultHomeRoute;
+  }
+
   get hasPostIdQuery(): boolean {
     return this.pendingFocusPostId != null;
   }

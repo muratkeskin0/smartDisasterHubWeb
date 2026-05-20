@@ -10,6 +10,8 @@ export interface User {
   email: string;
   role: UserRole;
   isEmailVerified: boolean;
+  pendingEmail?: string | null;
+  emailChangePending?: boolean;
   profileImageBase64?: string | null;
   profileImageContentType?: string | null;
   createdAt: string;
@@ -18,7 +20,7 @@ export interface User {
 
 export interface UserRole {
   id: number;
-  name: 'ADMIN' | 'BASIC';
+  name: 'ADMIN' | 'MANAGER' | 'BASIC';
   description: string;
 }
 
@@ -33,6 +35,12 @@ export interface RegisterData {
   lastName: string;
   email: string;
   password: string;
+}
+
+export interface ProfileUpdateData {
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
 export interface AuthResponse {
@@ -130,6 +138,10 @@ export interface RedditPost {
   moderationReviewedAt?: string | null;
   moderationReviewedBy?: string | null;
   moderationNotes?: string | null;
+  assignedModeratorId?: number | null;
+  assignedModeratorEmail?: string | null;
+  assignedModeratorName?: string | null;
+  assignedAt?: string | null;
   /** Extracted after Location: / Konum: markers in post text */
   locationText?: string | null;
   latitude?: number | null;
@@ -140,6 +152,14 @@ export interface RedditPost {
   locationRegionKey?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ModerationStats {
+  unassignedCount: number;
+  mineCount: number;
+  allPendingCount: number;
+  todayApproved: number;
+  todayRejected: number;
 }
 
 export interface PostStatistics {

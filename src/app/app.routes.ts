@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { staffGuard } from './core/guards/staff.guard';
 import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
@@ -42,14 +43,14 @@ export const routes: Routes = [
   {
     path: 'profile',
     loadComponent: () => import('./features/profile/profile/profile').then(m => m.ProfileComponent),
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard],
     title: 'Profile - Smart Disaster Hub'
   },
   {
     path: 'text-analysis/post/:redditPostId',
     loadComponent: () =>
       import('./features/text-analysis/post-analysis-detail/post-analysis-detail').then(m => m.PostAnalysisDetailComponent),
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, staffGuard],
     title: 'Post analysis - Smart Disaster Hub'
   },
   {
@@ -61,13 +62,19 @@ export const routes: Routes = [
   {
     path: 'moderation',
     loadComponent: () => import('./features/moderation/moderation/moderation').then(m => m.ModerationComponent),
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, staffGuard],
     title: 'Moderation - Smart Disaster Hub'
+  },
+  {
+    path: 'team',
+    loadComponent: () => import('./features/team/team/team').then(m => m.TeamComponent),
+    canActivate: [authGuard, adminGuard],
+    title: 'Moderation team - Smart Disaster Hub'
   },
   {
     path: 'map',
     loadComponent: () => import('./features/map/map/map').then(m => m.MapComponent),
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, staffGuard],
     title: 'Disaster Map - Smart Disaster Hub'
   },
   {

@@ -15,6 +15,7 @@
             </a>
             <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | transloco }}</a>
             <a routerLink="/authors" routerLinkActive="active">{{ 'nav.authors' | transloco }}</a>
+            <a routerLink="/team" routerLinkActive="active">{{ 'nav.team' | transloco }}</a>
             <div class="nav-dropdown" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
               <span class="nav-dropdown__trigger">{{ 'nav.reports' | transloco }}</span>
               <div class="nav-dropdown__menu">
@@ -27,16 +28,23 @@
               </div>
             </div>
           }
+          @if (isStaff() && !isAdmin()) {
+            <a routerLink="/moderation" routerLinkActive="active" class="nav-moderation">
+              {{ 'nav.moderation' | transloco }}
+              <span class="nav-badge" *ngIf="pendingModerationCount() > 0">{{ pendingModerationCount() }}</span>
+            </a>
+            <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | transloco }}</a>
+          }
           <a routerLink="/about" routerLinkActive="active">{{ 'nav.about' | transloco }}</a>
         </nav>
       }
     </div>
-    
+
     <div class="header-right">
       @if (isAuthenticated()) {
         <app-language-switcher class="header-lang" />
         <div class="user-section">
-          @if (isAdmin()) {
+          @if (isStaff()) {
             <a routerLink="/profile" class="user-info">
               <div class="user-avatar">
                 {{ userInitials }}
@@ -51,7 +59,7 @@
               <span class="user-name">{{ userFullName() }}</span>
             </div>
           }
-          
+
           <app-base-button
             variant="danger"
             size="small"

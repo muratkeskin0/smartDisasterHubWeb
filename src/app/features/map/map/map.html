@@ -3,7 +3,7 @@
 <div class="map-container">
   <div class="header-section">
     <div class="header-top">
-      <app-back-button></app-back-button>
+      <app-back-button [fallbackRoute]="mapBackFallback"></app-back-button>
     </div>
     <h1>{{ 'map.title' | transloco }}</h1>
     <p class="subtitle">{{ 'map.subtitle' | transloco }}</p>
@@ -21,6 +21,7 @@
       (customRangeErrorChange)="customRangeError = $event">
     </app-reddit-date-filter>
     <p class="map-approved-note">{{ 'map.approvedOnlyNote' | transloco }}</p>
+    <p class="map-manager-note" *ngIf="isManagerView">{{ 'map.managerReadOnlyNote' | transloco }}</p>
     <p class="map-date-filter__deeplink" *ngIf="hasPostIdQuery">{{ 'map.dateFilterForPostLink' | transloco }}</p>
   </div>
 

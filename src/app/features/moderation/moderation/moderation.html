@@ -2,7 +2,7 @@
 
 <div class="moderation-page">
   <div class="moderation-header">
-    <app-back-button fallbackRoute="/dashboard"></app-back-button>
+    <app-back-button [fallbackRoute]="backFallback"></app-back-button>
     <div class="moderation-header__text">
       <h1>{{ 'moderation.title' | transloco }}</h1>
       <p class="moderation-header__sub">{{ 'moderation.subtitle' | transloco }}</p>
@@ -10,10 +10,56 @@
     </div>
     <div class="moderation-header__meta" *ngIf="!loading">
       <span class="queue-badge">{{ 'moderation.queueCount' | transloco: { count: totalElements } }}</span>
+      <span class="queue-badge queue-badge--total" *ngIf="pendingTotal > totalElements">
+        {{ 'moderation.queueTotalPending' | transloco: { count: pendingTotal } }}
+      </span>
       <button type="button" class="refresh-btn" (click)="loadQueue()" [disabled]="loading || acting">
         {{ 'common.refresh' | transloco }}
       </button>
     </div>
+  </div>
+
+  <section class="moderation-kpi" *ngIf="stats">
+    <article class="moderation-kpi__card">
+      <span class="moderation-kpi__label">{{ 'moderation.kpiUnassigned' | transloco }}</span>
+      <strong class="moderation-kpi__value">{{ stats.unassignedCount }}</strong>
+    </article>
+    <article class="moderation-kpi__card">
+      <span class="moderation-kpi__label">{{ 'moderation.kpiMine' | transloco }}</span>
+      <strong class="moderation-kpi__value">{{ stats.mineCount }}</strong>
+    </article>
+    <article class="moderation-kpi__card">
+      <span class="moderation-kpi__label">{{ 'moderation.kpiTodayApproved' | transloco }}</span>
+      <strong class="moderation-kpi__value moderation-kpi__value--ok">{{ stats.todayApproved }}</strong>
+    </article>
+    <article class="moderation-kpi__card">
+      <span class="moderation-kpi__label">{{ 'moderation.kpiTodayRejected' | transloco }}</span>
+      <strong class="moderation-kpi__value moderation-kpi__value--no">{{ stats.todayRejected }}</strong>
+    </article>
+  </section>
+
+  <details class="moderation-workflow" *ngIf="showWorkflowHint" open>
+    <summary>{{ 'moderation.workflowTitle' | transloco }}</summary>
+    <ol class="moderation-workflow__steps">
+      <li>{{ 'moderation.workflowStep1' | transloco }}</li>
+      <li>{{ 'moderation.workflowStep2' | transloco }}</li>
+      <li>{{ 'moderation.workflowStep3' | transloco }}</li>
+    </ol>
+    <button type="button" class="moderation-workflow__dismiss" (click)="dismissWorkflowHint()">
+      {{ 'moderation.workflowDismiss' | transloco }}
+    </button>
+  </details>
+
+  <div class="moderation-scope" role="tablist">
+    <button
+      type="button"
+      class="moderation-scope__chip"
+      *ngFor="let chip of visibleScopeChips()"
+      [class.moderation-scope__chip--active]="queueScope === chip.id"
+      (click)="setQueueScope(chip.id)">
+      {{ chip.labelKey | transloco }}
+      <span class="moderation-scope__count" *ngIf="scopeCount(chip.id) !== null">({{ scopeCount(chip.id) }})</span>
+    </button>
   </div>
 
   <app-list-toolbar
@@ -46,7 +92,9 @@
   </div>
 
   <div class="moderation-empty" *ngIf="!loading && !error && posts.length === 0">
-    <p>{{ 'moderation.empty' | transloco }}</p>
+    <p *ngIf="queueScope === 'MINE'">{{ 'moderation.emptyMine' | transloco }}</p>
+    <p *ngIf="queueScope === 'UNASSIGNED'">{{ 'moderation.emptyUnassigned' | transloco }}</p>
+    <p *ngIf="queueScope === 'ALL'">{{ 'moderation.empty' | transloco }}</p>
   </div>
 
   <div class="moderation-layout" *ngIf="!loading && !error && posts.length > 0">
@@ -69,6 +117,9 @@
           </span>
         </span>
         <span class="queue-item__date">{{ formatDate(post.analyzedAt) }}</span>
+        <span class="queue-item__assignee" *ngIf="post.assignedModeratorName">
+          {{ 'moderation.assignedTo' | transloco }}: {{ post.assignedModeratorName }}
+        </span>
       </button>
 
       <div class="pagination" *ngIf="totalPages > 1">
@@ -87,6 +138,9 @@
     </aside>
 
     <section class="moderation-detail" *ngIf="selectedPost">
+      <p class="moderation-assigned-warn" *ngIf="assignedToOther">
+        {{ 'moderation.assignedToOther' | transloco: { name: selectedPost.assignedModeratorName || selectedPost.assignedModeratorEmail } }}
+      </p>
       <div class="moderation-detail__body">
       <div class="moderation-detail__head">
         <h2 class="moderation-detail__title">{{ selectedPost.title }}</h2>
@@ -108,7 +162,8 @@
               queueIndex: selectedIndex,
               queueSort: sortBy,
               queueDir: sortDirection,
-              queueSize: pageSize
+              queueSize: pageSize,
+              queueScope: queueScope
             }"
             class="link-secondary">
             {{ 'moderation.openFullDetail' | transloco }}
@@ -127,6 +182,15 @@
       </div>
 
       <div class="moderation-actions moderation-actions--footer">
+        <p class="moderation-claim-hint" *ngIf="needsClaimSelected">{{ 'moderation.claimBeforeDecide' | transloco }}</p>
+        <div class="moderation-claim-row" *ngIf="needsClaimSelected || canReleaseSelected">
+          <button type="button" class="btn-claim" *ngIf="needsClaimSelected" (click)="claimSelected()" [disabled]="acting">
+            {{ 'moderation.claim' | transloco }}
+          </button>
+          <button type="button" class="btn-release" *ngIf="canReleaseSelected" (click)="releaseSelected()" [disabled]="acting">
+            {{ 'moderation.release' | transloco }}
+          </button>
+        </div>
         <label class="reject-notes">
           <span>{{ 'moderation.rejectNotesLabel' | transloco }}</span>
           <textarea
@@ -136,10 +200,10 @@
             [disabled]="acting"></textarea>
         </label>
         <div class="moderation-actions__buttons">
-          <button type="button" class="btn-approve" (click)="approveSelected()" [disabled]="acting">
+          <button type="button" class="btn-approve" (click)="approveSelected()" [disabled]="acting || !canDecideSelected">
             {{ 'moderation.approve' | transloco }}
           </button>
-          <button type="button" class="btn-reject" (click)="rejectSelected()" [disabled]="acting">
+          <button type="button" class="btn-reject" (click)="rejectSelected()" [disabled]="acting || !canDecideSelected">
             {{ 'moderation.reject' | transloco }}
           </button>
         </div>

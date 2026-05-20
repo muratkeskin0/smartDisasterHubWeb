@@ -84,7 +84,7 @@ export class LoginComponent {
       .subscribe({
         next: () => {
           const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-          if (this.authService.isAdmin) {
+          if (this.authService.isStaff) {
             const target = returnUrl && returnUrl !== '/' ? returnUrl : this.authService.defaultHomeRoute;
             this.router.navigateByUrl(target);
           } else {

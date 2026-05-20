@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../constants/api';
-import { ApiResponse, RedditPost, PostStatistics, MapMarker } from '../../models';
+import { ApiResponse, RedditPost, PostStatistics, MapMarker, ModerationStats } from '../../models';
 import { appendReportedRangeParams, hasReportedRange, ReportedRange } from '../utils/reported-date-range';
 
 export interface PageResponse<T> {
@@ -149,33 +149,57 @@ export class TextAnalysisService {
     );
   }
 
+  getModerationStats(): Observable<ApiResponse<ModerationStats>> {
+    return this.http.get<ApiResponse<ModerationStats>>(
+      `${this.apiUrl}${API_ENDPOINTS.MODERATION.STATS}`
+    );
+  }
+
   getModerationPending(
     page: number = 0,
     size: number = 20,
     sortBy: string = 'relevanceScore',
-    sortDirection: 'ASC' | 'DESC' = 'DESC'
+    sortDirection: 'ASC' | 'DESC' = 'DESC',
+    scope?: 'MINE' | 'UNASSIGNED' | 'ALL'
   ): Observable<ApiResponse<PageResponse<RedditPost>>> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sortBy', sortBy)
       .set('sortDirection', sortDirection);
+    if (scope) {
+      params = params.set('scope', scope);
+    }
     return this.http.get<ApiResponse<PageResponse<RedditPost>>>(
-      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.MODERATION_PENDING}`,
+      `${this.apiUrl}${API_ENDPOINTS.MODERATION.PENDING}`,
       { params }
+    );
+  }
+
+  claimModerationPost(postId: number): Observable<ApiResponse<RedditPost>> {
+    return this.http.post<ApiResponse<RedditPost>>(
+      `${this.apiUrl}${API_ENDPOINTS.MODERATION.CLAIM}/${postId}/claim`,
+      {}
+    );
+  }
+
+  releaseModerationPost(postId: number): Observable<ApiResponse<RedditPost>> {
+    return this.http.post<ApiResponse<RedditPost>>(
+      `${this.apiUrl}${API_ENDPOINTS.MODERATION.RELEASE}/${postId}/release`,
+      {}
     );
   }
 
   approvePost(postId: number): Observable<ApiResponse<RedditPost>> {
     return this.http.post<ApiResponse<RedditPost>>(
-      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.MODERATION_APPROVE}/${postId}/approve`,
+      `${this.apiUrl}${API_ENDPOINTS.MODERATION.APPROVE}/${postId}/approve`,
       {}
     );
   }
 
   rejectPost(postId: number, notes?: string | null): Observable<ApiResponse<RedditPost>> {
     return this.http.post<ApiResponse<RedditPost>>(
-      `${this.apiUrl}${API_ENDPOINTS.REDDIT_POSTS.MODERATION_REJECT}/${postId}/reject`,
+      `${this.apiUrl}${API_ENDPOINTS.MODERATION.APPROVE}/${postId}/reject`,
       notes ? { notes } : {}
     );
   }

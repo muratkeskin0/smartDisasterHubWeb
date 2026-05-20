@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { API_ENDPOINTS } from '../../constants/api';
 import { STORAGE_KEYS } from '../../constants/storage';
-import { LoginCredentials, RegisterData, AuthResponse, User, ApiResponse } from '../../models';
+import { LoginCredentials, RegisterData, AuthResponse, User, ApiResponse, ProfileUpdateData } from '../../models';
 
 @Injectable({
   providedIn: 'root'
@@ -68,9 +68,23 @@ export class AuthService {
     return this.currentUserSubject.value?.role?.name === 'ADMIN';
   }
 
-  /** Default home after login: admins go to dashboard, BASIC users to About only. */
+  get isManager(): boolean {
+    return this.currentUserSubject.value?.role?.name === 'MANAGER';
+  }
+
+  get isStaff(): boolean {
+    return this.isAdmin || this.isManager;
+  }
+
+  /** Default home after login: admins → dashboard, managers → moderation, BASIC → about. */
   get defaultHomeRoute(): string {
-    return this.isAdmin ? '/dashboard' : '/about';
+    if (this.isAdmin) {
+      return '/dashboard';
+    }
+    if (this.isManager) {
+      return '/moderation';
+    }
+    return '/about';
   }
 
   /**
@@ -144,6 +158,41 @@ export class AuthService {
    */
   verifyToken(): Observable<ApiResponse<{ valid: boolean }>> {
     return this.http.get<ApiResponse<{ valid: boolean }>>(`${this.apiUrl}${API_ENDPOINTS.AUTH.VERIFY}`);
+  }
+
+  getProfile(): Observable<ApiResponse<User>> {
+    return this.http.get<ApiResponse<User>>(`${this.apiUrl}${API_ENDPOINTS.USER.PROFILE}`).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.setCurrentUser(response.data);
+        }
+      })
+    );
+  }
+
+  updateProfile(data: ProfileUpdateData): Observable<ApiResponse<User>> {
+    return this.http.put<ApiResponse<User>>(`${this.apiUrl}${API_ENDPOINTS.USER.PROFILE}`, data).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.setCurrentUser(response.data);
+        }
+      })
+    );
+  }
+
+  cancelPendingEmailChange(): Observable<ApiResponse<User>> {
+    return this.http.delete<ApiResponse<User>>(`${this.apiUrl}${API_ENDPOINTS.USER.CANCEL_PENDING_EMAIL}`).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.setCurrentUser(response.data);
+        }
+      })
+    );
+  }
+
+  private setCurrentUser(user: User): void {
+    localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(user));
+    this.currentUserSubject.next(user);
   }
 
   private clearAuthData(): void {
