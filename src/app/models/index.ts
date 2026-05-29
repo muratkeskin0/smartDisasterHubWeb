@@ -68,6 +68,7 @@ export interface ApiResponse<T = any> {
 export interface ApiError {
   code: string;
   details: string;
+  validationErrors?: Record<string, string>;
 }
 
 // Error Types

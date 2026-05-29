@@ -7,6 +7,7 @@ import { BackButtonComponent } from '../../../shared/components/back-button/back
 import { FormsModule } from '@angular/forms';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ApiErrorService } from '../../../core/services/api-error.service';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { displayPostTitle } from '../../../core/utils/post-display';
 import { ReportedRange, ReportedRangePreset } from '../../../core/utils/reported-date-range';
@@ -59,6 +60,7 @@ const FOCUS_ZOOM = 14;
 export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+  private apiError = inject(ApiErrorService);
   private transloco = inject(TranslocoService);
   private queryParamSub: Subscription | null = null;
 
@@ -224,9 +226,8 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       error: (err) => {
         console.error('Error loading map markers:', err);
-        this.error = 'Failed to load map data';
+        this.error = this.apiError.resolve(err, 'map.loadError');
         this.loading = false;
-        // Fallback to empty array
         this.allMarkersData = [];
         this.visibleMarkers = [];
         this.tryApplyPendingFocus();

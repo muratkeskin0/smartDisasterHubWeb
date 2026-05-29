@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ApiErrorService } from '../../../core/services/api-error.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
 import { AppLogoComponent } from '../../../shared/components/app-logo/app-logo';
@@ -19,6 +20,7 @@ import { finalize } from 'rxjs/operators';
 export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private apiError = inject(ApiErrorService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -42,9 +44,9 @@ export class LoginComponent {
   validateEmail(): void {
     const emailControl = this.loginForm.get('email');
     if (emailControl?.errors?.['required']) {
-      this.errors.update(e => ({ ...e, email: 'Email is required' }));
+      this.errors.update(e => ({ ...e, email: this.apiError.translate('errors.validationFields.emailRequired') }));
     } else if (emailControl?.errors?.['email']) {
-      this.errors.update(e => ({ ...e, email: 'Please enter a valid email address' }));
+      this.errors.update(e => ({ ...e, email: this.apiError.translate('errors.validationFields.emailInvalid') }));
     } else {
       this.errors.update(e => ({ ...e, email: undefined }));
     }
@@ -62,9 +64,9 @@ export class LoginComponent {
     if (this.loginForm.get('password')?.invalid) {
       const passwordControl = this.loginForm.get('password');
       if (passwordControl?.errors?.['required']) {
-        this.errors.update(e => ({ ...e, password: 'Password is required' }));
+        this.errors.update(e => ({ ...e, password: this.apiError.translate('errors.validationFields.passwordRequired') }));
       } else if (passwordControl?.errors?.['minlength']) {
-        this.errors.update(e => ({ ...e, password: 'Password must be at least 6 characters' }));
+        this.errors.update(e => ({ ...e, password: this.apiError.translate('errors.validationFields.passwordMinLength') }));
       }
       isValid = false;
     }
@@ -83,22 +85,24 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: () => {
+        next: (response) => {
+          if (!response.success || !response.data?.token) {
+            this.serverError.set(this.apiError.resolveFromResponse(response, 'errors.auth.loginFailed'));
+            return;
+          }
+
           const returnUrl = this.route.snapshot.queryParams['returnUrl'];
           if (this.authService.isStaff) {
             const target = returnUrl && returnUrl !== '/' ? returnUrl : this.authService.defaultHomeRoute;
             this.router.navigateByUrl(target);
+          } else if (returnUrl && returnUrl.startsWith('/about')) {
+            this.router.navigateByUrl(returnUrl);
           } else {
-            if (returnUrl && returnUrl.startsWith('/about')) {
-              this.router.navigateByUrl(returnUrl);
-            } else {
-              this.router.navigate([this.authService.defaultHomeRoute]);
-            }
+            this.router.navigate([this.authService.defaultHomeRoute]);
           }
         },
         error: (err: HttpErrorResponse) => {
-          console.error('Login error:', err);
-          this.serverError.set(err?.error?.message || err?.error?.error?.details || 'Login failed');
+          this.serverError.set(this.apiError.resolve(err, 'errors.auth.loginFailed'));
         }
       });
   }

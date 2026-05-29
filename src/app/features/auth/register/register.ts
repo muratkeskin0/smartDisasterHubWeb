@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
+import { ApiErrorService } from '../../../core/services/api-error.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
 import { AppLogoComponent } from '../../../shared/components/app-logo/app-logo';
@@ -28,6 +29,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
 export class RegisterComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private apiError = inject(ApiErrorService);
   private router = inject(Router);
 
   registerForm: FormGroup;
@@ -67,44 +69,21 @@ export class RegisterComponent {
     const { confirmPassword, ...registerData } = this.registerForm.value;
 
     this.authService.register(registerData)
-      .pipe(
-        finalize(() => {
-          this.loading.set(false);
-        })
-      )
+      .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (response) => {
+          if (!response.success) {
+            this.serverError.set(this.apiError.resolveFromResponse(response, 'errors.auth.registerFailed'));
+            return;
+          }
+
           const email = response.data?.activationSentTo || registerData.email;
           this.router.navigate(['/activation-mail-sent'], { queryParams: { email } });
         },
         error: (err: HttpErrorResponse) => {
-          console.error('Register error:', err);
-          this.serverError.set(this.extractErrorMessage(err));
+          this.serverError.set(this.apiError.resolve(err, 'errors.auth.registerFailed'));
         }
       });
-  }
-
-  private extractErrorMessage(error: HttpErrorResponse): string {
-    const backendMessage = error?.error?.message;
-    const backendDetails = error?.error?.error?.details;
-
-    if (typeof backendMessage === 'string' && backendMessage.trim()) {
-      return backendMessage;
-    }
-
-    if (typeof backendDetails === 'string' && backendDetails.trim()) {
-      return backendDetails;
-    }
-
-    if (error.status === 409) {
-      return 'This email is already registered.';
-    }
-
-    if (!error.status) {
-      return 'Network error. Please check your connection.';
-    }
-
-    return 'Registration failed. Please try again.';
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {
@@ -117,14 +96,33 @@ export class RegisterComponent {
   getFieldError(fieldName: string): string {
     const control = this.registerForm.get(fieldName);
     if (control?.errors && control.touched) {
-      if (control.errors['required']) return `${fieldName} is required`;
-      if (control.errors['email']) return 'Please enter a valid email address';
-      if (control.errors['minlength']) return `${fieldName} must be at least ${control.errors['minlength'].requiredLength} characters`;
-      if (control.errors['maxlength']) return `${fieldName} must be at most ${control.errors['maxlength'].requiredLength} characters`;
+      if (control.errors['required']) {
+        return this.requiredMessage(fieldName);
+      }
+      if (control.errors['email']) {
+        return this.apiError.translate('errors.validationFields.emailInvalid');
+      }
+      if (control.errors['minlength']) {
+        return this.apiError.translate('errors.validationFields.passwordMinLength');
+      }
+      if (control.errors['maxlength']) {
+        return this.apiError.translate('errors.validation');
+      }
     }
     if (this.registerForm.errors?.['passwordMismatch'] && fieldName === 'confirmPassword') {
-      return 'Passwords do not match';
+      return this.apiError.translate('errors.validationFields.passwordMismatch');
     }
     return '';
+  }
+
+  private requiredMessage(fieldName: string): string {
+    const keys: Record<string, string> = {
+      firstName: 'errors.validationFields.firstNameRequired',
+      lastName: 'errors.validationFields.lastNameRequired',
+      email: 'errors.validationFields.emailRequired',
+      password: 'errors.validationFields.passwordRequired',
+      confirmPassword: 'errors.validationFields.confirmPasswordRequired'
+    };
+    return this.apiError.translate(keys[fieldName] ?? 'errors.validation');
   }
 }

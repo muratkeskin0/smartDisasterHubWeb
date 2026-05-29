@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AuthService } from '../../../core/services/auth.service';
+import { ApiErrorService } from '../../../core/services/api-error.service';
 
 @Component({
   selector: 'app-activate-email',
@@ -14,6 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class ActivateEmailComponent {
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+  private apiError = inject(ApiErrorService);
   private router = inject(Router);
 
   loading = signal(true);
@@ -25,20 +27,25 @@ export class ActivateEmailComponent {
     if (!token) {
       this.loading.set(false);
       this.success.set(false);
-      this.message.set('Invalid activation link.');
+      this.message.set(this.apiError.translate('errors.auth.invalidActivationLink'));
       return;
     }
 
     this.authService.activateEmail(token).subscribe({
       next: (res) => {
         this.loading.set(false);
+        if (!res.success) {
+          this.success.set(false);
+          this.message.set(this.apiError.resolveFromResponse(res, 'errors.auth.activationFailed'));
+          return;
+        }
         this.success.set(true);
-        this.message.set(res.message || 'Email activated successfully.');
+        this.message.set(res.message || this.apiError.translate('authActivation.successBody'));
       },
       error: (err) => {
         this.loading.set(false);
         this.success.set(false);
-        this.message.set(err?.error?.message || err?.error?.error?.details || 'Activation failed.');
+        this.message.set(this.apiError.resolve(err, 'errors.auth.activationFailed'));
       }
     });
   }

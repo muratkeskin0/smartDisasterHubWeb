@@ -7,6 +7,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { isAuthRequestUrl } from '../utils/api-error.util';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -14,19 +15,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Handle 401 Unauthorized
-      if (error.status === 401) {
+      if (error.status === 401 && authService.isAuthenticated && !isAuthRequestUrl(req.url)) {
         authService.logout(false);
         router.navigate(['/login']);
-      }
-
-      // Handle network errors
-      if (!error.status) {
-        console.error('Network error:', error);
       }
 
       return throwError(() => error);
     })
   );
 };
-

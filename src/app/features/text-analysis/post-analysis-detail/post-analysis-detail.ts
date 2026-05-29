@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ApiErrorService } from '../../../core/services/api-error.service';
 import { ModerationQueueScope } from '../../../constants/roles';
 import { PostModerationStatus, RedditPost, RedditPostStatus } from '../../../models';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
@@ -39,6 +40,7 @@ export class PostAnalysisDetailComponent implements OnInit {
   private router = inject(Router);
   private textAnalysisService = inject(TextAnalysisService);
   private authService = inject(AuthService);
+  private apiError = inject(ApiErrorService);
   private transloco = inject(TranslocoService);
 
   /** Sanitized in-app path from `?returnUrl=` (e.g. /reports, /text-analysis). */
@@ -105,7 +107,7 @@ export class PostAnalysisDetailComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       const redditPostId = params.get('redditPostId');
       if (!redditPostId) {
-        this.error = 'Missing post id';
+        this.error = this.apiError.translate('textAnalysis.missingPostId');
         this.loading = false;
         return;
       }
@@ -173,12 +175,12 @@ export class PostAnalysisDetailComponent implements OnInit {
             this.loadQueueContext();
           }
         } else {
-          this.error = res.message || 'Post not found';
+          this.error = this.apiError.resolveFromResponse(res, 'textAnalysis.postNotFound');
         }
         this.loading = false;
       },
-      error: () => {
-        this.error = 'Failed to load post';
+      error: (err) => {
+        this.error = this.apiError.resolve(err, 'textAnalysis.detailLoadError');
         this.loading = false;
       }
     });
@@ -336,7 +338,7 @@ export class PostAnalysisDetailComponent implements OnInit {
       },
       error: () => {
         this.moderating = false;
-        this.error = 'moderation.actionFailed';
+        this.error = this.apiError.translate('moderation.actionFailed');
       }
     });
   }
@@ -358,7 +360,7 @@ export class PostAnalysisDetailComponent implements OnInit {
       },
       error: () => {
         this.moderating = false;
-        this.error = 'moderation.actionFailed';
+        this.error = this.apiError.translate('moderation.actionFailed');
       }
     });
   }

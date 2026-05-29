@@ -161,8 +161,7 @@ export class ProfileComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           const code = err.error?.error?.code;
-          const msg = err.error?.error?.details || err.error?.message;
-          if (code === 'EMAIL_ALREADY_EXISTS' || (typeof msg === 'string' && msg.toLowerCase().includes('email'))) {
+          if (code === 'USER_003') {
             this.saveError.set('profile.emailTaken');
           } else {
             this.saveError.set('profile.saveError');

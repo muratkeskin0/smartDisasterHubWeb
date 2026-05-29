@@ -39,7 +39,7 @@
   </div>
 
   <div class="error-container" *ngIf="error && !loading">
-    <p class="error-message">{{ error | transloco }}</p>
+    <p class="error-message">{{ error }}</p>
     <div class="detail-back-inline">
       <app-back-button [returnUrl]="returnUrl" [fallbackRoute]="'/text-analysis'" [block]="true" />
     </div>
