@@ -102,29 +102,3 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
-.test-info {
-  margin-top: 24px;
-  padding: 16px;
-  background: linear-gradient(170deg, var(--color-info-lighter) 0%, var(--color-background-tertiary) 100%);
-  border: 1px solid var(--color-info);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  color: var(--color-info-light);
-}
-
-.test-info p {
-  margin: 4px 0;
-}
-
-.test-info strong {
-  color: var(--color-info-dark);
-  font-weight: var(--font-weight-semibold);
-}
-
-[data-theme="dark"] .test-info {
-  background: var(--color-info-lighter);
-  border-color: var(--color-info);
-  color: var(--color-info-light);
-}
-
