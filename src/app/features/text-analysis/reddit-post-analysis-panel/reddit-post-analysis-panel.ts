@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RedditPost } from '../../../models';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
+import { isDisplayableImageUrl } from '../../../core/utils/media-url';
 
 /**
  * Full analysis breakdown (text / humanitarian / visual).
@@ -39,7 +40,7 @@ export class RedditPostAnalysisPanelComponent {
   }
 
   hasVisualAnalysisSection(post: RedditPost): boolean {
-    const hasMedia = !!(post.mediaUrl && this.isDisplayableImageUrl(post.mediaUrl));
+    const hasMedia = !!(post.mediaUrl && isDisplayableImageUrl(post.mediaUrl));
     return (
       hasMedia ||
       post.isImageTextMatch !== null ||
@@ -72,12 +73,4 @@ export class RedditPostAnalysisPanelComponent {
       );
   }
 
-  private isDisplayableImageUrl(url: string | null | undefined): boolean {
-    if (!url) return false;
-    const u = url.toLowerCase();
-    const isHttp = u.startsWith('http://') || u.startsWith('https://');
-    if (!isHttp) return false;
-    return u.includes('i.redd.it') || u.includes('preview.redd.it')
-      || u.endsWith('.jpg') || u.endsWith('.jpeg') || u.endsWith('.png') || u.endsWith('.webp') || u.endsWith('.gif');
-  }
 }

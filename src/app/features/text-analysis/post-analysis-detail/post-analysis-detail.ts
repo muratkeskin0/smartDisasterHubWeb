@@ -12,6 +12,7 @@ import { BackButtonComponent } from '../../../shared/components/back-button/back
 import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 import { PostTitlePipe } from '../../../shared/pipes/post-title.pipe';
 import { displayPostTitle, isPostTitleBlank } from '../../../core/utils/post-display';
+import { isDisplayableImageUrl, proxiedMediaUrl } from '../../../core/utils/media-url';
 import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
 import { RedditPostAnalysisPanelComponent } from '../reddit-post-analysis-panel/reddit-post-analysis-panel';
 
@@ -69,6 +70,8 @@ export class PostAnalysisDetailComponent implements OnInit {
   private failedImageByPostId: Record<number, boolean> = {};
 
   readonly isPostTitleBlank = isPostTitleBlank;
+  readonly isDisplayableImageUrl = isDisplayableImageUrl;
+  readonly proxiedMediaUrl = proxiedMediaUrl;
 
   resolvePostTitle(title: string | null | undefined): string {
     return displayPostTitle(title, this.transloco.translate('common.untitledPost'));
@@ -386,15 +389,6 @@ export class PostAnalysisDetailComponent implements OnInit {
     );
   }
 
-  isDisplayableImageUrl(url: string | null | undefined): boolean {
-    if (!url) return false;
-    const u = url.toLowerCase();
-    const isHttp = u.startsWith('http://') || u.startsWith('https://');
-    if (!isHttp) return false;
-    return u.includes('i.redd.it') || u.includes('preview.redd.it')
-      || u.endsWith('.jpg') || u.endsWith('.jpeg') || u.endsWith('.png') || u.endsWith('.webp') || u.endsWith('.gif');
-  }
-
   markImageFailed(postId: number): void {
     this.failedImageByPostId[postId] = true;
   }
@@ -413,10 +407,6 @@ export class PostAnalysisDetailComponent implements OnInit {
       return { labelKey: 'textAnalysis.matchStatusNo', css: 'match-no' };
     }
 
-    const score = post.relevanceScore ?? null;
-    if (score !== null && score < 0.7) {
-      return { labelKey: 'textAnalysis.matchStatusSkipped', css: 'match-skip', hintKey: 'textAnalysis.matchHintLowRelevance' };
-    }
     return { labelKey: 'textAnalysis.matchStatusNa', css: 'match-na', hintKey: 'textAnalysis.matchHintNa' };
   }
 
@@ -425,7 +415,9 @@ export class PostAnalysisDetailComponent implements OnInit {
       ? post.mediaUrls
       : (post.mediaUrl ? [post.mediaUrl] : []);
 
-    const urls = rawUrls.filter(u => this.isDisplayableImageUrl(u));
+    const urls = rawUrls
+      .map(u => proxiedMediaUrl(u))
+      .filter((u): u is string => !!u);
     if (!urls || urls.length === 0) return;
 
     this.lightboxUrls = urls;

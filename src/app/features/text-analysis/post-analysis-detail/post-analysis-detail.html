@@ -89,9 +89,10 @@
     <div class="post-media" *ngIf="post.mediaUrl && isDisplayableImageUrl(post.mediaUrl) && !isImageFailed(post.id)">
       <img
         class="post-image"
-        [src]="post.mediaUrl"
+        [src]="proxiedMediaUrl(post.mediaUrl)"
         [alt]="imageAlt(post)"
         loading="lazy"
+        referrerpolicy="no-referrer"
         (click)="openLightbox(post)"
         (error)="markImageFailed(post.id)"
       />
@@ -173,7 +174,8 @@
       <img
         class="lightbox-image"
         [src]="lightboxUrls[lightboxIndex]"
-        [alt]="lightboxTitle || ('textAnalysis.lightboxMedia' | transloco)" />
+        [alt]="lightboxTitle || ('textAnalysis.lightboxMedia' | transloco)"
+        referrerpolicy="no-referrer" />
 
       <button
         class="lightbox-nav next"
