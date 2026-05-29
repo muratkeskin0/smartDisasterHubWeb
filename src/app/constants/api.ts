@@ -2,7 +2,9 @@
  * API Endpoints Constants
  */
 
-export const API_BASE_URL = 'http://localhost:8082';
+import { environment } from '../../environments/environment';
+
+export const API_BASE_URL = environment.apiBaseUrl;
 
 export const API_ENDPOINTS = {
   AUTH: {

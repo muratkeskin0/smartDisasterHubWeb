@@ -6,7 +6,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { API_ENDPOINTS } from '../../constants/api';
+import { API_BASE_URL, API_ENDPOINTS } from '../../constants/api';
 import { ApiResponse, RedditPost, PostStatistics, MapMarker, ModerationStats } from '../../models';
 import { appendReportedRangeParams, hasReportedRange, ReportedRange } from '../utils/reported-date-range';
 
@@ -31,7 +31,7 @@ export interface PageRequest {
   providedIn: 'root'
 })
 export class TextAnalysisService {
-  private apiUrl = 'http://localhost:8082';
+  private apiUrl = API_BASE_URL;
 
   constructor(private http: HttpClient) {}
 

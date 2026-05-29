@@ -5,7 +5,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
-import { API_ENDPOINTS } from '../../constants/api';
+import { API_BASE_URL, API_ENDPOINTS } from '../../constants/api';
 import { STORAGE_KEYS } from '../../constants/storage';
 import { LoginCredentials, RegisterData, AuthResponse, User, ApiResponse, ProfileUpdateData } from '../../models';
 
@@ -13,7 +13,7 @@ import { LoginCredentials, RegisterData, AuthResponse, User, ApiResponse, Profil
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8082';
+  private apiUrl = API_BASE_URL;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   private logoutTimer: ReturnType<typeof setTimeout> | null = null;
