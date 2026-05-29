@@ -250,8 +250,7 @@
     "mapFallbackNote": "If map doesn't load, install Leaflet: npm install leaflet @types/leaflet",
     "pinSizeInfo": "Pin size reflects post count at that location",
     "legend12": "1-2 posts",
-    "loadError": "Could not load map data. Please try again."
-  },
+    "loadError": "Could not load map data. Please try again.",
     "legend34": "3-4 posts",
     "legend5": "5+ posts",
     "dateFilterForPostLink": "Opened with a post link: the post-date filter was set to all time so that post can appear on the map.",

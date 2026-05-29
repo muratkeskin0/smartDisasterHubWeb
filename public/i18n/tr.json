@@ -250,8 +250,7 @@
     "mapFallbackNote": "Harita yüklenmezse Leaflet kurun: npm install leaflet @types/leaflet",
     "pinSizeInfo": "İğne boyutu o konumdaki gönderi sayısını yansıtır",
     "legend12": "1-2 gönderi",
-    "loadError": "Harita verisi yüklenemedi. Lütfen tekrar deneyin."
-  },
+    "loadError": "Harita verisi yüklenemedi. Lütfen tekrar deneyin.",
     "legend34": "3-4 gönderi",
     "legend5": "5+ gönderi",
     "dateFilterForPostLink": "Gönderi bağlantısıyla açıldı: iğnenin görünmesi için gönderi tarihi filtresi tüm zamanlara alındı.",
