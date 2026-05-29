@@ -9,6 +9,11 @@
     </div>
   </header>
 
+  <div class="ta-reddit-banner" *ngIf="redditStatus && !redditStatus.configured">
+    <p>{{ 'textAnalysis.redditNotConfigured' | transloco }}</p>
+    <a routerLink="/admin/integrations/reddit">{{ 'textAnalysis.redditNotConfiguredLink' | transloco }}</a>
+  </div>
+
   <app-reddit-date-filter
     class="ta-date-filter"
     [datePreset]="datePreset"
@@ -149,7 +154,8 @@
                   <a
                     [routerLink]="['/text-analysis/post', post.redditPostId]"
                     [queryParams]="{ returnUrl: '/text-analysis' }"
-                    class="post-title-link">{{ post.title }}</a>
+                    class="post-title-link"
+                    [class.post-title-link--untitled]="isPostTitleBlank(post.title)">{{ post.title | postTitle }}</a>
                   <span class="help-badge" *ngIf="post.isHelpRequest" title="Help request">!</span>
                 </h3>
                 <div class="post-meta">

@@ -58,7 +58,7 @@
         </a>
       </div>
 
-      <h2 class="detail-title" (click)="openRedditPost(post.url)">{{ post.title }}</h2>
+      <h2 class="detail-title" [class.detail-title--untitled]="isPostTitleBlank(post.title)" (click)="openRedditPost(post.url)">{{ post.title | postTitle }}</h2>
 
       <div class="detail-meta">
         <span>r/{{ post.subreddit }}</span>
@@ -90,7 +90,7 @@
       <img
         class="post-image"
         [src]="post.mediaUrl"
-        [alt]="post.imageCaption || post.title"
+        [alt]="imageAlt(post)"
         loading="lazy"
         (click)="openLightbox(post)"
         (error)="markImageFailed(post.id)"

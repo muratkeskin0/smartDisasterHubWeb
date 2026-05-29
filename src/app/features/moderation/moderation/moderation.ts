@@ -15,6 +15,8 @@ import { RedditPostAnalysisPanelComponent } from '../../text-analysis/reddit-pos
 import { ListSortOption, ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
 import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
 import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
+import { PostTitlePipe } from '../../../shared/pipes/post-title.pipe';
+import { isPostTitleBlank } from '../../../core/utils/post-display';
 
 @Component({
   selector: 'app-moderation',
@@ -29,7 +31,8 @@ import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
     RedditPostAnalysisPanelComponent,
     ListToolbarComponent,
     PostStatusBadgesComponent,
-    AppTipComponent
+    AppTipComponent,
+    PostTitlePipe
   ],
   templateUrl: './moderation.html',
   styleUrl: './moderation.css'
@@ -73,6 +76,8 @@ export class ModerationComponent implements OnInit {
 
   sortBy = 'relevanceScore';
   sortDirection: 'ASC' | 'DESC' = 'DESC';
+
+  readonly isPostTitleBlank = isPostTitleBlank;
 
   readonly scopeChips: { id: ModerationQueueScope; labelKey: string; adminOnly?: boolean }[] = [
     { id: 'UNASSIGNED', labelKey: 'moderation.scopeUnassigned' },

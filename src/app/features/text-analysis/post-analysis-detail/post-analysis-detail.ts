@@ -10,6 +10,8 @@ import { PostModerationStatus, RedditPost, RedditPostStatus } from '../../../mod
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
 import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
+import { PostTitlePipe } from '../../../shared/pipes/post-title.pipe';
+import { displayPostTitle, isPostTitleBlank } from '../../../core/utils/post-display';
 import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
 import { RedditPostAnalysisPanelComponent } from '../reddit-post-analysis-panel/reddit-post-analysis-panel';
 
@@ -25,7 +27,8 @@ import { RedditPostAnalysisPanelComponent } from '../reddit-post-analysis-panel/
     AppTipComponent,
     PostStatusBadgesComponent,
     TranslocoPipe,
-    RedditPostAnalysisPanelComponent
+    RedditPostAnalysisPanelComponent,
+    PostTitlePipe
   ],
   templateUrl: './post-analysis-detail.html',
   styleUrl: './post-analysis-detail.css'
@@ -64,6 +67,16 @@ export class PostAnalysisDetailComponent implements OnInit {
   lightboxTitle: string | null = null;
 
   private failedImageByPostId: Record<number, boolean> = {};
+
+  readonly isPostTitleBlank = isPostTitleBlank;
+
+  resolvePostTitle(title: string | null | undefined): string {
+    return displayPostTitle(title, this.transloco.translate('common.untitledPost'));
+  }
+
+  imageAlt(post: RedditPost): string {
+    return post.imageCaption || this.resolvePostTitle(post.title);
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(q => {
@@ -417,7 +430,7 @@ export class PostAnalysisDetailComponent implements OnInit {
 
     this.lightboxUrls = urls;
     this.lightboxIndex = 0;
-    this.lightboxTitle = post.title || null;
+    this.lightboxTitle = this.resolvePostTitle(post.title);
     this.lightboxOpen = true;
     document.body.style.overflow = 'hidden';
   }

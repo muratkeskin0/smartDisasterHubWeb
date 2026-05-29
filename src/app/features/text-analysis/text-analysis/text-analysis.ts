@@ -12,6 +12,9 @@ import { RedditDateFilterComponent } from '../../../shared/components/reddit-dat
 import { ListSortOption, ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
 import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
 import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
+import { PostTitlePipe } from '../../../shared/pipes/post-title.pipe';
+import { isPostTitleBlank } from '../../../core/utils/post-display';
+import { RedditIntegrationService, RedditIntegrationStatus } from '../../../core/services/reddit-integration.service';
 
 export type ListFilterMode = 'all' | 'disaster' | 'pending' | 'approved' | 'rejected' | 'notRequired';
 
@@ -28,7 +31,8 @@ export type ListFilterMode = 'all' | 'disaster' | 'pending' | 'approved' | 'reje
     RedditDateFilterComponent,
     ListToolbarComponent,
     PostStatusBadgesComponent,
-    AppTipComponent
+    AppTipComponent,
+    PostTitlePipe
   ],
   templateUrl: './text-analysis.html',
   styleUrl: './text-analysis.css'
@@ -36,9 +40,11 @@ export type ListFilterMode = 'all' | 'disaster' | 'pending' | 'approved' | 'reje
 export class TextAnalysisComponent implements OnInit {
   private textAnalysisService = inject(TextAnalysisService);
   private transloco = inject(TranslocoService);
+  private redditIntegration = inject(RedditIntegrationService);
 
   posts: RedditPost[] = [];
   statistics: PostStatistics | null = null;
+  redditStatus: RedditIntegrationStatus | null = null;
   loading = true;
   error: string | null = null;
   listFilter: ListFilterMode = 'all';
@@ -66,6 +72,8 @@ export class TextAnalysisComponent implements OnInit {
     { value: 'upvotes', labelKey: 'common.sortUpvotes' }
   ];
 
+  readonly isPostTitleBlank = isPostTitleBlank;
+
   readonly filterChips: { id: ListFilterMode; labelKey: string }[] = [
     { id: 'all', labelKey: 'textAnalysis.filterAllPosts' },
     { id: 'disaster', labelKey: 'textAnalysis.filterDisaster' },
@@ -76,7 +84,18 @@ export class TextAnalysisComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    this.loadRedditStatus();
     this.loadData();
+  }
+
+  loadRedditStatus(): void {
+    this.redditIntegration.getStatus().subscribe({
+      next: res => {
+        if (res.success && res.data) {
+          this.redditStatus = res.data;
+        }
+      }
+    });
   }
 
   loadData(refreshJobs: boolean = false): void {

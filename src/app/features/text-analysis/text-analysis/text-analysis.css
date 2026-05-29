@@ -22,6 +22,38 @@
   letter-spacing: -0.02em;
 }
 
+.ta-reddit-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: var(--spacing-md);
+  padding: 10px 14px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: var(--radius-lg);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.ta-reddit-banner p {
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+  font-size: 13px;
+  color: #b45309;
+}
+
+.ta-reddit-banner a {
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.ta-reddit-banner a:hover {
+  text-decoration: underline;
+}
+
 .ta-date-filter {
   margin-bottom: var(--spacing-md);
 }

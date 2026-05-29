@@ -56,6 +56,9 @@ export const API_ENDPOINTS = {
     MINE: '/api/complaints/mine',
     INBOX: '/api/complaints/inbox',
     INBOX_STATS: '/api/complaints/inbox/stats'
+  },
+  ADMIN: {
+    REDDIT_INTEGRATION: '/api/admin/integrations/reddit'
   }
 } as const;
 

@@ -113,7 +113,7 @@
         [class.queue-item--active]="selectedPost?.id === post.id"
         (click)="selectPost(post)">
         <div class="queue-item__row">
-          <span class="queue-item__title">{{ post.title }}</span>
+          <span class="queue-item__title" [class.queue-item__title--untitled]="isPostTitleBlank(post.title)">{{ post.title | postTitle }}</span>
           <span
             class="queue-item__score"
             *ngIf="post.relevanceScore != null"
@@ -181,7 +181,7 @@
             </div>
           </div>
 
-          <h2 class="moderation-detail__title">{{ selectedPost.title }}</h2>
+          <h2 class="moderation-detail__title" [class.detail-title--untitled]="isPostTitleBlank(selectedPost.title)">{{ selectedPost.title | postTitle }}</h2>
 
           <div class="moderation-detail__meta">
             <span>r/{{ selectedPost.subreddit }}</span>

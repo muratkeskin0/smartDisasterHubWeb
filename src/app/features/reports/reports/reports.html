@@ -232,7 +232,7 @@
           <tr *ngFor="let post of topAdjusted">
             <td>
               <a class="rp-post-link" [routerLink]="['/text-analysis/post', post.redditPostId]" [queryParams]="{ returnUrl: '/reports/tables' }">{{
-                post.title
+                post.title | postTitle
               }}</a>
             </td>
             <td>

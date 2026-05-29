@@ -18,6 +18,7 @@ export type HeaderNavIcon =
   | 'map'
   | 'authors'
   | 'team'
+  | 'integrations'
   | 'reports'
   | 'about'
   | 'signIn'
@@ -78,6 +79,12 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
     icon: 'about'
   };
 
+  private readonly integrationsItem: HeaderNavItem = {
+    route: '/admin/integrations/reddit',
+    labelKey: 'nav.integrations',
+    icon: 'integrations'
+  };
+
   private readonly complaintsInboxItem: HeaderNavItem = {
     route: '/complaints/inbox',
     labelKey: 'nav.complaints',
@@ -136,6 +143,10 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
 
     if (this.isStaff()) {
       items.push(this.complaintsInboxItem);
+    }
+
+    if (this.isAdmin()) {
+      items.push(this.integrationsItem);
     }
 
     items.push(this.aboutItem);

@@ -7,10 +7,13 @@ import { BackButtonComponent } from '../../../shared/components/back-button/back
 import { FormsModule } from '@angular/forms';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { displayPostTitle } from '../../../core/utils/post-display';
 import { ReportedRange, ReportedRangePreset } from '../../../core/utils/reported-date-range';
 import { RedditDateFilterComponent } from '../../../shared/components/reddit-date-filter/reddit-date-filter';
 import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
+import { PostTitlePipe } from '../../../shared/pipes/post-title.pipe';
+import { isPostTitleBlank } from '../../../core/utils/post-display';
 
 // Declare Leaflet types
 declare var L: any;
@@ -46,7 +49,8 @@ const FOCUS_ZOOM = 14;
     BackButtonComponent,
     TranslocoPipe,
     RedditDateFilterComponent,
-    AppTipComponent
+    AppTipComponent,
+    PostTitlePipe
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './map.html',
@@ -55,6 +59,7 @@ const FOCUS_ZOOM = 14;
 export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+  private transloco = inject(TranslocoService);
   private queryParamSub: Subscription | null = null;
 
   mapOptions: any = {
@@ -90,7 +95,22 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
   /** Transloco key for inline validation (`common.dateFilter.*`). */
   customRangeError: string | null = null;
 
+  readonly isPostTitleBlank = isPostTitleBlank;
+
   constructor(private textAnalysisService: TextAnalysisService) {}
+
+  resolvePostTitle(title: string | null | undefined): string {
+    return displayPostTitle(title, this.transloco.translate('common.untitledPost'));
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   ngOnInit(): void {
     let skipInitialDuplicateLoad = false;
@@ -434,7 +454,7 @@ export class MapComponent implements OnInit, OnDestroy, AfterViewInit {
     
     markerData.posts.slice(0, 3).forEach((post, index) => {
       popupContent += `<div style="margin: 8px 0; padding: 8px; border-left: 3px solid #f59e0b; background: #1e293b;">`;
-      popupContent += `<a href="${post.url}" target="_blank" style="color: #fbbf24; text-decoration: none; font-weight: 500;">${post.title}</a>`;
+      popupContent += `<a href="${post.url}" target="_blank" style="color: #fbbf24; text-decoration: none; font-weight: 500;">${this.escapeHtml(this.resolvePostTitle(post.title))}</a>`;
       popupContent += `</div>`;
     });
     

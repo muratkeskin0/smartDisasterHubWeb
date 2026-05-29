@@ -664,3 +664,11 @@ textarea,
   cursor: help;
   border-bottom: 1px dotted var(--color-border);
 }
+
+.post-title-link--untitled,
+.post-title--untitled,
+.detail-title--untitled,
+.queue-item__title--untitled {
+  font-style: italic;
+  opacity: 0.82;
+}

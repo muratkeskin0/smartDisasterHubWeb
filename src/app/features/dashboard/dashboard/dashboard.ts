@@ -7,6 +7,8 @@ import { StaffInboxService } from '../../../core/services/staff-inbox.service';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { PostTitlePipe } from '../../../shared/pipes/post-title.pipe';
+import { isPostTitleBlank } from '../../../core/utils/post-display';
 
 export interface DashboardLocationRow {
   title: string;
@@ -38,7 +40,7 @@ export interface DashboardModule {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppHeaderComponent, AppTipComponent, TranslocoPipe],
+  imports: [CommonModule, RouterModule, AppHeaderComponent, AppTipComponent, TranslocoPipe, PostTitlePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -49,6 +51,8 @@ export class DashboardComponent implements OnInit {
 
   pendingModerationCount = 0;
   pendingComplaintCount = 0;
+
+  readonly isPostTitleBlank = isPostTitleBlank;
 
   constructor() {
     effect(() => {

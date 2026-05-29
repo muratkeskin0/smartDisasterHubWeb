@@ -72,6 +72,13 @@ export const routes: Routes = [
     title: 'Moderation team - Smart Disaster Hub'
   },
   {
+    path: 'admin/integrations/reddit',
+    loadComponent: () =>
+      import('./features/admin/reddit-integration/reddit-integration').then(m => m.RedditIntegrationComponent),
+    canActivate: [authGuard, adminGuard],
+    title: 'Reddit integration - Smart Disaster Hub'
+  },
+  {
     path: 'map',
     loadComponent: () => import('./features/map/map/map').then(m => m.MapComponent),
     canActivate: [authGuard, staffGuard],

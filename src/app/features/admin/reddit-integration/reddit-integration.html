@@ -1,0 +1,169 @@
+<app-header></app-header>
+
+<div class="reddit-int-page">
+  <header class="reddit-int-header">
+    <app-back-button fallbackRoute="/dashboard"></app-back-button>
+    <div class="page-heading">
+      <h1>{{ 'redditIntegration.title' | transloco }}</h1>
+      <app-tip [text]="'redditIntegration.pageTip' | transloco"></app-tip>
+    </div>
+    @if (settings) {
+      <span
+        class="reddit-int-badge"
+        [class.reddit-int-badge--ok]="settings.configured"
+        [class.reddit-int-badge--warn]="!settings.configured">
+        {{
+          (settings.configured ? 'redditIntegration.statusConfigured' : 'redditIntegration.statusNotConfigured')
+            | transloco
+        }}
+      </span>
+    }
+  </header>
+
+  @if (loading) {
+    <div class="reddit-int-loading">
+      <div class="reddit-int-spinner"></div>
+      <p>{{ 'common.loading' | transloco }}</p>
+    </div>
+  } @else {
+    <div class="reddit-int-grid">
+      <section class="reddit-int-card">
+        <h2 class="reddit-int-card__title">{{ 'redditIntegration.formTitle' | transloco }}</h2>
+        <p class="reddit-int-hint">{{ 'redditIntegration.formHint' | transloco }}</p>
+
+        <form class="reddit-int-form" (ngSubmit)="save()">
+          <label class="reddit-int-field">
+            <span>{{ 'redditIntegration.clientId' | transloco }}</span>
+            <input type="text" [(ngModel)]="form.clientId" name="clientId" autocomplete="off" required />
+          </label>
+          <label class="reddit-int-field">
+            <span>{{ 'redditIntegration.clientSecret' | transloco }}</span>
+            <input
+              type="password"
+              [(ngModel)]="form.clientSecret"
+              name="clientSecret"
+              autocomplete="new-password"
+              [placeholder]="'redditIntegration.secretPlaceholder' | transloco" />
+          </label>
+          <label class="reddit-int-field">
+            <span>{{ 'redditIntegration.username' | transloco }}</span>
+            <input type="text" [(ngModel)]="form.username" name="username" autocomplete="off" required />
+          </label>
+          <label class="reddit-int-field">
+            <span>{{ 'redditIntegration.password' | transloco }}</span>
+            <input
+              type="password"
+              [(ngModel)]="form.password"
+              name="password"
+              autocomplete="new-password"
+              [placeholder]="'redditIntegration.secretPlaceholder' | transloco" />
+          </label>
+          <label class="reddit-int-field">
+            <span>{{ 'redditIntegration.userAgent' | transloco }}</span>
+            <input type="text" [(ngModel)]="form.userAgent" name="userAgent" autocomplete="off" />
+          </label>
+          <label class="reddit-int-field">
+            <span>{{ 'redditIntegration.subreddits' | transloco }}</span>
+            <input type="text" [(ngModel)]="form.subreddits" name="subreddits" autocomplete="off" />
+            <small class="reddit-int-field__hint">{{ 'redditIntegration.subredditsHint' | transloco }}</small>
+          </label>
+          <label class="reddit-int-check">
+            <input type="checkbox" [(ngModel)]="form.enabled" name="enabled" />
+            <span>{{ 'redditIntegration.enabled' | transloco }}</span>
+          </label>
+
+          <div class="reddit-int-actions">
+            <button type="submit" class="reddit-int-btn reddit-int-btn--primary" [disabled]="saving">
+              {{ (saving ? 'common.loading' : 'redditIntegration.save') | transloco }}
+            </button>
+            <button
+              type="button"
+              class="reddit-int-btn"
+              (click)="testConnection()"
+              [disabled]="testing || saving">
+              {{ (testing ? 'common.loading' : 'redditIntegration.test') | transloco }}
+            </button>
+            <button
+              type="button"
+              class="reddit-int-btn"
+              (click)="fetchNow()"
+              [disabled]="fetching || testing || !settings?.configured">
+              {{ (fetching ? 'common.loading' : 'redditIntegration.fetchNow') | transloco }}
+            </button>
+          </div>
+        </form>
+
+        @if (success) {
+          <p class="reddit-int-toast reddit-int-toast--ok">{{ success | transloco }}</p>
+        }
+        @if (error) {
+          <p class="reddit-int-toast reddit-int-toast--err">{{ error | transloco }}</p>
+        }
+      </section>
+
+      <div class="reddit-int-sidebar">
+        <section class="reddit-int-card reddit-int-card--guide">
+          <h2 class="reddit-int-card__title">{{ 'redditIntegration.setupTitle' | transloco }}</h2>
+          <p class="reddit-int-hint">{{ 'redditIntegration.setupIntro' | transloco }}</p>
+          <a
+            class="reddit-int-apps-link"
+            [href]="redditAppsUrl"
+            target="_blank"
+            rel="noopener noreferrer">
+            {{ 'redditIntegration.setupOpenApps' | transloco }}
+          </a>
+          <ol class="reddit-int-steps">
+            @for (step of setupSteps; track step) {
+              <li>{{ step | transloco }}</li>
+            }
+          </ol>
+          <h3 class="reddit-int-subtitle">{{ 'redditIntegration.setupFieldMapTitle' | transloco }}</h3>
+          <ul class="reddit-int-field-map">
+            @for (item of fieldMapKeys; track item) {
+              <li>{{ item | transloco }}</li>
+            }
+          </ul>
+        </section>
+
+      @if (settings) {
+        <section class="reddit-int-card reddit-int-card--status">
+          <h2 class="reddit-int-card__title">{{ 'redditIntegration.statusTitle' | transloco }}</h2>
+          <dl class="reddit-int-status-list">
+            <div>
+              <dt>{{ 'redditIntegration.configSource' | transloco }}</dt>
+              <dd>{{ settings.configSource }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'redditIntegration.lastTest' | transloco }}</dt>
+              <dd>
+                {{ formatInstant(settings.lastTestAt) }}
+                @if (settings.lastTestSuccess === true) {
+                  <span class="reddit-int-ok">✓</span>
+                } @else if (settings.lastTestSuccess === false) {
+                  <span class="reddit-int-err">✗</span>
+                }
+              </dd>
+            </div>
+            @if (settings.lastTestMessage) {
+              <div>
+                <dt>{{ 'redditIntegration.lastTestMessage' | transloco }}</dt>
+                <dd class="reddit-int-status-msg">{{ settings.lastTestMessage }}</dd>
+              </div>
+            }
+            <div>
+              <dt>{{ 'redditIntegration.lastFetch' | transloco }}</dt>
+              <dd>
+                {{ formatInstant(settings.lastFetchAt) }}
+                @if (settings.lastFetchCount != null) {
+                  <span> ({{ settings.lastFetchCount }} {{ 'redditIntegration.posts' | transloco }})</span>
+                }
+              </dd>
+            </div>
+          </dl>
+          <a routerLink="/text-analysis" class="reddit-int-link">{{ 'redditIntegration.goToAnalysis' | transloco }}</a>
+        </section>
+      }
+      </div>
+    </div>
+  }
+</div>

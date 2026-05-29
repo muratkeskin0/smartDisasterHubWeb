@@ -65,7 +65,7 @@
           [class.map-post-card--focused]="focusedPostId === post.id"
           [attr.id]="'map-post-' + post.id"
           *ngFor="let post of sortedClusterPosts(cluster)">
-          <h3 class="map-post-card__title">{{ post.title }}</h3>
+          <h3 class="map-post-card__title" [class.post-title--untitled]="isPostTitleBlank(post.title)">{{ post.title | postTitle }}</h3>
           <p class="map-post-card__loc" *ngIf="post.locationText">
             <span class="map-post-card__loc-label">{{ 'map.location' | transloco }}</span>
             {{ post.locationText }}

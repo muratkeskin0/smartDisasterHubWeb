@@ -110,8 +110,8 @@
 
       <ul class="dashboard-location__list" *ngIf="!locationsLoading && !locationsError && locationRows.length > 0">
         <li class="dashboard-location__item" *ngFor="let row of locationRows">
-          <a [href]="row.url" target="_blank" rel="noopener noreferrer" class="dashboard-location__title-link">
-            {{ row.title }}
+          <a [href]="row.url" target="_blank" rel="noopener noreferrer" class="dashboard-location__title-link" [class.post-title-link--untitled]="isPostTitleBlank(row.title)">
+            {{ row.title | postTitle }}
           </a>
           <p class="dashboard-location__text" *ngIf="row.locationText">{{ row.locationText }}</p>
           <a

@@ -15,6 +15,8 @@ import { RedditDateFilterComponent } from '../../../shared/components/reddit-dat
 import { ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
 import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
 import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
+import { PostTitlePipe } from '../../../shared/pipes/post-title.pipe';
+import { isPostTitleBlank } from '../../../core/utils/post-display';
 
 type ReportView = 'all' | 'charts' | 'tables';
 
@@ -33,7 +35,8 @@ type ReportView = 'all' | 'charts' | 'tables';
     RedditDateFilterComponent,
     ListToolbarComponent,
     PostStatusBadgesComponent,
-    AppTipComponent
+    AppTipComponent,
+    PostTitlePipe
   ],
   templateUrl: './reports.html',
   styleUrl: './reports.css'
