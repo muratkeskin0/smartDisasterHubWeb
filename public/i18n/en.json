@@ -729,7 +729,7 @@
       "USER_005": "Please verify your email before signing in.",
       "USER_005A": "This activation link is invalid.",
       "USER_005B": "This activation link has expired.",
-      "USER_005C": "We could not send the email. Please try again later.",
+      "USER_005C": "We could not send the activation email. Please try again later or contact support.",
       "USER_006": "Your account is inactive. Contact support if you need help.",
       "USER_007": "Your account is locked. Contact support.",
       "ROLE_001": "Role not found.",

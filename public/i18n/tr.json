@@ -729,7 +729,7 @@
       "USER_005": "Giriş yapmadan önce e-postanızı doğrulamalısınız.",
       "USER_005A": "Bu doğrulama bağlantısı geçersiz.",
       "USER_005B": "Bu doğrulama bağlantısının süresi dolmuş.",
-      "USER_005C": "E-posta gönderilemedi. Lütfen daha sonra tekrar deneyin.",
+      "USER_005C": "Aktivasyon e-postası gönderilemedi. Lütfen tekrar deneyin veya destek ile iletişime geçin.",
       "USER_006": "Hesabınız pasif. Yardım için destek ekibiyle iletişime geçin.",
       "USER_007": "Hesabınız kilitli. Destek ekibiyle iletişime geçin.",
       "ROLE_001": "Rol bulunamadı.",
