@@ -1,10 +1,10 @@
 .post-analysis {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 18px;
+  gap: 12px;
+  padding: 14px;
   background: var(--color-background-secondary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
 }
 
@@ -12,22 +12,21 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  padding-bottom: 4px;
+  gap: 6px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--color-border);
-  margin-bottom: 4px;
 }
 
 .summary-pill {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 999px;
-  font-size: var(--font-size-xs);
+  font-size: 11px;
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.02em;
   border: 1px solid var(--color-border);
-  background: var(--color-background);
+  background: var(--color-background-primary);
   color: var(--color-text-primary);
 }
 
@@ -56,35 +55,36 @@
 
 .analysis-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
   align-items: start;
 }
 
 .analysis-block {
-  padding: 14px 14px 16px;
+  padding: 12px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
-  background: var(--color-background);
+  background: var(--color-background-primary);
 }
 
 .analysis-block--wide {
   grid-column: 1 / -1;
 }
 
-.analysis-block__title {
-  margin: 0 0 6px;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  letter-spacing: 0.01em;
+.analysis-block__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
-.analysis-block__hint {
-  margin: 0 0 12px;
-  font-size: var(--font-size-xs);
+.analysis-block__title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-secondary);
-  line-height: 1.45;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .analysis-kv {
@@ -258,11 +258,10 @@
 
 .post-stats {
   display: flex;
-  gap: 16px;
-  font-size: var(--font-size-sm);
+  gap: 14px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
-  padding-top: 8px;
-  margin-top: 4px;
+  padding-top: 10px;
   border-top: 1px solid var(--color-border);
 }
 

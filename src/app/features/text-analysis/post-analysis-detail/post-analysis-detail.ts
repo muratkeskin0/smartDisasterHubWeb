@@ -9,6 +9,8 @@ import { ModerationQueueScope } from '../../../constants/roles';
 import { PostModerationStatus, RedditPost, RedditPostStatus } from '../../../models';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
+import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
 import { RedditPostAnalysisPanelComponent } from '../reddit-post-analysis-panel/reddit-post-analysis-panel';
 
 @Component({
@@ -20,6 +22,8 @@ import { RedditPostAnalysisPanelComponent } from '../reddit-post-analysis-panel/
     RouterModule,
     AppHeaderComponent,
     BackButtonComponent,
+    AppTipComponent,
+    PostStatusBadgesComponent,
     TranslocoPipe,
     RedditPostAnalysisPanelComponent
   ],

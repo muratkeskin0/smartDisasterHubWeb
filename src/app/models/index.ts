@@ -256,3 +256,38 @@ export interface ReportBreakdown {
   postsByRegion: NamedCount[];
 }
 
+export type ComplaintCategory = 'BUG' | 'CONTENT' | 'ACCOUNT' | 'OTHER';
+export type ComplaintStatus = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
+
+export interface Complaint {
+  id: number;
+  subject: string;
+  body: string;
+  category: ComplaintCategory;
+  status: ComplaintStatus;
+  submitterId: number;
+  submitterName: string;
+  submitterEmail: string;
+  assignedStaffId?: number | null;
+  assignedStaffName?: string | null;
+  staffNotes?: string | null;
+  assignedAt?: string | null;
+  resolvedAt?: string | null;
+  resolvedBy?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ComplaintCreateRequest {
+  subject: string;
+  body: string;
+  category: ComplaintCategory;
+}
+
+export interface ComplaintStats {
+  unassignedCount: number;
+  mineCount: number;
+  allOpenCount: number;
+  resolvedCount: number;
+}
+

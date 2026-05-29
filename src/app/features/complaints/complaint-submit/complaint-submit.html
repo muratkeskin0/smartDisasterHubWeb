@@ -1,0 +1,77 @@
+<app-header></app-header>
+
+<div class="complaint-page">
+  <div class="complaint-page__header">
+    <app-back-button [fallbackRoute]="backFallback"></app-back-button>
+    <div>
+      <div class="page-heading">
+        <h1>{{ 'complaints.submitTitle' | transloco }}</h1>
+        <app-tip [text]="'complaints.submitPageTip' | transloco"></app-tip>
+      </div>
+    </div>
+  </div>
+
+  <div class="complaint-layout">
+    <section class="complaint-card">
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <label class="field">
+          <span>{{ 'complaints.category' | transloco }}</span>
+          <select formControlName="category">
+            @for (cat of categories; track cat) {
+              <option [value]="cat">{{ ('complaints.categories.' + cat) | transloco }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>{{ 'complaints.subject' | transloco }}</span>
+          <input type="text" formControlName="subject" maxlength="200" />
+          @if (form.controls.subject.touched && form.controls.subject.invalid) {
+            <small class="field-error">{{ 'complaints.subjectRequired' | transloco }}</small>
+          }
+        </label>
+
+        <label class="field">
+          <span>{{ 'complaints.body' | transloco }}</span>
+          <textarea formControlName="body" rows="8" maxlength="5000"></textarea>
+          @if (form.controls.body.touched && form.controls.body.invalid) {
+            <small class="field-error">{{ 'complaints.bodyRequired' | transloco }}</small>
+          }
+        </label>
+
+        @if (errorKey()) {
+          <p class="form-error">{{ errorKey()! | transloco }}</p>
+        }
+        @if (success()) {
+          <p class="form-success">{{ 'complaints.submitSuccess' | transloco }}</p>
+        }
+
+        <app-base-button type="submit" variant="primary" [disabled]="submitting()">
+          {{ 'complaints.submitButton' | transloco }}
+        </app-base-button>
+      </form>
+    </section>
+
+    <aside class="complaint-card complaint-card--aside">
+      <h2>{{ 'complaints.myComplaintsTitle' | transloco }}</h2>
+      @if (loadingMine()) {
+        <p>{{ 'common.loading' | transloco }}</p>
+      } @else if (myComplaints().length === 0) {
+        <p class="muted">{{ 'complaints.myComplaintsEmpty' | transloco }}</p>
+      } @else {
+        <ul class="complaint-list">
+          @for (item of myComplaints(); track item.id) {
+            <li class="complaint-list__item">
+              <strong>{{ item.subject }}</strong>
+              <span class="complaint-list__meta">
+                {{ statusLabel(item.status) | transloco }}
+                · {{ item.createdAt | date:'mediumDate' }}
+              </span>
+              <p>{{ item.body }}</p>
+            </li>
+          }
+        </ul>
+      }
+    </aside>
+  </div>
+</div>

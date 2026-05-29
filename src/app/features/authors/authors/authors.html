@@ -1,36 +1,41 @@
 <app-header></app-header>
 
 <div class="ra-page">
-  <div class="ra-header">
-    <div class="ra-header-top">
-      <app-back-button></app-back-button>
+  <header class="ra-header">
+    <app-back-button></app-back-button>
+    <div class="page-heading">
+      <h1>{{ 'authors.title' | transloco }}</h1>
+      <app-tip [text]="'authors.pageTip' | transloco"></app-tip>
     </div>
-    <h1>{{ 'authors.title' | transloco }}</h1>
-    <p class="ra-sub">{{ 'authors.subtitle' | transloco }}</p>
-  </div>
+  </header>
 
   <section class="ra-insights" *ngIf="insights || insightsLoading">
-    <div class="ra-insights-loading" *ngIf="insightsLoading">{{ 'authors.loadingSummary' | transloco }}</div>
+    <div class="ra-insights-loading" *ngIf="insightsLoading">
+      <div class="ra-spinner"></div>
+      <p>{{ 'authors.loadingSummary' | transloco }}</p>
+    </div>
+
     <ng-container *ngIf="!insightsLoading && insights">
-      <div class="ra-kpis">
-        <div class="ra-kpi">
-          <span class="ra-kpi-label">{{ 'authors.totalAuthors' | transloco }}</span>
-          <span class="ra-kpi-value">{{ insights.totalAuthors }}</span>
-        </div>
-        <div class="ra-kpi">
-          <span class="ra-kpi-label">{{ 'authors.averageTrust' | transloco }}</span>
-          <span class="ra-kpi-value">
-            {{ insights.averageTrust != null ? (insights.averageTrust * 100 | number:'1.1-1') + '%' : '—' }}
-          </span>
-        </div>
+      <div class="ra-kpi">
+        <article class="ra-kpi__card">
+          <span class="ra-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'authors.totalAuthorsTip' | transloco">{{ 'authors.totalAuthorsShort' | transloco }}</span>
+          <strong class="ra-kpi__value">{{ insights.totalAuthors }}</strong>
+        </article>
+        <article class="ra-kpi__card">
+          <span class="ra-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'authors.averageTrustTip' | transloco">{{ 'authors.averageTrustShort' | transloco }}</span>
+          <strong class="ra-kpi__value">{{ insights.averageTrust != null ? (insights.averageTrust * 100 | number:'1.1-1') + '%' : '—' }}</strong>
+        </article>
       </div>
 
       <div class="ra-charts">
-        <div class="ra-chart-card">
-          <h2>{{ 'authors.chartTrust' | transloco }}</h2>
+        <article class="ra-chart-card">
+          <div class="ra-chart-card__head">
+            <h2 class="ra-chart-card__title">{{ 'authors.chartTrustShort' | transloco }}</h2>
+            <app-tip [text]="'authors.chartTrustTip' | transloco"></app-tip>
+          </div>
           <div class="ra-bar-list" *ngIf="insights.topByTrust?.length; else noTrust">
             <div class="ra-bar-row" *ngFor="let a of insights.topByTrust">
-              <span class="ra-bar-name" [title]="a.redditUsername">u/{{ a.redditUsername }}</span>
+              <span class="ra-bar-name" [title]="'u/' + a.redditUsername">u/{{ a.redditUsername }}</span>
               <div class="ra-bar-track">
                 <div class="ra-bar-fill ra-bar-fill--trust" [style.width.%]="barWidthTrust(a.trustScore)"></div>
               </div>
@@ -38,13 +43,16 @@
             </div>
           </div>
           <ng-template #noTrust><p class="ra-empty-mini">{{ 'authors.noData' | transloco }}</p></ng-template>
-        </div>
+        </article>
 
-        <div class="ra-chart-card">
-          <h2>{{ 'authors.chartPosts' | transloco }}</h2>
+        <article class="ra-chart-card">
+          <div class="ra-chart-card__head">
+            <h2 class="ra-chart-card__title">{{ 'authors.chartPostsShort' | transloco }}</h2>
+            <app-tip [text]="'authors.chartPostsTip' | transloco"></app-tip>
+          </div>
           <div class="ra-bar-list" *ngIf="insights.topByPostVolume?.length; else noVol">
             <div class="ra-bar-row" *ngFor="let a of insights.topByPostVolume">
-              <span class="ra-bar-name">u/{{ a.redditUsername }}</span>
+              <span class="ra-bar-name" [title]="'u/' + a.redditUsername">u/{{ a.redditUsername }}</span>
               <div class="ra-bar-track">
                 <div class="ra-bar-fill ra-bar-fill--posts" [style.width.%]="postBarWidth(a.totalPosts)"></div>
               </div>
@@ -52,12 +60,12 @@
             </div>
           </div>
           <ng-template #noVol><p class="ra-empty-mini">{{ 'authors.noData' | transloco }}</p></ng-template>
-        </div>
+        </article>
       </div>
     </ng-container>
   </section>
 
-  <section class="ra-controls">
+  <section class="ra-toolbar">
     <div class="ra-search">
       <input
         type="search"
@@ -67,8 +75,27 @@
         [placeholder]="'authors.placeholderSearch' | transloco"
         [attr.aria-label]="'common.search' | transloco"
       />
-      <button type="button" class="ra-btn ra-btn--primary" (click)="applySearch()">{{ 'common.search' | transloco }}</button>
-      <button type="button" class="ra-btn" (click)="clearSearch()" *ngIf="search || searchDraft">{{ 'common.clear' | transloco }}</button>
+      <button
+        type="button"
+        class="ra-icon-btn ra-icon-btn--primary ui-tooltip-trigger"
+        [attr.data-tooltip]="'common.search' | transloco"
+        [attr.aria-label]="'common.search' | transloco"
+        (click)="applySearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="ra-icon-btn ui-tooltip-trigger"
+        *ngIf="search || searchDraft"
+        [attr.data-tooltip]="'common.clear' | transloco"
+        [attr.aria-label]="'common.clear' | transloco"
+        (click)="clearSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
     <app-list-toolbar
       class="ra-list-toolbar"
@@ -134,16 +161,9 @@
     </p>
 
     <div class="ra-pagination" *ngIf="totalPages > 1">
-      <button type="button" class="ra-btn" [disabled]="currentPage === 0" (click)="goPage(currentPage - 1)">{{ 'common.previous' | transloco }}</button>
+      <button type="button" class="ra-page-btn" [disabled]="currentPage === 0" (click)="goPage(currentPage - 1)">{{ 'common.previous' | transloco }}</button>
       <span class="ra-page-label">{{ currentPage + 1 }} / {{ totalPages }}</span>
-      <button
-        type="button"
-        class="ra-btn"
-        [disabled]="currentPage >= totalPages - 1"
-        (click)="goPage(currentPage + 1)"
-      >
-        {{ 'common.next' | transloco }}
-      </button>
+      <button type="button" class="ra-page-btn" [disabled]="currentPage >= totalPages - 1" (click)="goPage(currentPage + 1)">{{ 'common.next' | transloco }}</button>
     </div>
   </section>
 </div>

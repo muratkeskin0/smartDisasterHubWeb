@@ -1,83 +1,89 @@
 <app-header></app-header>
 
 <div class="moderation-page">
-  <div class="moderation-header">
+  <header class="mod-header">
     <app-back-button [fallbackRoute]="backFallback"></app-back-button>
-    <div class="moderation-header__text">
+    <div class="page-heading">
       <h1>{{ 'moderation.title' | transloco }}</h1>
-      <p class="moderation-header__sub">{{ 'moderation.subtitle' | transloco }}</p>
-      <p class="moderation-header__keys">{{ 'moderation.keyboardHint' | transloco }}</p>
+      <app-tip [text]="'moderation.pageTip' | transloco"></app-tip>
     </div>
-    <div class="moderation-header__meta" *ngIf="!loading">
-      <span class="queue-badge">{{ 'moderation.queueCount' | transloco: { count: totalElements } }}</span>
-      <span class="queue-badge queue-badge--total" *ngIf="pendingTotal > totalElements">
+    <div class="mod-header__meta" *ngIf="!loading">
+      <span class="mod-queue-badge">{{ 'moderation.queueCount' | transloco: { count: totalElements } }}</span>
+      <span class="mod-queue-badge mod-queue-badge--muted" *ngIf="pendingTotal > totalElements">
         {{ 'moderation.queueTotalPending' | transloco: { count: pendingTotal } }}
       </span>
-      <button type="button" class="refresh-btn" (click)="loadQueue()" [disabled]="loading || acting">
-        {{ 'common.refresh' | transloco }}
+      <button
+        type="button"
+        class="mod-icon-btn ui-tooltip-trigger"
+        [attr.data-tooltip]="'common.refresh' | transloco"
+        [attr.aria-label]="'common.refresh' | transloco"
+        (click)="loadQueue()"
+        [disabled]="loading || acting">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+          <path d="M21 3v6h-6"/>
+        </svg>
       </button>
     </div>
-  </div>
+  </header>
 
-  <section class="moderation-kpi" *ngIf="stats">
-    <article class="moderation-kpi__card">
-      <span class="moderation-kpi__label">{{ 'moderation.kpiUnassigned' | transloco }}</span>
-      <strong class="moderation-kpi__value">{{ stats.unassignedCount }}</strong>
-    </article>
-    <article class="moderation-kpi__card">
-      <span class="moderation-kpi__label">{{ 'moderation.kpiMine' | transloco }}</span>
-      <strong class="moderation-kpi__value">{{ stats.mineCount }}</strong>
-    </article>
-    <article class="moderation-kpi__card">
-      <span class="moderation-kpi__label">{{ 'moderation.kpiTodayApproved' | transloco }}</span>
-      <strong class="moderation-kpi__value moderation-kpi__value--ok">{{ stats.todayApproved }}</strong>
-    </article>
-    <article class="moderation-kpi__card">
-      <span class="moderation-kpi__label">{{ 'moderation.kpiTodayRejected' | transloco }}</span>
-      <strong class="moderation-kpi__value moderation-kpi__value--no">{{ stats.todayRejected }}</strong>
-    </article>
+  <section class="mod-kpi" *ngIf="stats" aria-label="Moderation stats">
+    <div class="mod-kpi__grid">
+      <article class="mod-kpi__card">
+        <span class="mod-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'moderation.kpiUnassignedTip' | transloco">{{ 'moderation.kpiUnassignedShort' | transloco }}</span>
+        <strong class="mod-kpi__value">{{ stats.unassignedCount }}</strong>
+      </article>
+      <article class="mod-kpi__card">
+        <span class="mod-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'moderation.kpiMineTip' | transloco">{{ 'moderation.kpiMineShort' | transloco }}</span>
+        <strong class="mod-kpi__value">{{ stats.mineCount }}</strong>
+      </article>
+      <article class="mod-kpi__card">
+        <span class="mod-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'moderation.kpiTodayApprovedTip' | transloco">{{ 'moderation.kpiTodayApprovedShort' | transloco }}</span>
+        <strong class="mod-kpi__value mod-kpi__value--ok">{{ stats.todayApproved }}</strong>
+      </article>
+      <article class="mod-kpi__card">
+        <span class="mod-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'moderation.kpiTodayRejectedTip' | transloco">{{ 'moderation.kpiTodayRejectedShort' | transloco }}</span>
+        <strong class="mod-kpi__value mod-kpi__value--no">{{ stats.todayRejected }}</strong>
+      </article>
+    </div>
   </section>
 
-  <details class="moderation-workflow" *ngIf="showWorkflowHint" open>
-    <summary>{{ 'moderation.workflowTitle' | transloco }}</summary>
-    <ol class="moderation-workflow__steps">
-      <li>{{ 'moderation.workflowStep1' | transloco }}</li>
-      <li>{{ 'moderation.workflowStep2' | transloco }}</li>
-      <li>{{ 'moderation.workflowStep3' | transloco }}</li>
-    </ol>
-    <button type="button" class="moderation-workflow__dismiss" (click)="dismissWorkflowHint()">
+  <p class="mod-workflow" *ngIf="showWorkflowHint">
+    <app-tip [text]="'moderation.workflowTip' | transloco"></app-tip>
+    <button type="button" class="mod-workflow__dismiss" (click)="dismissWorkflowHint()">
       {{ 'moderation.workflowDismiss' | transloco }}
     </button>
-  </details>
+  </p>
 
-  <div class="moderation-scope" role="tablist">
+  <div class="mod-scope" role="tablist">
     <button
       type="button"
-      class="moderation-scope__chip"
+      class="mod-scope__chip"
       *ngFor="let chip of visibleScopeChips()"
-      [class.moderation-scope__chip--active]="queueScope === chip.id"
+      [class.mod-scope__chip--active]="queueScope === chip.id"
       (click)="setQueueScope(chip.id)">
       {{ chip.labelKey | transloco }}
-      <span class="moderation-scope__count" *ngIf="scopeCount(chip.id) !== null">({{ scopeCount(chip.id) }})</span>
+      <span class="mod-scope__count" *ngIf="scopeCount(chip.id) !== null">({{ scopeCount(chip.id) }})</span>
     </button>
   </div>
 
-  <app-list-toolbar
-    class="moderation-toolbar"
-    [sortOptions]="sortOptions"
-    [sortBy]="sortBy"
-    [sortDirection]="sortDirection"
-    [pageSize]="pageSize"
-    [pageSizes]="[10, 20, 50]"
-    (sortByChange)="sortBy = $event"
-    (sortDirectionChange)="sortDirection = $event"
-    (pageSizeChange)="pageSize = $event"
-    (paramsChange)="onToolbarChange()">
-    <label class="auto-advance">
-      <input type="checkbox" [(ngModel)]="autoAdvance" />
-      {{ 'moderation.autoAdvance' | transloco }}
-    </label>
-  </app-list-toolbar>
+  <div class="mod-toolbar">
+    <app-list-toolbar
+      [sortOptions]="sortOptions"
+      [sortBy]="sortBy"
+      [sortDirection]="sortDirection"
+      [pageSize]="pageSize"
+      [pageSizes]="[10, 20, 50]"
+      (sortByChange)="sortBy = $event"
+      (sortDirectionChange)="sortDirection = $event"
+      (pageSizeChange)="pageSize = $event"
+      (paramsChange)="onToolbarChange()">
+      <label class="mod-auto-advance ui-tooltip-trigger" [attr.data-tooltip]="'moderation.autoAdvanceTip' | transloco">
+        <input type="checkbox" [(ngModel)]="autoAdvance" />
+        <span>{{ 'moderation.autoAdvanceShort' | transloco }}</span>
+      </label>
+    </app-list-toolbar>
+  </div>
 
   <p class="action-toast" *ngIf="actionMessage">{{ actionMessage | transloco }}</p>
 
@@ -88,7 +94,7 @@
 
   <div class="error-container" *ngIf="error && !loading">
     <p>{{ error | transloco }}</p>
-    <button type="button" class="refresh-btn" (click)="loadQueue()">{{ 'common.retry' | transloco }}</button>
+    <button type="button" class="mod-retry-btn" (click)="loadQueue()">{{ 'common.retry' | transloco }}</button>
   </div>
 
   <div class="moderation-empty" *ngIf="!loading && !error && posts.length === 0">
@@ -106,12 +112,17 @@
         *ngFor="let post of posts; let i = index"
         [class.queue-item--active]="selectedPost?.id === post.id"
         (click)="selectPost(post)">
-        <span class="queue-item__title">{{ post.title }}</span>
+        <div class="queue-item__row">
+          <span class="queue-item__title">{{ post.title }}</span>
+          <span
+            class="queue-item__score"
+            *ngIf="post.relevanceScore != null"
+            [ngClass]="getRelevanceClass(post.relevanceScore)">
+            {{ formatPercent01(post.relevanceScore) }}%
+          </span>
+        </div>
         <span class="queue-item__meta">
           r/{{ post.subreddit }}
-          <span *ngIf="post.relevanceScore != null" [ngClass]="getRelevanceClass(post.relevanceScore)">
-            · {{ formatPercent01(post.relevanceScore) }}%
-          </span>
           <span *ngIf="post.appliedAuthorTrustScore != null" class="queue-item__trust">
             · {{ 'moderation.trustShort' | transloco }} {{ formatPercent01(post.appliedAuthorTrustScore) }}%
           </span>
@@ -141,47 +152,57 @@
       <p class="moderation-assigned-warn" *ngIf="assignedToOther">
         {{ 'moderation.assignedToOther' | transloco: { name: selectedPost.assignedModeratorName || selectedPost.assignedModeratorEmail } }}
       </p>
+
       <div class="moderation-detail__body">
-      <div class="moderation-detail__head">
-        <h2 class="moderation-detail__title">{{ selectedPost.title }}</h2>
-        <div class="moderation-detail__meta">
-          <span>r/{{ selectedPost.subreddit }}</span>
-          <span *ngIf="selectedPost.author">{{ 'textAnalysis.metaBy' | transloco: { author: selectedPost.author } }}</span>
-          <span>{{ formatDate(selectedPost.redditCreatedAt) }}</span>
-          <app-post-status-badges
-            [status]="selectedPost.status"
-            [moderationStatus]="selectedPost.moderationStatus"
-            [showMlStatus]="false"></app-post-status-badges>
-        </div>
-        <div class="moderation-detail__links">
-          <a
-            [routerLink]="['/text-analysis/post', selectedPost.redditPostId]"
-            [queryParams]="{
-              returnUrl: '/moderation',
-              queuePage: currentPage,
-              queueIndex: selectedIndex,
-              queueSort: sortBy,
-              queueDir: sortDirection,
-              queueSize: pageSize,
-              queueScope: queueScope
-            }"
-            class="link-secondary">
-            {{ 'moderation.openFullDetail' | transloco }}
-          </a>
-          <a [href]="selectedPost.url" target="_blank" rel="noopener noreferrer" class="link-secondary">
-            {{ 'common.viewOnReddit' | transloco }}
-          </a>
-        </div>
-      </div>
+        <div class="moderation-detail__head">
+          <div class="moderation-detail__badges">
+            <app-post-status-badges
+              [status]="selectedPost.status"
+              [moderationStatus]="selectedPost.moderationStatus"
+              [showMlStatus]="false"></app-post-status-badges>
+            <div class="moderation-detail__links">
+              <a
+                [routerLink]="['/text-analysis/post', selectedPost.redditPostId]"
+                [queryParams]="{
+                  returnUrl: '/moderation',
+                  queuePage: currentPage,
+                  queueIndex: selectedIndex,
+                  queueSort: sortBy,
+                  queueDir: sortDirection,
+                  queueSize: pageSize,
+                  queueScope: queueScope
+                }"
+                class="mod-link-chip">
+                {{ 'moderation.openFullDetail' | transloco }}
+              </a>
+              <a [href]="selectedPost.url" target="_blank" rel="noopener noreferrer" class="mod-link-chip">
+                {{ 'common.viewOnReddit' | transloco }}
+              </a>
+            </div>
+          </div>
 
-      <div class="moderation-detail__content" *ngIf="selectedPost.content">
-        <p>{{ selectedPost.content }}</p>
-      </div>
+          <h2 class="moderation-detail__title">{{ selectedPost.title }}</h2>
 
-      <app-reddit-post-analysis-panel [post]="selectedPost"></app-reddit-post-analysis-panel>
+          <div class="moderation-detail__meta">
+            <span>r/{{ selectedPost.subreddit }}</span>
+            <span *ngIf="selectedPost.author">{{ 'textAnalysis.metaBy' | transloco: { author: selectedPost.author } }}</span>
+            <span>{{ formatDate(selectedPost.redditCreatedAt) }}</span>
+          </div>
+        </div>
+
+        <div class="moderation-detail__content" *ngIf="selectedPost.content">
+          <p>{{ selectedPost.content }}</p>
+        </div>
+
+        <app-reddit-post-analysis-panel [post]="selectedPost"></app-reddit-post-analysis-panel>
       </div>
 
       <div class="moderation-actions moderation-actions--footer">
+        <div class="moderation-actions__head">
+          <h3 class="moderation-actions__title">{{ 'moderation.reviewTitle' | transloco }}</h3>
+          <app-tip [text]="'moderation.actionsTip' | transloco"></app-tip>
+        </div>
+
         <p class="moderation-claim-hint" *ngIf="needsClaimSelected">{{ 'moderation.claimBeforeDecide' | transloco }}</p>
         <div class="moderation-claim-row" *ngIf="needsClaimSelected || canReleaseSelected">
           <button type="button" class="btn-claim" *ngIf="needsClaimSelected" (click)="claimSelected()" [disabled]="acting">
@@ -191,14 +212,16 @@
             {{ 'moderation.release' | transloco }}
           </button>
         </div>
+
         <label class="reject-notes">
-          <span>{{ 'moderation.rejectNotesLabel' | transloco }}</span>
+          <span class="ui-tooltip-trigger" [attr.data-tooltip]="'moderation.rejectNotesTip' | transloco">{{ 'moderation.rejectNotesShort' | transloco }}</span>
           <textarea
             [(ngModel)]="rejectNotes"
             rows="2"
             [placeholder]="'moderation.rejectNotesPlaceholder' | transloco"
             [disabled]="acting"></textarea>
         </label>
+
         <div class="moderation-actions__buttons">
           <button type="button" class="btn-approve" (click)="approveSelected()" [disabled]="acting || !canDecideSelected">
             {{ 'moderation.approve' | transloco }}
@@ -207,7 +230,6 @@
             {{ 'moderation.reject' | transloco }}
           </button>
         </div>
-        <p class="moderation-actions__hint">{{ 'moderation.actionsHint' | transloco }}</p>
       </div>
     </section>
   </div>

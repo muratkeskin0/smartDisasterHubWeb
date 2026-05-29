@@ -1,7 +1,13 @@
 <div class="list-toolbar" role="toolbar" [attr.aria-label]="'common.listToolbar' | transloco">
   @if (showSort && sortOptions.length > 0) {
-    <label class="list-toolbar__field">
-      <span class="list-toolbar__label">{{ 'common.sortBy' | transloco }}</span>
+    <label
+      class="list-toolbar__field"
+      [attr.aria-label]="'common.sortBy' | transloco">
+      <span
+        class="list-toolbar__glyph ui-tooltip-trigger"
+        [attr.data-tooltip]="'common.sortBy' | transloco"
+        role="img"
+        [attr.aria-label]="'common.sortBy' | transloco">↕</span>
       <select
         class="list-toolbar__select"
         [ngModel]="sortBy"
@@ -12,8 +18,14 @@
         }
       </select>
     </label>
-    <label class="list-toolbar__field">
-      <span class="list-toolbar__label">{{ 'common.direction' | transloco }}</span>
+    <label
+      class="list-toolbar__field"
+      [attr.aria-label]="'common.direction' | transloco">
+      <span
+        class="list-toolbar__glyph ui-tooltip-trigger"
+        [attr.data-tooltip]="'common.direction' | transloco"
+        role="img"
+        [attr.aria-label]="'common.direction' | transloco">{{ sortDirection === 'DESC' ? '↓' : '↑' }}</span>
       <select
         class="list-toolbar__select"
         [ngModel]="sortDirection"
@@ -25,8 +37,14 @@
     </label>
   }
   @if (showPageSize) {
-    <label class="list-toolbar__field">
-      <span class="list-toolbar__label">{{ 'common.pageSize' | transloco }}</span>
+    <label
+      class="list-toolbar__field"
+      [attr.aria-label]="'common.pageSize' | transloco">
+      <span
+        class="list-toolbar__glyph ui-tooltip-trigger"
+        [attr.data-tooltip]="'common.pageSize' | transloco"
+        role="img"
+        [attr.aria-label]="'common.pageSize' | transloco">#</span>
       <select
         class="list-toolbar__select"
         [ngModel]="pageSize"

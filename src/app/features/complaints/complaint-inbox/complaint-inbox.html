@@ -1,0 +1,203 @@
+<app-header></app-header>
+
+<div class="complaint-inbox-page">
+  <header class="ci-header">
+    <app-back-button [fallbackRoute]="backFallback"></app-back-button>
+    <div class="page-heading">
+      <h1>{{ 'complaints.inboxTitle' | transloco }}</h1>
+      <app-tip [text]="'complaints.inboxPageTip' | transloco"></app-tip>
+    </div>
+    <div class="ci-header__meta">
+      <span class="ci-queue-badge" *ngIf="!loading">{{ totalElements }} {{ 'complaints.queueCountLabel' | transloco }}</span>
+      <button
+        type="button"
+        class="ci-icon-btn ui-tooltip-trigger"
+        [attr.data-tooltip]="'common.refresh' | transloco"
+        [attr.aria-label]="'common.refresh' | transloco"
+        (click)="loadQueue()"
+        [disabled]="loading || acting">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+          <path d="M21 3v6h-6"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="ci-kpi" *ngIf="stats" aria-label="Complaint stats">
+    <div class="ci-kpi__grid">
+      <article class="ci-kpi__card">
+        <span class="ci-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'complaints.kpiUnassignedTip' | transloco">{{ 'complaints.kpiUnassignedShort' | transloco }}</span>
+        <strong class="ci-kpi__value">{{ stats.unassignedCount }}</strong>
+      </article>
+      <article class="ci-kpi__card">
+        <span class="ci-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'complaints.kpiMineTip' | transloco">{{ 'complaints.kpiMineShort' | transloco }}</span>
+        <strong class="ci-kpi__value">{{ stats.mineCount }}</strong>
+      </article>
+      <article class="ci-kpi__card">
+        <span class="ci-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'complaints.kpiAllOpenTip' | transloco">{{ 'complaints.kpiAllOpenShort' | transloco }}</span>
+        <strong class="ci-kpi__value ci-kpi__value--warn">{{ stats.allOpenCount }}</strong>
+      </article>
+      <article class="ci-kpi__card">
+        <span class="ci-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'complaints.kpiResolvedTip' | transloco">{{ 'complaints.kpiResolvedShort' | transloco }}</span>
+        <strong class="ci-kpi__value">{{ stats.resolvedCount }}</strong>
+      </article>
+    </div>
+  </section>
+
+  <div class="ci-scope" role="tablist">
+    @for (chip of visibleScopeChips(); track chip.id) {
+      <button
+        type="button"
+        class="ci-scope__chip"
+        [class.ci-scope__chip--active]="queueScope === chip.id"
+        (click)="setQueueScope(chip.id)">
+        {{ chip.labelKey | transloco }}
+        @if (scopeCount(chip.id) !== null) {
+          <span class="ci-scope__count">({{ scopeCount(chip.id) }})</span>
+        }
+      </button>
+    }
+  </div>
+
+  <div class="ci-toolbar">
+    <app-list-toolbar
+      [sortOptions]="sortOptions"
+      [sortBy]="sortBy"
+      [sortDirection]="sortDirection"
+      [pageSize]="pageSize"
+      [pageSizes]="[10, 20, 50]"
+      (sortByChange)="sortBy = $event"
+      (sortDirectionChange)="sortDirection = $event"
+      (pageSizeChange)="pageSize = $event"
+      (paramsChange)="onToolbarChange()">
+    </app-list-toolbar>
+  </div>
+
+  @if (actionMessage) {
+    <p class="action-toast">{{ actionMessage | transloco }}</p>
+  }
+
+  @if (loading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>{{ 'common.loading' | transloco }}</p>
+    </div>
+  } @else if (error) {
+    <div class="error-container">
+      <p class="form-error">{{ error | transloco }}</p>
+      <button type="button" class="ci-retry-btn" (click)="loadQueue()">{{ 'common.retry' | transloco }}</button>
+    </div>
+  } @else if (complaints.length === 0) {
+    <p class="ci-empty">{{ emptyMessageKey | transloco }}</p>
+  } @else {
+    <div class="complaint-inbox-layout">
+      <aside class="complaint-queue">
+        <h2 class="complaint-queue__title">{{ queueTitleKey | transloco }}</h2>
+        @for (item of complaints; track item.id) {
+          <button
+            type="button"
+            class="queue-item"
+            [class.queue-item--active]="selected?.id === item.id"
+            (click)="select(item)">
+            <div class="queue-item__row">
+              <strong class="queue-item__title">{{ item.subject }}</strong>
+              <span class="queue-item__status" [ngClass]="getStatusClass(item.status)">
+                {{ ('complaints.status.' + item.status) | transloco }}
+              </span>
+            </div>
+            <span class="queue-item__meta">
+              {{ item.submitterName }} · {{ ('complaints.categories.' + item.category) | transloco }}
+            </span>
+            <small class="queue-item__date">
+              @if (isResolvedScope && item.resolvedAt) {
+                {{ formatDate(item.resolvedAt) }}
+              } @else {
+                {{ formatDate(item.createdAt) }}
+              }
+            </small>
+          </button>
+        }
+      </aside>
+
+      @if (selected) {
+        <section class="complaint-detail">
+          <div class="complaint-detail__body">
+            <div class="complaint-detail__head">
+              <div class="complaint-detail__badges">
+                <span class="ci-status-badge" [ngClass]="getStatusClass(selected.status)">
+                  {{ ('complaints.status.' + selected.status) | transloco }}
+                </span>
+                <span class="ci-category-chip">
+                  {{ ('complaints.categories.' + selected.category) | transloco }}
+                </span>
+              </div>
+              <h2 class="complaint-detail__title">{{ selected.subject }}</h2>
+              <div class="complaint-detail__meta">
+                <span>{{ 'complaints.fromUser' | transloco }}: {{ selected.submitterName }}</span>
+                <span class="complaint-detail__email">{{ selected.submitterEmail }}</span>
+                <span>{{ formatDate(selected.createdAt) }}</span>
+              </div>
+              @if (selected.assignedStaffName) {
+                <p class="complaint-detail__assignee">
+                  {{ 'complaints.assignedTo' | transloco }}: {{ selected.assignedStaffName }}
+                </p>
+              }
+              @if (isSelectedClosed) {
+                <div class="complaint-detail__resolution">
+                  @if (selected.resolvedAt) {
+                    <p>{{ 'complaints.resolvedAt' | transloco }}: {{ formatDate(selected.resolvedAt) }}</p>
+                  }
+                  @if (selected.resolvedBy) {
+                    <p>{{ 'complaints.resolvedBy' | transloco }}: {{ selected.resolvedBy }}</p>
+                  }
+                  @if (selected.staffNotes) {
+                    <p class="complaint-detail__notes">
+                      <span>{{ 'complaints.resolveNotesShort' | transloco }}:</span>
+                      {{ selected.staffNotes }}
+                    </p>
+                  }
+                </div>
+              }
+            </div>
+
+            <div class="complaint-detail__content">{{ selected.body }}</div>
+          </div>
+
+          @if (!isSelectedClosed) {
+          <div class="complaint-actions complaint-actions--footer">
+            <div class="complaint-actions__head">
+              <h3 class="complaint-actions__title">{{ 'complaints.reviewTitle' | transloco }}</h3>
+              <app-tip [text]="'complaints.resolveNotesTip' | transloco"></app-tip>
+            </div>
+
+            @if (assignedToOther) {
+              <p class="complaint-assigned-warn">{{ 'complaints.assignedToOther' | transloco }}</p>
+            }
+
+            <label class="field">
+              <span class="ui-tooltip-trigger" [attr.data-tooltip]="'complaints.resolveNotesTip' | transloco">{{ 'complaints.resolveNotesShort' | transloco }}</span>
+              <textarea [(ngModel)]="resolveNotes" rows="2" maxlength="5000" [disabled]="acting"></textarea>
+            </label>
+
+            <div class="complaint-actions__buttons">
+              @if (!selected.assignedStaffId) {
+                <button type="button" class="btn-claim" (click)="claim()" [disabled]="acting">
+                  {{ 'complaints.claim' | transloco }}
+                </button>
+              } @else if (!assignedToOther || isAdmin) {
+                <button type="button" class="btn-release" (click)="release()" [disabled]="acting">
+                  {{ 'complaints.release' | transloco }}
+                </button>
+                <button type="button" class="btn-resolve" (click)="resolve()" [disabled]="acting || assignedToOther">
+                  {{ 'complaints.resolve' | transloco }}
+                </button>
+              }
+            </div>
+          </div>
+          }
+        </section>
+      }
+    </div>
+  }
+</div>

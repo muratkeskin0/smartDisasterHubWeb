@@ -1,19 +1,16 @@
 <app-header></app-header>
 
 <div class="text-analysis-container">
-  <div class="header-section">
-    <div class="header-top">
-      <app-back-button></app-back-button>
+  <header class="ta-header">
+    <app-back-button></app-back-button>
+    <div class="page-heading">
+      <h1>{{ 'textAnalysis.title' | transloco }}</h1>
+      <app-tip [text]="'textAnalysis.pageTip' | transloco"></app-tip>
     </div>
-    <h1>{{ 'textAnalysis.title' | transloco }}</h1>
-    <p class="subtitle">{{ 'textAnalysis.subtitle' | transloco }}</p>
-    <details class="header-hint">
-      <summary class="header-hint__summary">{{ 'textAnalysis.hintToggle' | transloco }}</summary>
-      <p class="header-hint__body">{{ 'textAnalysis.listUXHint' | transloco }}</p>
-    </details>
-  </div>
+  </header>
 
   <app-reddit-date-filter
+    class="ta-date-filter"
     [datePreset]="datePreset"
     [useCustomRange]="useCustomRange"
     [customFromLocal]="customFromLocal"
@@ -27,59 +24,71 @@
     (customRangeErrorChange)="customRangeError = $event">
   </app-reddit-date-filter>
 
-  <div class="statistics-section" *ngIf="statistics">
-    <div class="stat-group">
-      <span class="stat-group__label">{{ 'textAnalysis.statGroupPipeline' | transloco }}</span>
-      <div class="stat-group__cards">
-        <div class="stat-card">
-          <div class="stat-label">{{ 'textAnalysis.statTotal' | transloco }}</div>
-          <div class="stat-value">{{ statistics.totalPosts }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">{{ 'textAnalysis.statAnalyzed' | transloco }}</div>
-          <div class="stat-value">{{ statistics.analyzedPosts }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">{{ 'textAnalysis.statPending' | transloco }}</div>
-          <div class="stat-value">{{ statistics.pendingPosts }}</div>
-        </div>
+  <section class="ta-kpi" *ngIf="statistics" aria-label="Statistics">
+    <div class="ta-kpi__block">
+      <span
+        class="ta-kpi__block-label ui-tooltip-trigger"
+        [attr.data-tooltip]="'textAnalysis.statGroupPipelineTip' | transloco">
+        {{ 'textAnalysis.statGroupPipeline' | transloco }}
+      </span>
+      <div class="ta-kpi__grid">
+        <article class="ta-kpi__card">
+          <span class="ta-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'textAnalysis.kpiTotalTip' | transloco">{{ 'textAnalysis.kpiTotalShort' | transloco }}</span>
+          <strong class="ta-kpi__value">{{ statistics.totalPosts }}</strong>
+        </article>
+        <article class="ta-kpi__card">
+          <span class="ta-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'textAnalysis.kpiAnalyzedTip' | transloco">{{ 'textAnalysis.kpiAnalyzedShort' | transloco }}</span>
+          <strong class="ta-kpi__value">{{ statistics.analyzedPosts }}</strong>
+        </article>
+        <article class="ta-kpi__card">
+          <span class="ta-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'textAnalysis.kpiPendingTip' | transloco">{{ 'textAnalysis.kpiPendingShort' | transloco }}</span>
+          <strong class="ta-kpi__value">{{ statistics.pendingPosts }}</strong>
+        </article>
       </div>
     </div>
-    <div class="stat-group">
-      <span class="stat-group__label">{{ 'textAnalysis.statGroupModeration' | transloco }}</span>
-      <div class="stat-group__cards">
-        <a class="stat-card stat-card--link stat-card--highlight" routerLink="/moderation">
-          <div class="stat-label">{{ 'moderation.statQueue' | transloco }}</div>
-          <div class="stat-value">{{ statistics.pendingModerationPosts ?? 0 }}</div>
-        </a>
-        <div class="stat-card">
-          <div class="stat-label">{{ 'moderation.statApproved' | transloco }}</div>
-          <div class="stat-value">{{ statistics.approvedDisasterPosts ?? 0 }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">{{ 'moderation.statRejected' | transloco }}</div>
-          <div class="stat-value">{{ statistics.rejectedModerationPosts ?? 0 }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">{{ 'textAnalysis.statDisaster' | transloco }}</div>
-          <div class="stat-value disaster">{{ statistics.disasterRelatedPosts }}</div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="filter-chips">
+    <div class="ta-kpi__block">
+      <span
+        class="ta-kpi__block-label ui-tooltip-trigger"
+        [attr.data-tooltip]="'textAnalysis.statGroupModerationTip' | transloco">
+        {{ 'textAnalysis.statGroupModeration' | transloco }}
+      </span>
+      <div class="ta-kpi__grid">
+        <a
+          class="ta-kpi__card ta-kpi__card--link ta-kpi__card--warn"
+          routerLink="/moderation"
+          [attr.aria-label]="('moderation.statQueue' | transloco) + ': ' + (statistics.pendingModerationPosts ?? 0)">
+          <span class="ta-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'textAnalysis.kpiQueueTip' | transloco">{{ 'textAnalysis.kpiQueueShort' | transloco }}</span>
+          <strong class="ta-kpi__value ta-kpi__value--warn">{{ statistics.pendingModerationPosts ?? 0 }}</strong>
+        </a>
+        <article class="ta-kpi__card">
+          <span class="ta-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'textAnalysis.kpiApprovedTip' | transloco">{{ 'textAnalysis.kpiApprovedShort' | transloco }}</span>
+          <strong class="ta-kpi__value ta-kpi__value--ok">{{ statistics.approvedDisasterPosts ?? 0 }}</strong>
+        </article>
+        <article class="ta-kpi__card">
+          <span class="ta-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'textAnalysis.kpiRejectedTip' | transloco">{{ 'textAnalysis.kpiRejectedShort' | transloco }}</span>
+          <strong class="ta-kpi__value ta-kpi__value--no">{{ statistics.rejectedModerationPosts ?? 0 }}</strong>
+        </article>
+        <article class="ta-kpi__card">
+          <span class="ta-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'textAnalysis.kpiDisasterTip' | transloco">{{ 'textAnalysis.kpiDisasterShort' | transloco }}</span>
+          <strong class="ta-kpi__value ta-kpi__value--warn">{{ statistics.disasterRelatedPosts }}</strong>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="ta-scope" role="tablist" [attr.aria-label]="'textAnalysis.filterLabel' | transloco">
     <button
       type="button"
-      class="filter-chip"
+      class="ta-scope__chip"
       *ngFor="let chip of filterChips"
-      [class.filter-chip--active]="listFilter === chip.id"
+      [class.ta-scope__chip--active]="listFilter === chip.id"
       (click)="setListFilter(chip.id)">
       {{ chip.labelKey | transloco }}
     </button>
   </div>
 
-  <div class="toolbar-row">
+  <div class="ta-toolbar">
     <app-list-toolbar
       [sortOptions]="sortOptions"
       [sortBy]="sortBy"
@@ -90,12 +99,28 @@
       (pageSizeChange)="pageSize = $event"
       (paramsChange)="onToolbarChange()">
     </app-list-toolbar>
-    <div class="toolbar-actions">
-      <button class="refresh-btn" (click)="loadData(true)" [disabled]="loading">
-        {{ 'common.refresh' | transloco }}
+    <div class="ta-toolbar__actions">
+      <button
+        type="button"
+        class="ta-icon-btn ui-tooltip-trigger"
+        [attr.data-tooltip]="'common.refresh' | transloco"
+        [attr.aria-label]="'common.refresh' | transloco"
+        (click)="loadData(true)"
+        [disabled]="loading">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+          <path d="M21 3v6h-6"/>
+        </svg>
       </button>
-      <a routerLink="/moderation" class="filter-btn moderation-link-btn">
-        {{ 'moderation.openQueue' | transloco }}
+      <a
+        routerLink="/moderation"
+        class="ta-icon-btn ta-icon-btn--accent ui-tooltip-trigger"
+        [attr.data-tooltip]="'moderation.openQueue' | transloco"
+        [attr.aria-label]="'moderation.openQueue' | transloco">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 3 4 7v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V7l-8-4Z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
       </a>
     </div>
   </div>

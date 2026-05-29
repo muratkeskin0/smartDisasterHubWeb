@@ -5,13 +5,14 @@ import { RouterModule } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 import { UserAdminService } from '../../../core/services/user-admin.service';
 import { User } from '../../../models';
 
 @Component({
   selector: 'app-team',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TranslocoPipe, AppHeaderComponent, BackButtonComponent],
+  imports: [CommonModule, FormsModule, RouterModule, TranslocoPipe, AppHeaderComponent, BackButtonComponent, AppTipComponent],
   templateUrl: './team.html',
   styleUrl: './team.css'
 })
@@ -48,6 +49,12 @@ export class TeamComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  getInitials(m: User): string {
+    const a = (m.firstName?.trim()[0] ?? '').toUpperCase();
+    const b = (m.lastName?.trim()[0] ?? '').toUpperCase();
+    return (a + b) || '?';
   }
 
   createManager(): void {

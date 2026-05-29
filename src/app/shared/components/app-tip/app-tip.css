@@ -1,0 +1,27 @@
+.app-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-background-tertiary);
+  color: var(--color-text-secondary);
+  cursor: help;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.app-tip svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-tip:hover,
+.app-tip:focus-visible {
+  color: var(--color-primary);
+  background: var(--color-primary-faint);
+  outline: none;
+}

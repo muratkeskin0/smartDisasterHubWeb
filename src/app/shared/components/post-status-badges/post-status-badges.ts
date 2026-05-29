@@ -28,6 +28,19 @@ export class PostStatusBadgesComponent {
     }
   }
 
+  mlStatusLabelKey(s: RedditPostStatus): string {
+    switch (s) {
+      case RedditPostStatus.ANALYZED:
+        return 'textAnalysis.mlStatusAnalyzed';
+      case RedditPostStatus.PENDING:
+        return 'textAnalysis.mlStatusPending';
+      case RedditPostStatus.FAILED:
+        return 'textAnalysis.mlStatusFailed';
+      default:
+        return 'textAnalysis.mlStatusPending';
+    }
+  }
+
   getModerationClass(s: PostModerationStatus): string {
     switch (s) {
       case PostModerationStatus.PENDING_REVIEW:

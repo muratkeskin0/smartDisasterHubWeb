@@ -1,19 +1,37 @@
 <app-header></app-header>
 
 <div class="detail-container">
-  <div class="detail-header">
+  <header class="detail-header">
     <app-back-button [returnUrl]="returnUrl" [fallbackRoute]="'/text-analysis'" />
+
+    <div class="detail-header__title">
+      <div class="page-heading">
+        <h1 class="detail-page-title">{{ 'textAnalysis.detailAnalysisHeading' | transloco }}</h1>
+        <app-tip [text]="'textAnalysis.detailPageTip' | transloco"></app-tip>
+      </div>
+    </div>
+
     <nav class="detail-queue-nav" *ngIf="isModerationQueue && post && !loading" [attr.aria-label]="'moderation.queueNav' | transloco">
-      <button type="button" class="detail-queue-nav__btn" (click)="goPrevInQueue()" [disabled]="!canGoPrevInQueue || queueLoading">
-        ← {{ 'moderation.prevInQueue' | transloco }}
+      <button
+        type="button"
+        class="detail-queue-nav__btn ui-tooltip-trigger"
+        [attr.data-tooltip]="'moderation.prevInQueue' | transloco"
+        [attr.aria-label]="'moderation.prevInQueue' | transloco"
+        (click)="goPrevInQueue()"
+        [disabled]="!canGoPrevInQueue || queueLoading">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18 9 12l6-6"/></svg>
       </button>
-      <button type="button" class="detail-queue-nav__btn" (click)="goNextInQueue()" [disabled]="!canGoNextInQueue || queueLoading">
-        {{ 'moderation.nextInQueue' | transloco }} →
+      <button
+        type="button"
+        class="detail-queue-nav__btn ui-tooltip-trigger"
+        [attr.data-tooltip]="'moderation.nextInQueue' | transloco"
+        [attr.aria-label]="'moderation.nextInQueue' | transloco"
+        (click)="goNextInQueue()"
+        [disabled]="!canGoNextInQueue || queueLoading">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
       </button>
     </nav>
-  </div>
-
-  <p class="detail-intro">{{ 'textAnalysis.detailReaderPath' | transloco }}</p>
+  </header>
 
   <div class="loading-container" *ngIf="loading">
     <div class="spinner"></div>
@@ -21,7 +39,7 @@
   </div>
 
   <div class="error-container" *ngIf="error && !loading">
-    <p class="error-message">{{ error }}</p>
+    <p class="error-message">{{ error | transloco }}</p>
     <div class="detail-back-inline">
       <app-back-button [returnUrl]="returnUrl" [fallbackRoute]="'/text-analysis'" [block]="true" />
     </div>
@@ -29,18 +47,23 @@
 
   <article class="detail-article" *ngIf="post && !loading && !error">
     <div class="detail-article__head">
-      <h1 class="detail-title" (click)="openRedditPost(post.url)">{{ post.title }}</h1>
+      <div class="detail-article__badges">
+        <app-post-status-badges [status]="post.status" [moderationStatus]="post.moderationStatus"></app-post-status-badges>
+        <a
+          [href]="post.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="detail-reddit-chip">
+          {{ 'common.viewOnReddit' | transloco }}
+        </a>
+      </div>
+
+      <h2 class="detail-title" (click)="openRedditPost(post.url)">{{ post.title }}</h2>
+
       <div class="detail-meta">
         <span>r/{{ post.subreddit }}</span>
         <span *ngIf="post.author">{{ 'textAnalysis.metaBy' | transloco: { author: post.author } }}</span>
         <span>{{ formatDate(post.redditCreatedAt) }}</span>
-        <span class="status-badge" [ngClass]="getStatusClass(post.status)">{{ post.status }}</span>
-        <span
-          class="mod-badge"
-          *ngIf="moderationLabelKey(post.moderationStatus) as modKey"
-          [ngClass]="getModerationClass(post.moderationStatus)">
-          {{ modKey | transloco }}
-        </span>
       </div>
     </div>
 
@@ -87,26 +110,25 @@
         *ngIf="post.duplicateOfRedditPostId"
         [routerLink]="['/text-analysis/post', post.duplicateOfRedditPostId]"
         [queryParams]="{ returnUrl: duplicateBackReturnUrl() }"
-        (click)="$event.stopPropagation()"
-      >
+        (click)="$event.stopPropagation()">
         {{ 'textAnalysis.duplicateOpenOriginal' | transloco }}
       </a>
       <span
         class="media-meta duplicate media-meta-duplicate--readonly"
-        *ngIf="!post.duplicateOfRedditPostId && post.duplicateOfPostId !== null && post.duplicateOfPostId !== undefined && post.duplicateOfPostId !== post.id"
-      >
+        *ngIf="!post.duplicateOfRedditPostId && post.duplicateOfPostId !== null && post.duplicateOfPostId !== undefined && post.duplicateOfPostId !== post.id">
         {{ 'textAnalysis.duplicateUnavailable' | transloco: { id: post.duplicateOfPostId } }}
       </span>
     </div>
 
-    <h2 class="detail-section-title">{{ 'textAnalysis.detailAnalysisHeading' | transloco }}</h2>
     <app-reddit-post-analysis-panel [post]="post"></app-reddit-post-analysis-panel>
 
     <section class="detail-moderation" *ngIf="isPendingModeration">
-      <h2 class="detail-section-title">{{ 'moderation.reviewTitle' | transloco }}</h2>
-      <p class="detail-moderation__hint">{{ 'moderation.actionsHint' | transloco }}</p>
+      <div class="detail-moderation__head">
+        <h3 class="detail-section-title">{{ 'moderation.reviewTitle' | transloco }}</h3>
+        <app-tip [text]="'moderation.actionsTip' | transloco"></app-tip>
+      </div>
       <label class="reject-notes">
-        <span>{{ 'moderation.rejectNotesLabel' | transloco }}</span>
+        <span class="ui-tooltip-trigger" [attr.data-tooltip]="'moderation.rejectNotesTip' | transloco">{{ 'moderation.rejectNotesShort' | transloco }}</span>
         <textarea
           [(ngModel)]="rejectNotes"
           rows="2"
@@ -122,12 +144,6 @@
         </button>
       </div>
     </section>
-
-    <div class="detail-footer">
-      <a [href]="post.url" target="_blank" rel="noopener noreferrer" class="view-reddit-link">
-        {{ 'common.viewOnReddit' | transloco }}
-      </a>
-    </div>
   </article>
 </div>
 

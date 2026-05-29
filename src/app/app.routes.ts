@@ -109,6 +109,20 @@ export const routes: Routes = [
     title: 'Reports Tables - Smart Disaster Hub'
   },
   {
+    path: 'complaints/new',
+    loadComponent: () =>
+      import('./features/complaints/complaint-submit/complaint-submit').then(m => m.ComplaintSubmitComponent),
+    canActivate: [authGuard],
+    title: 'Submit complaint - Smart Disaster Hub'
+  },
+  {
+    path: 'complaints/inbox',
+    loadComponent: () =>
+      import('./features/complaints/complaint-inbox/complaint-inbox').then(m => m.ComplaintInboxComponent),
+    canActivate: [authGuard, staffGuard],
+    title: 'Complaint inbox - Smart Disaster Hub'
+  },
+  {
     path: 'about',
     loadComponent: () => import('./features/about/about/about').then(m => m.AboutComponent),
     title: 'About - Smart Disaster Hub'

@@ -50,6 +50,12 @@ export const API_ENDPOINTS = {
   AUTHORS: {
     LIST: '/api/reddit-authors',
     INSIGHTS: '/api/reddit-authors/insights'
+  },
+  COMPLAINTS: {
+    BASE: '/api/complaints',
+    MINE: '/api/complaints/mine',
+    INBOX: '/api/complaints/inbox',
+    INBOX_STATS: '/api/complaints/inbox/stats'
   }
 } as const;
 

@@ -1,10 +1,11 @@
-import { Component, HostListener, OnInit, inject } from '@angular/core';
+import { Component, effect, HostListener, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { TextAnalysisService, PageResponse } from '../../../core/services/text-analysis.service';
 import { AdminStatsService } from '../../../core/services/admin-stats.service';
+import { StaffInboxService } from '../../../core/services/staff-inbox.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ModerationQueueScope } from '../../../constants/roles';
 import { ModerationStats, RedditPost } from '../../../models';
@@ -13,6 +14,7 @@ import { BackButtonComponent } from '../../../shared/components/back-button/back
 import { RedditPostAnalysisPanelComponent } from '../../text-analysis/reddit-post-analysis-panel/reddit-post-analysis-panel';
 import { ListSortOption, ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
 import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 
 @Component({
   selector: 'app-moderation',
@@ -26,7 +28,8 @@ import { PostStatusBadgesComponent } from '../../../shared/components/post-statu
     TranslocoPipe,
     RedditPostAnalysisPanelComponent,
     ListToolbarComponent,
-    PostStatusBadgesComponent
+    PostStatusBadgesComponent,
+    AppTipComponent
   ],
   templateUrl: './moderation.html',
   styleUrl: './moderation.css'
@@ -34,6 +37,7 @@ import { PostStatusBadgesComponent } from '../../../shared/components/post-statu
 export class ModerationComponent implements OnInit {
   private textAnalysisService = inject(TextAnalysisService);
   private adminStats = inject(AdminStatsService);
+  private staffInbox = inject(StaffInboxService);
   private authService = inject(AuthService);
   private transloco = inject(TranslocoService);
 
@@ -58,6 +62,14 @@ export class ModerationComponent implements OnInit {
   showWorkflowHint = false;
 
   private readonly workflowHintKey = 'sdh_moderation_workflow_hint_dismissed';
+
+  constructor() {
+    effect(() => {
+      const stats = this.staffInbox.moderationStats();
+      this.stats = stats;
+      this.pendingTotal = stats?.allPendingCount ?? 0;
+    });
+  }
 
   sortBy = 'relevanceScore';
   sortDirection: 'ASC' | 'DESC' = 'DESC';
@@ -131,14 +143,7 @@ export class ModerationComponent implements OnInit {
   }
 
   refreshStats(): void {
-    this.textAnalysisService.getModerationStats().subscribe({
-      next: res => {
-        if (res.success && res.data) {
-          this.stats = res.data;
-          this.pendingTotal = res.data.allPendingCount;
-        }
-      }
-    });
+    this.staffInbox.refresh();
     this.adminStats.refresh().subscribe();
   }
 

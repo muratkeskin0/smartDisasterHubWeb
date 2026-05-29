@@ -14,6 +14,7 @@ import { ReportedRange, ReportedRangePreset } from '../../../core/utils/reported
 import { RedditDateFilterComponent } from '../../../shared/components/reddit-date-filter/reddit-date-filter';
 import { ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
 import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 
 type ReportView = 'all' | 'charts' | 'tables';
 
@@ -31,7 +32,8 @@ type ReportView = 'all' | 'charts' | 'tables';
     ReportBarLineChartComponent,
     RedditDateFilterComponent,
     ListToolbarComponent,
-    PostStatusBadgesComponent
+    PostStatusBadgesComponent,
+    AppTipComponent
   ],
   templateUrl: './reports.html',
   styleUrl: './reports.css'

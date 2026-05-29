@@ -1,13 +1,21 @@
 <app-header></app-header>
 
 <div class="rp-page">
-  <section class="rp-header">
-    <div class="rp-header-top">
-      <app-back-button></app-back-button>
+  <header class="rp-header">
+    <app-back-button></app-back-button>
+    <div class="page-heading">
+      <h1>{{ 'reports.title' | transloco }}</h1>
+      <app-tip [text]="'reports.pageTip' | transloco"></app-tip>
     </div>
-    <h1>{{ 'reports.title' | transloco }}</h1>
-    <p class="rp-sub">{{ 'reports.subtitle' | transloco }}</p>
+  </header>
+
+  <section class="rp-toolbar">
+    <div class="rp-toolbar__filter-head">
+      <span class="rp-toolbar__filter-label">{{ 'common.dateFilter.label' | transloco }}</span>
+      <app-tip [text]="'common.dateFilter.hint' | transloco"></app-tip>
+    </div>
     <app-reddit-date-filter
+      cssClass="rp-rdf"
       [datePreset]="datePreset"
       [useCustomRange]="useCustomRange"
       [customFromLocal]="customFromLocal"
@@ -22,56 +30,94 @@
     </app-reddit-date-filter>
   </section>
 
+  <nav class="rp-scope" aria-label="Report views">
+    <a
+      routerLink="/reports/charts"
+      class="rp-scope__chip"
+      routerLinkActive="rp-scope__chip--active"
+      [routerLinkActiveOptions]="{ exact: true }">
+      {{ 'nav.reportsCharts' | transloco }}
+    </a>
+    <a
+      routerLink="/reports/tables"
+      class="rp-scope__chip"
+      routerLinkActive="rp-scope__chip--active"
+      [routerLinkActiveOptions]="{ exact: true }">
+      {{ 'nav.reportsTables' | transloco }}
+    </a>
+  </nav>
+
   <section class="rp-loading" *ngIf="loading">
-    {{ 'common.loading' | transloco }}
+    <div class="rp-spinner"></div>
+    <p>{{ 'common.loading' | transloco }}</p>
   </section>
 
   <section class="rp-error" *ngIf="error && !loading">
     {{ 'reports.loadError' | transloco }}
   </section>
 
-  <section class="rp-summary" *ngIf="!loading && !error && summary && showChartsSection">
-    <article class="rp-kpi">
-      <p>{{ 'reports.kpiHistoricalCount' | transloco }}</p>
-      <h3>{{ summary.analyzedWithHistoricalScores }}</h3>
-    </article>
-    <article class="rp-kpi">
-      <p>{{ 'reports.kpiAvgBase' | transloco }}</p>
-      <h3>{{ pct(summary.averageBaseScore) }}</h3>
-    </article>
-    <article class="rp-kpi">
-      <p>{{ 'reports.kpiAvgFinal' | transloco }}</p>
-      <h3>{{ pct(summary.averageFinalScore) }}</h3>
-    </article>
-    <article class="rp-kpi">
-      <p>{{ 'reports.kpiAvgDelta' | transloco }}</p>
-      <h3>{{ signedPct(summary.averageAdjustmentDelta) }}</h3>
-    </article>
-  </section>
-
-  <section class="rp-breakdown" *ngIf="summary && showChartsSection">
-    <div class="rp-breakdown-card">
-      <h2>{{ 'reports.adjustmentImpact' | transloco }}</h2>
-      <ul>
-        <li>{{ 'reports.penalized' | transloco }}: <strong>{{ summary.penalizedCount }}</strong></li>
-        <li>{{ 'reports.boosted' | transloco }}: <strong>{{ summary.boostedCount }}</strong></li>
-        <li>{{ 'reports.imageMismatch' | transloco }}: <strong>{{ summary.imageMismatchCount }}</strong></li>
-        <li>{{ 'reports.noImage' | transloco }}: <strong>{{ summary.noImagePenaltyCount }}</strong></li>
-        <li>{{ 'reports.lowTrust' | transloco }}: <strong>{{ summary.lowTrustPenaltyCount }}</strong></li>
-      </ul>
+  <section class="rp-kpi" *ngIf="!loading && !error && summary && showChartsSection">
+    <div class="rp-kpi__grid">
+      <article class="rp-kpi__card">
+        <span class="rp-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'reports.kpiHistoricalTip' | transloco">{{ 'reports.kpiHistoricalShort' | transloco }}</span>
+        <strong class="rp-kpi__value">{{ summary.analyzedWithHistoricalScores }}</strong>
+      </article>
+      <article class="rp-kpi__card">
+        <span class="rp-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'reports.kpiAvgBaseTip' | transloco">{{ 'reports.kpiAvgBaseShort' | transloco }}</span>
+        <strong class="rp-kpi__value">{{ pct(summary.averageBaseScore) }}</strong>
+      </article>
+      <article class="rp-kpi__card">
+        <span class="rp-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'reports.kpiAvgFinalTip' | transloco">{{ 'reports.kpiAvgFinalShort' | transloco }}</span>
+        <strong class="rp-kpi__value">{{ pct(summary.averageFinalScore) }}</strong>
+      </article>
+      <article class="rp-kpi__card">
+        <span class="rp-kpi__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'reports.kpiAvgDeltaTip' | transloco">{{ 'reports.kpiAvgDeltaShort' | transloco }}</span>
+        <strong class="rp-kpi__value">{{ signedPct(summary.averageAdjustmentDelta) }}</strong>
+      </article>
     </div>
   </section>
 
-  <section id="report-charts" class="rp-pies rp-anchor" *ngIf="!loading && !error && showChartsSection">
-    <div class="rp-pies__intro">
-      <h2 class="rp-pies__title">{{ 'reports.breakdownSectionTitle' | transloco }}</h2>
-      <p class="rp-pies__hint">{{ 'reports.breakdownSectionHint' | transloco }}</p>
-      <p class="rp-pies__loading" *ngIf="breakdownLoading">{{ 'reports.breakdownLoading' | transloco }}</p>
+  <section class="rp-impact" *ngIf="summary && showChartsSection">
+    <div class="rp-card__head">
+      <h2 class="rp-card__title">{{ 'reports.adjustmentImpact' | transloco }}</h2>
+      <app-tip [text]="'reports.adjustmentImpactTip' | transloco"></app-tip>
     </div>
+    <div class="rp-impact__grid">
+      <article class="rp-impact__chip">
+        <span class="rp-impact__label">{{ 'reports.penalizedShort' | transloco }}</span>
+        <strong>{{ summary.penalizedCount }}</strong>
+      </article>
+      <article class="rp-impact__chip">
+        <span class="rp-impact__label">{{ 'reports.boostedShort' | transloco }}</span>
+        <strong>{{ summary.boostedCount }}</strong>
+      </article>
+      <article class="rp-impact__chip">
+        <span class="rp-impact__label">{{ 'reports.imageMismatchShort' | transloco }}</span>
+        <strong>{{ summary.imageMismatchCount }}</strong>
+      </article>
+      <article class="rp-impact__chip">
+        <span class="rp-impact__label">{{ 'reports.noImageShort' | transloco }}</span>
+        <strong>{{ summary.noImagePenaltyCount }}</strong>
+      </article>
+      <article class="rp-impact__chip">
+        <span class="rp-impact__label">{{ 'reports.lowTrustShort' | transloco }}</span>
+        <strong>{{ summary.lowTrustPenaltyCount }}</strong>
+      </article>
+    </div>
+  </section>
+
+  <section id="report-charts" class="rp-charts rp-anchor" *ngIf="!loading && !error && showChartsSection">
+    <div class="rp-card__head">
+      <h2 class="rp-card__title">{{ 'reports.breakdownSectionTitle' | transloco }}</h2>
+      <app-tip [text]="'reports.breakdownSectionHint' | transloco"></app-tip>
+    </div>
+    <p class="rp-charts__loading" *ngIf="breakdownLoading">{{ 'reports.breakdownLoading' | transloco }}</p>
     <div class="rp-sections" *ngIf="!breakdownLoading">
       <article class="rp-section">
-        <h3 class="rp-section__title">{{ 'reports.sectionDisasterType' | transloco }}</h3>
-        <p class="rp-section__desc">{{ 'reports.sectionDisasterTypeDesc' | transloco }}</p>
+        <div class="rp-section__head">
+          <h3 class="rp-section__title">{{ 'reports.sectionDisasterType' | transloco }}</h3>
+          <app-tip [text]="'reports.sectionDisasterTypeDesc' | transloco"></app-tip>
+        </div>
         <app-report-pie-chart
           titleKey="reports.pieDisasterTypes"
           emptyKey="reports.pieEmpty"
@@ -80,8 +126,10 @@
       </article>
 
       <article class="rp-section">
-        <h3 class="rp-section__title">{{ 'reports.sectionPostDate' | transloco }}</h3>
-        <p class="rp-section__desc">{{ 'reports.sectionPostDateDesc' | transloco }}</p>
+        <div class="rp-section__head">
+          <h3 class="rp-section__title">{{ 'reports.sectionPostDate' | transloco }}</h3>
+          <app-tip [text]="'reports.sectionPostDateDesc' | transloco"></app-tip>
+        </div>
         <app-report-bar-line-chart
           titleKey="reports.pieByPostDate"
           emptyKey="reports.pieEmpty"
@@ -91,8 +139,10 @@
       </article>
 
       <article class="rp-section">
-        <h3 class="rp-section__title">{{ 'reports.sectionRegion' | transloco }}</h3>
-        <p class="rp-section__desc">{{ 'reports.sectionRegionDesc' | transloco }}</p>
+        <div class="rp-section__head">
+          <h3 class="rp-section__title">{{ 'reports.sectionRegion' | transloco }}</h3>
+          <app-tip [text]="'reports.sectionRegionDesc' | transloco"></app-tip>
+        </div>
         <app-report-pie-chart
           titleKey="reports.pieByRegion"
           emptyKey="reports.pieEmpty"
@@ -102,19 +152,21 @@
     </div>
   </section>
 
-  <section id="report-tables" class="rp-trend rp-anchor" *ngIf="showTablesSection">
-    <div class="rp-trend-head">
-      <h2>{{ 'reports.trendTitle' | transloco }}</h2>
+  <section id="report-tables" class="rp-block rp-anchor" *ngIf="showTablesSection">
+    <div class="rp-block__head">
+      <div class="rp-card__head">
+        <h2 class="rp-card__title">{{ 'reports.trendTitle' | transloco }}</h2>
+        <app-tip [text]="'reports.trendUsesRange' | transloco"></app-tip>
+      </div>
       <div class="rp-trend-controls" *ngIf="datePreset === 'all' && !useCustomRange">
-        <label>{{ 'reports.days' | transloco }}</label>
-        <select [(ngModel)]="days" (ngModelChange)="reloadTrend()">
+        <label class="rp-days-label">{{ 'reports.days' | transloco }}</label>
+        <select class="rp-days-select" [(ngModel)]="days" (ngModelChange)="reloadTrend()">
           <option [ngValue]="7">7</option>
           <option [ngValue]="14">14</option>
           <option [ngValue]="30">30</option>
           <option [ngValue]="60">60</option>
         </select>
       </div>
-      <p class="rp-trend-range-note" *ngIf="datePreset !== 'all' || useCustomRange">{{ 'reports.trendUsesRange' | transloco }}</p>
     </div>
     <div class="rp-table-wrap">
       <table class="rp-table">
@@ -136,20 +188,21 @@
             <td>{{ signedPct(row.avgDelta) }}</td>
           </tr>
           <tr *ngIf="trend.length === 0">
-            <td colspan="5">{{ 'reports.noTrendData' | transloco }}</td>
+            <td colspan="5" class="rp-table__empty">{{ 'reports.noTrendData' | transloco }}</td>
           </tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <section class="rp-top" *ngIf="showTablesSection">
-    <div class="rp-top-head">
-      <div>
-        <h2>{{ 'reports.topAdjustedTitle' | transloco }}</h2>
-        <p class="rp-top-note">{{ 'reports.topAdjustedSortNote' | transloco }}</p>
+  <section class="rp-block" *ngIf="showTablesSection">
+    <div class="rp-block__head">
+      <div class="rp-card__head">
+        <h2 class="rp-card__title">{{ 'reports.topAdjustedTitle' | transloco }}</h2>
+        <app-tip [text]="'reports.topAdjustedSortNote' | transloco"></app-tip>
       </div>
       <app-list-toolbar
+        class="rp-list-toolbar"
         [sortOptions]="[]"
         [showSort]="false"
         [pageSize]="pageSize"
@@ -157,7 +210,10 @@
         (pageSizeChange)="pageSize = $event; onTopPageSizeChange()">
       </app-list-toolbar>
     </div>
-    <div class="rp-loading" *ngIf="topLoading">{{ 'common.loading' | transloco }}</div>
+    <div class="rp-loading rp-loading--inline" *ngIf="topLoading">
+      <div class="rp-spinner"></div>
+      <p>{{ 'common.loading' | transloco }}</p>
+    </div>
     <div class="rp-table-wrap" *ngIf="!topLoading">
       <table class="rp-table">
         <thead>
@@ -175,7 +231,7 @@
         <tbody>
           <tr *ngFor="let post of topAdjusted">
             <td>
-              <a [routerLink]="['/text-analysis/post', post.redditPostId]" [queryParams]="{ returnUrl: '/reports' }">{{
+              <a class="rp-post-link" [routerLink]="['/text-analysis/post', post.redditPostId]" [queryParams]="{ returnUrl: '/reports/tables' }">{{
                 post.title
               }}</a>
             </td>
@@ -189,25 +245,26 @@
             <td>r/{{ post.subreddit }}</td>
             <td>{{ pct(post.baseRelevanceScore) }}</td>
             <td>{{ pct(post.finalRelevanceScore) }}</td>
-            <td>{{ signedPct(post.relevanceAdjustmentDelta) }}</td>
-            <td>{{ post.relevanceAdjustmentReasons || '—' }}</td>
-            <td>{{ formatDate(post.analyzedAt) }}</td>
+            <td [class.rp-delta--pos]="(post.relevanceAdjustmentDelta ?? 0) > 0" [class.rp-delta--neg]="(post.relevanceAdjustmentDelta ?? 0) < 0">
+              {{ signedPct(post.relevanceAdjustmentDelta) }}
+            </td>
+            <td class="rp-reasons">{{ post.relevanceAdjustmentReasons || '—' }}</td>
+            <td class="rp-date">{{ formatDate(post.analyzedAt) }}</td>
           </tr>
           <tr *ngIf="topAdjusted.length === 0">
-            <td colspan="8">{{ 'reports.noTopAdjusted' | transloco }}</td>
+            <td colspan="8" class="rp-table__empty">{{ 'reports.noTopAdjusted' | transloco }}</td>
           </tr>
         </tbody>
       </table>
     </div>
     <div class="rp-pagination" *ngIf="totalPages > 1">
-      <button type="button" (click)="goPage(currentPage - 1)" [disabled]="currentPage === 0">
+      <button type="button" class="rp-page-btn" (click)="goPage(currentPage - 1)" [disabled]="currentPage === 0">
         {{ 'common.previous' | transloco }}
       </button>
       <span>{{ currentPage + 1 }} / {{ totalPages }}</span>
-      <button type="button" (click)="goPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">
+      <button type="button" class="rp-page-btn" (click)="goPage(currentPage + 1)" [disabled]="currentPage >= totalPages - 1">
         {{ 'common.next' | transloco }}
       </button>
     </div>
   </section>
 </div>
-

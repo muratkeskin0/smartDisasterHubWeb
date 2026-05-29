@@ -1,6 +1,6 @@
 <div class="post-badges">
   @if (showMlStatus && status) {
-    <span class="status-badge" [ngClass]="getStatusClass(status)">{{ status }}</span>
+    <span class="status-badge" [ngClass]="getStatusClass(status)">{{ mlStatusLabelKey(status) | transloco }}</span>
   }
   @if (moderationStatus && moderationLabelKey(moderationStatus)) {
     <span class="mod-badge" [ngClass]="getModerationClass(moderationStatus)">

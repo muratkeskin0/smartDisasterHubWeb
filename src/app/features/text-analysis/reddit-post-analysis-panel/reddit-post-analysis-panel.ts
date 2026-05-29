@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RedditPost } from '../../../models';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 
 /**
  * Full analysis breakdown (text / humanitarian / visual).
@@ -10,7 +11,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
   selector: 'app-reddit-post-analysis-panel',
   standalone: true,
-  imports: [CommonModule, TranslocoPipe],
+  imports: [CommonModule, TranslocoPipe, AppTipComponent],
   templateUrl: './reddit-post-analysis-panel.html',
   styleUrl: './reddit-post-analysis-panel.css'
 })

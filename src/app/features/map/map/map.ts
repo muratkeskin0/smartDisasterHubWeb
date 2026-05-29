@@ -10,6 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ReportedRange, ReportedRangePreset } from '../../../core/utils/reported-date-range';
 import { RedditDateFilterComponent } from '../../../shared/components/reddit-date-filter/reddit-date-filter';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 
 // Declare Leaflet types
 declare var L: any;
@@ -44,7 +45,8 @@ const FOCUS_ZOOM = 14;
     AppHeaderComponent,
     BackButtonComponent,
     TranslocoPipe,
-    RedditDateFilterComponent
+    RedditDateFilterComponent,
+    AppTipComponent
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './map.html',

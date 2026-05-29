@@ -11,6 +11,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { RedditDateFilterComponent } from '../../../shared/components/reddit-date-filter/reddit-date-filter';
 import { ListSortOption, ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
 import { PostStatusBadgesComponent } from '../../../shared/components/post-status-badges/post-status-badges';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 
 export type ListFilterMode = 'all' | 'disaster' | 'pending' | 'approved' | 'rejected' | 'notRequired';
 
@@ -26,7 +27,8 @@ export type ListFilterMode = 'all' | 'disaster' | 'pending' | 'approved' | 'reje
     TranslocoPipe,
     RedditDateFilterComponent,
     ListToolbarComponent,
-    PostStatusBadgesComponent
+    PostStatusBadgesComponent,
+    AppTipComponent
   ],
   templateUrl: './text-analysis.html',
   styleUrl: './text-analysis.css'

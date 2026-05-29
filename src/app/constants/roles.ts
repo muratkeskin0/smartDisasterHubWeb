@@ -10,3 +10,5 @@ export const USER_ROLES = {
 
 export type ModerationQueueScope = 'MINE' | 'UNASSIGNED' | 'ALL';
 
+export type ComplaintInboxScope = ModerationQueueScope | 'RESOLVED';
+

@@ -84,7 +84,7 @@ export class AuthService {
     if (this.isManager) {
       return '/moderation';
     }
-    return '/about';
+    return '/complaints/new';
   }
 
   /**

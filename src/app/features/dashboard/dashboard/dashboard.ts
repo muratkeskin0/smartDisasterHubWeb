@@ -1,10 +1,11 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TextAnalysisService } from '../../../core/services/text-analysis.service';
-import { AdminStatsService } from '../../../core/services/admin-stats.service';
+import { StaffInboxService } from '../../../core/services/staff-inbox.service';
 import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 export interface DashboardLocationRow {
@@ -15,64 +16,135 @@ export interface DashboardLocationRow {
   url: string;
 }
 
+export type DashboardModuleIcon =
+  | 'moderation'
+  | 'analysis'
+  | 'map'
+  | 'authors'
+  | 'profile'
+  | 'complaints'
+  | 'team'
+  | 'reports';
+
+export interface DashboardModule {
+  route: string | string[];
+  titleKey: string;
+  descKey: string;
+  icon: DashboardModuleIcon;
+  accent?: 'warning';
+  badgeKey?: 'moderation' | 'complaints';
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, AppHeaderComponent, TranslocoPipe],
+  imports: [CommonModule, RouterModule, AppHeaderComponent, AppTipComponent, TranslocoPipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private textAnalysisService = inject(TextAnalysisService);
-  private adminStats = inject(AdminStatsService);
+  private staffInbox = inject(StaffInboxService);
+
   pendingModerationCount = 0;
+  pendingComplaintCount = 0;
+
+  constructor() {
+    effect(() => {
+      this.pendingModerationCount = this.staffInbox.moderationNavBadge(true);
+      this.pendingComplaintCount = this.staffInbox.complaintNavBadge(true);
+    });
+  }
 
   /** Recent disaster-related posts that have extracted location text or coordinates */
   locationRows: DashboardLocationRow[] = [];
   locationsLoading = false;
   locationsLoaded = false;
   locationsError = false;
-  
+
   currentUser$ = this.authService.currentUser$;
   isAuthenticated = computed(() => this.authService.isAuthenticated);
   userFullName = computed(() => this.authService.userFullName);
 
-  get userInitials(): string {
-    const user = this.authService.currentUserValue;
-    if (!user) return '?';
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
-  }
+  readonly modules: DashboardModule[] = [
+    {
+      route: '/moderation',
+      titleKey: 'dashboard.featureModerationTitle',
+      descKey: 'dashboard.featureModerationDesc',
+      icon: 'moderation',
+      accent: 'warning',
+      badgeKey: 'moderation'
+    },
+    {
+      route: '/complaints/inbox',
+      titleKey: 'dashboard.featureComplaintsTitle',
+      descKey: 'dashboard.featureComplaintsDesc',
+      icon: 'complaints',
+      badgeKey: 'complaints'
+    },
+    {
+      route: '/text-analysis',
+      titleKey: 'dashboard.featureTextAnalysisTitle',
+      descKey: 'dashboard.featureTextAnalysisDesc',
+      icon: 'analysis'
+    },
+    {
+      route: '/map',
+      titleKey: 'dashboard.featureMapTitle',
+      descKey: 'dashboard.featureMapDesc',
+      icon: 'map'
+    },
+    {
+      route: '/authors',
+      titleKey: 'dashboard.featureAuthorsTitle',
+      descKey: 'dashboard.featureAuthorsDesc',
+      icon: 'authors'
+    },
+    {
+      route: '/reports/charts',
+      titleKey: 'dashboard.featureReportsTitle',
+      descKey: 'dashboard.featureReportsDesc',
+      icon: 'reports'
+    },
+    {
+      route: '/team',
+      titleKey: 'dashboard.featureTeamTitle',
+      descKey: 'dashboard.featureTeamDesc',
+      icon: 'team'
+    },
+    {
+      route: '/profile',
+      titleKey: 'dashboard.featureProfileTitle',
+      descKey: 'dashboard.featureProfileDesc',
+      icon: 'profile'
+    }
+  ];
 
   get firstName(): string {
     return this.authService.currentUserValue?.firstName || '';
   }
 
-  get user() {
-    return this.authService.currentUserValue;
-  }
-
-  get roleClass(): string {
-    return this.authService.isAdmin ? 'role-admin' : 'role-basic';
-  }
-
   ngOnInit(): void {
-    this.adminStats.refresh().subscribe({
-      next: res => {
-        if (res.success && res.data) {
-          this.pendingModerationCount = res.data.pendingModerationPosts ?? 0;
-        }
-      }
-    });
+    this.staffInbox.refresh();
     this.loadRecentLocations();
+  }
+
+  moduleBadge(mod: DashboardModule): number {
+    if (mod.badgeKey === 'moderation') {
+      return this.pendingModerationCount;
+    }
+    if (mod.badgeKey === 'complaints') {
+      return this.pendingComplaintCount;
+    }
+    return 0;
   }
 
   private loadRecentLocations(): void {
     this.locationsLoading = true;
     this.locationsError = false;
-    // All analyzed posts (not only disaster-related) so rows with location in DB show up
     this.textAnalysisService.getAnalyzedPosts(0, 60, 'redditCreatedAt', 'DESC').subscribe({
-      next: (response) => {
+      next: response => {
         this.locationsLoading = false;
         this.locationsLoaded = true;
         if (!response.success || !response.data?.content) {
@@ -120,21 +192,5 @@ export class DashboardComponent implements OnInit {
     const lat = Number(row.lat);
     const lon = Number(row.lng);
     return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=12/${lat}/${lon}`;
-  }
-
-  formatDate(dateString?: string): string {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  handleLogout(): void {
-    this.authService.logout();
   }
 }

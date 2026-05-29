@@ -1,51 +1,70 @@
 <app-header></app-header>
 
 <div class="team-page">
-  <div class="team-header">
+  <header class="team-header">
     <app-back-button fallbackRoute="/dashboard"></app-back-button>
-    <div>
+    <div class="page-heading">
       <h1>{{ 'team.title' | transloco }}</h1>
-      <p class="team-sub">{{ 'team.subtitle' | transloco }}</p>
+      <app-tip [text]="'team.pageTip' | transloco"></app-tip>
     </div>
+    <span class="team-count" *ngIf="!loading">{{ managers.length }} {{ 'team.managerCountLabel' | transloco }}</span>
+  </header>
+
+  <div class="team-grid">
+    <section class="team-form-card">
+      <div class="team-card__head">
+        <h2 class="team-card__title">{{ 'team.addManager' | transloco }}</h2>
+        <app-tip [text]="'team.addHint' | transloco"></app-tip>
+      </div>
+
+      <form class="team-form" (ngSubmit)="createManager()">
+        <div class="team-form__row">
+          <label class="team-field">
+            <span>{{ 'team.firstName' | transloco }}</span>
+            <input type="text" [(ngModel)]="form.firstName" name="firstName" required autocomplete="given-name" />
+          </label>
+          <label class="team-field">
+            <span>{{ 'team.lastName' | transloco }}</span>
+            <input type="text" [(ngModel)]="form.lastName" name="lastName" required autocomplete="family-name" />
+          </label>
+        </div>
+        <label class="team-field">
+          <span>{{ 'team.email' | transloco }}</span>
+          <input type="email" [(ngModel)]="form.email" name="email" required autocomplete="off" />
+        </label>
+        <label class="team-field">
+          <span>{{ 'team.password' | transloco }}</span>
+          <input type="password" [(ngModel)]="form.password" name="password" required minlength="8" autocomplete="new-password" />
+        </label>
+        <button type="submit" class="team-submit" [disabled]="saving">
+          {{ (saving ? 'common.loading' : 'team.createButton') | transloco }}
+        </button>
+      </form>
+
+      <p class="team-toast team-toast--ok" *ngIf="success">{{ success | transloco }}</p>
+      <p class="team-toast team-toast--err" *ngIf="error">{{ error | transloco }}</p>
+    </section>
+
+    <section class="team-list-card">
+      <div class="team-card__head">
+        <h2 class="team-card__title">{{ 'team.listTitle' | transloco }}</h2>
+      </div>
+
+      <div class="team-loading" *ngIf="loading">
+        <div class="team-spinner"></div>
+        <p>{{ 'common.loading' | transloco }}</p>
+      </div>
+
+      <ul class="team-list" *ngIf="!loading">
+        <li *ngFor="let m of managers" class="team-list__item">
+          <span class="team-avatar" aria-hidden="true">{{ getInitials(m) }}</span>
+          <div class="team-list__body">
+            <strong class="team-list__name">{{ m.firstName }} {{ m.lastName }}</strong>
+            <span class="team-list__email">{{ m.email }}</span>
+          </div>
+        </li>
+        <li *ngIf="managers.length === 0" class="team-list__empty">{{ 'team.empty' | transloco }}</li>
+      </ul>
+    </section>
   </div>
-
-  <section class="team-form-card">
-    <h2>{{ 'team.addManager' | transloco }}</h2>
-    <p class="team-hint">{{ 'team.addHint' | transloco }}</p>
-    <form class="team-form" (ngSubmit)="createManager()">
-      <label>
-        <span>{{ 'team.firstName' | transloco }}</span>
-        <input type="text" [(ngModel)]="form.firstName" name="firstName" required />
-      </label>
-      <label>
-        <span>{{ 'team.lastName' | transloco }}</span>
-        <input type="text" [(ngModel)]="form.lastName" name="lastName" required />
-      </label>
-      <label>
-        <span>{{ 'team.email' | transloco }}</span>
-        <input type="email" [(ngModel)]="form.email" name="email" required />
-      </label>
-      <label>
-        <span>{{ 'team.password' | transloco }}</span>
-        <input type="password" [(ngModel)]="form.password" name="password" required minlength="8" />
-      </label>
-      <button type="submit" class="team-submit" [disabled]="saving">
-        {{ (saving ? 'common.loading' : 'team.createButton') | transloco }}
-      </button>
-    </form>
-    <p class="team-toast team-toast--ok" *ngIf="success">{{ success | transloco }}</p>
-    <p class="team-toast team-toast--err" *ngIf="error">{{ error | transloco }}</p>
-  </section>
-
-  <section class="team-list-card">
-    <h2>{{ 'team.listTitle' | transloco }}</h2>
-    <p *ngIf="loading">{{ 'common.loading' | transloco }}</p>
-    <ul class="team-list" *ngIf="!loading">
-      <li *ngFor="let m of managers" class="team-list__item">
-        <strong>{{ m.firstName }} {{ m.lastName }}</strong>
-        <span>{{ m.email }}</span>
-      </li>
-      <li *ngIf="managers.length === 0" class="team-list__empty">{{ 'team.empty' | transloco }}</li>
-    </ul>
-  </section>
 </div>

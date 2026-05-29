@@ -1,13 +1,11 @@
-<div class="profile">
+<app-header></app-header>
+
+<div class="profile-page">
   <header class="profile-header">
-    <div class="header-content">
-      <div class="header-left">
-        <app-back-button [fallbackRoute]="backFallback" />
-        <h1>{{ 'profile.title' | transloco }}</h1>
-      </div>
-      <div class="header-right">
-        <app-language-switcher />
-      </div>
+    <app-back-button [fallbackRoute]="backFallback" />
+    <div class="page-heading">
+      <h1>{{ 'profile.title' | transloco }}</h1>
+      <app-tip [text]="'profile.pageTip' | transloco"></app-tip>
     </div>
   </header>
 
@@ -23,41 +21,39 @@
       <p class="profile-pending-box__target">
         <strong>{{ 'profile.pendingTargetLabel' | transloco }}</strong> {{ user?.pendingEmail }}
       </p>
-      <app-base-button
-        variant="outline"
-        size="small"
-        (buttonClick)="cancelPendingEmailChange()"
-        [loading]="cancellingPendingEmail()"
+      <button
+        type="button"
+        class="profile-btn profile-btn--ghost"
+        (click)="cancelPendingEmailChange()"
         [disabled]="cancellingPendingEmail() || saving()">
-        {{ 'profile.cancelEmailChange' | transloco }}
-      </app-base-button>
+        {{ cancellingPendingEmail() ? ('common.loading' | transloco) : ('profile.cancelEmailChange' | transloco) }}
+      </button>
     </div>
     <p class="profile-banner profile-banner--error" *ngIf="saveError()">{{ saveError() | transloco }}</p>
 
-    <div class="profile-card">
-      <div class="profile-avatar-section">
-        <div class="profile-avatar">
-          {{ userInitials }}
+    <section class="profile-card">
+      <div class="profile-card__row">
+        <span class="profile-avatar" aria-hidden="true">{{ userInitials }}</span>
+        <div class="profile-card__info">
+          <h2 class="profile-card__name">{{ userFullName() }}</h2>
+          <p class="profile-card__email">{{ user?.email }}</p>
+          <span class="profile-role" [ngClass]="roleClass">{{ user?.role?.name }}</span>
         </div>
-        <div class="profile-info">
-          <h2>{{ userFullName() }}</h2>
-          <p class="email">{{ user?.email }}</p>
-          <div class="role-badge" [ngClass]="roleClass">
-            {{ user?.role?.name }}
-          </div>
-        </div>
-        <div class="profile-actions" *ngIf="!editing()">
-          <app-base-button variant="primary" size="small" (buttonClick)="startEdit()" [disabled]="loading()">
-            {{ 'profile.editProfile' | transloco }}
-          </app-base-button>
-        </div>
+        <button
+          type="button"
+          class="profile-btn profile-btn--primary"
+          *ngIf="!editing()"
+          (click)="startEdit()"
+          [disabled]="loading()">
+          {{ 'profile.editProfile' | transloco }}
+        </button>
       </div>
-    </div>
+    </section>
 
-    <div class="details-card">
+    <section class="details-card">
       <div class="details-card__head">
-        <h3>{{ 'profile.accountDetails' | transloco }}</h3>
-        <span class="details-card__hint" *ngIf="editing()">{{ 'profile.roleReadOnlyHint' | transloco }}</span>
+        <h3 class="details-card__title">{{ 'profile.accountDetails' | transloco }}</h3>
+        <app-tip *ngIf="editing()" [text]="'profile.roleReadOnlyHint' | transloco"></app-tip>
       </div>
 
       <form class="profile-form" [formGroup]="profileForm" (ngSubmit)="saveProfile()" *ngIf="editing(); else readOnlyDetails">
@@ -74,103 +70,81 @@
             <span class="field-error" *ngIf="fieldError('lastName')">{{ fieldError('lastName') | transloco }}</span>
           </div>
 
-          <div class="detail-item detail-item--field">
+          <div class="detail-item detail-item--field detail-item--wide">
             <label class="detail-label" for="email">{{ 'profile.email' | transloco }}</label>
             <p class="profile-active-email" *ngIf="hasPendingEmailChange">
               {{ 'profile.activeEmailLabel' | transloco }} <span>{{ user?.email }}</span>
             </p>
             <input id="email" type="email" formControlName="email" class="detail-input" autocomplete="email" />
-            <span class="profile-field-hint">{{ 'profile.emailChangeHint' | transloco }}</span>
+            <span class="profile-field-hint ui-tooltip-trigger" [attr.data-tooltip]="'profile.emailChangeHint' | transloco">
+              {{ 'profile.emailChangeShort' | transloco }}
+            </span>
             <span class="field-error" *ngIf="fieldError('email')">{{ fieldError('email') | transloco }}</span>
           </div>
 
-          <div class="detail-item">
-            <div class="detail-content">
-              <span class="detail-label">{{ 'profile.role' | transloco }}</span>
-              <span class="detail-value">
-                {{ user?.role?.name }}
-                <span class="role-description">{{ user?.role?.description }}</span>
-              </span>
-            </div>
+          <div class="detail-item detail-item--readonly">
+            <span class="detail-label">{{ 'profile.role' | transloco }}</span>
+            <span class="detail-value">{{ user?.role?.name }}</span>
+            <span class="role-description">{{ user?.role?.description }}</span>
           </div>
         </div>
 
         <div class="profile-form__actions">
-          <app-base-button type="submit" variant="primary" [loading]="saving()" [disabled]="saving() || profileForm.invalid">
-            {{ 'profile.saveChanges' | transloco }}
-          </app-base-button>
-          <app-base-button type="button" variant="outline" (buttonClick)="cancelEdit()" [disabled]="saving()">
+          <button type="submit" class="profile-btn profile-btn--primary" [disabled]="saving() || profileForm.invalid">
+            {{ saving() ? ('common.loading' | transloco) : ('profile.saveChanges' | transloco) }}
+          </button>
+          <button type="button" class="profile-btn profile-btn--ghost" (click)="cancelEdit()" [disabled]="saving()">
             {{ 'profile.cancel' | transloco }}
-          </app-base-button>
+          </button>
         </div>
       </form>
 
       <ng-template #readOnlyDetails>
         <div class="details-grid">
           <div class="detail-item">
-            <div class="detail-content">
-              <span class="detail-label">{{ 'profile.firstName' | transloco }}</span>
-              <span class="detail-value">{{ user?.firstName }}</span>
-            </div>
+            <span class="detail-label">{{ 'profile.firstName' | transloco }}</span>
+            <span class="detail-value">{{ user?.firstName }}</span>
           </div>
 
           <div class="detail-item">
-            <div class="detail-content">
-              <span class="detail-label">{{ 'profile.lastName' | transloco }}</span>
-              <span class="detail-value">{{ user?.lastName }}</span>
-            </div>
+            <span class="detail-label">{{ 'profile.lastName' | transloco }}</span>
+            <span class="detail-value">{{ user?.lastName }}</span>
+          </div>
+
+          <div class="detail-item detail-item--wide">
+            <span class="detail-label">{{ 'profile.email' | transloco }}</span>
+            <span class="detail-value">{{ user?.email }}</span>
           </div>
 
           <div class="detail-item">
-            <div class="detail-content">
-              <span class="detail-label">{{ 'profile.email' | transloco }}</span>
-              <span class="detail-value">{{ user?.email }}</span>
-            </div>
+            <span class="detail-label">{{ 'profile.role' | transloco }}</span>
+            <span class="detail-value">{{ user?.role?.name }}</span>
+            <span class="role-description">{{ user?.role?.description }}</span>
           </div>
 
           <div class="detail-item">
-            <div class="detail-content">
-              <span class="detail-label">{{ 'profile.role' | transloco }}</span>
-              <span class="detail-value">
-                {{ user?.role?.name }}
-                <span class="role-description">{{ user?.role?.description }}</span>
-              </span>
-            </div>
+            <span class="detail-label">{{ 'profile.emailVerification' | transloco }}</span>
+            <span class="verification-badge" [ngClass]="user?.isEmailVerified ? 'verified' : 'not-verified'">
+              {{ user?.isEmailVerified ? ('profile.verified' | transloco) : ('profile.notVerified' | transloco) }}
+            </span>
           </div>
 
           <div class="detail-item">
-            <div class="detail-content">
-              <span class="detail-label">{{ 'profile.emailVerification' | transloco }}</span>
-              <span class="detail-value">
-                <span class="verification-badge" [ngClass]="user?.isEmailVerified ? 'verified' : 'not-verified'">
-                  {{ user?.isEmailVerified ? ('profile.verified' | transloco) : ('profile.notVerified' | transloco) }}
-                </span>
-              </span>
-            </div>
+            <span class="detail-label">{{ 'profile.userId' | transloco }}</span>
+            <span class="detail-value detail-value--mono">{{ user?.id }}</span>
           </div>
 
           <div class="detail-item">
-            <div class="detail-content">
-              <span class="detail-label">{{ 'profile.userId' | transloco }}</span>
-              <span class="detail-value">{{ user?.id }}</span>
-            </div>
+            <span class="detail-label">{{ 'profile.accountCreated' | transloco }}</span>
+            <span class="detail-value detail-value--muted">{{ formatDate(user?.createdAt) }}</span>
           </div>
 
           <div class="detail-item">
-            <div class="detail-content">
-              <span class="detail-label">{{ 'profile.accountCreated' | transloco }}</span>
-              <span class="detail-value">{{ formatDate(user?.createdAt) }}</span>
-            </div>
-          </div>
-
-          <div class="detail-item">
-            <div class="detail-content">
-              <span class="detail-label">{{ 'profile.lastUpdated' | transloco }}</span>
-              <span class="detail-value">{{ formatDate(user?.updatedAt) }}</span>
-            </div>
+            <span class="detail-label">{{ 'profile.lastUpdated' | transloco }}</span>
+            <span class="detail-value detail-value--muted">{{ formatDate(user?.updatedAt) }}</span>
           </div>
         </div>
       </ng-template>
-    </div>
+    </section>
   </main>
 </div>

@@ -8,8 +8,8 @@ import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../models';
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button';
-import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
-import { BaseButtonComponent } from '../../../shared/components/base-button/base-button';
+import { AppHeaderComponent } from '../../../shared/components/app-header/app-header';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 
 @Component({
   selector: 'app-profile',
@@ -18,10 +18,10 @@ import { BaseButtonComponent } from '../../../shared/components/base-button/base
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
+    AppHeaderComponent,
     BackButtonComponent,
     TranslocoPipe,
-    LanguageSwitcherComponent,
-    BaseButtonComponent
+    AppTipComponent
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.css'

@@ -4,76 +4,199 @@
       <a [routerLink]="homeLink()" class="app-title-link" [attr.aria-label]="'app.title' | transloco">
         <app-logo size="header" />
       </a>
-      <nav class="header-nav" [class.header-nav--guest]="!isAuthenticated()">
-          @if (isAuthenticated()) {
-          @if (isAdmin()) {
-            <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'nav.dashboard' | transloco }}</a>
-            <a routerLink="/text-analysis" routerLinkActive="active">{{ 'nav.textAnalysis' | transloco }}</a>
-            <a routerLink="/moderation" routerLinkActive="active" class="nav-moderation">
-              {{ 'nav.moderation' | transloco }}
-              <span class="nav-badge" *ngIf="pendingModerationCount() > 0">{{ pendingModerationCount() }}</span>
+
+      <nav class="header-nav" [attr.aria-label]="'nav.main' | transloco">
+        <div class="header-nav__track">
+          @for (item of primaryNavItems(); track item.labelKey + item.route) {
+            <a
+              class="nav-link"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: !!item.exact }">
+              <span class="nav-link__icon" aria-hidden="true">
+                @switch (item.icon) {
+                  @case ('home') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9.5Z"/></svg>
+                  }
+                  @case ('dashboard') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="5" rx="1"/><rect x="13" y="10" width="8" height="11" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg>
+                  }
+                  @case ('analysis') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+                  }
+                  @case ('moderation') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 4 7v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V7l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+                  }
+                  @case ('complaints') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.5 5.5 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.5a2 2 0 0 0-1.7-1H7.2a2 2 0 0 0-1.7 1Z"/></svg>
+                  }
+                  @case ('complaintNew') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                  }
+                  @case ('map') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18-6-3V6l6 3 6-3 6 3v9l-6 3-6-3Z"/><path d="M9 6v12M15 3v12"/></svg>
+                  }
+                  @case ('authors') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  }
+                  @case ('team') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z"/><path d="M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/><path d="M17 11h6M20 8v6"/></svg>
+                  }
+                  @case ('about') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>
+                  }
+                  @case ('signIn') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17 15 12 10 7"/><path d="M15 12H3"/></svg>
+                  }
+                  @case ('register') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+                  }
+                }
+              </span>
+              <span class="nav-link__text">{{ item.labelKey | transloco }}</span>
+              @if (badgeCount(item) > 0) {
+                <span class="nav-link__badge">{{ badgeCount(item) }}</span>
+              }
             </a>
-            <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | transloco }}</a>
-            <a routerLink="/authors" routerLinkActive="active">{{ 'nav.authors' | transloco }}</a>
-            <a routerLink="/team" routerLinkActive="active">{{ 'nav.team' | transloco }}</a>
-            <div class="nav-dropdown" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">
-              <span class="nav-dropdown__trigger">{{ 'nav.reports' | transloco }}</span>
-              <div class="nav-dropdown__menu">
-                <a class="nav-dropdown__item" [routerLink]="['/reports/charts']">
-                  {{ 'nav.reportsCharts' | transloco }}
-                </a>
-                <a class="nav-dropdown__item" [routerLink]="['/reports/tables']">
-                  {{ 'nav.reportsTables' | transloco }}
-                </a>
+          }
+
+          @if (showReports()) {
+            <div
+              class="nav-dropdown"
+              [class.nav-dropdown--open]="reportsOpen"
+              [class.nav-dropdown--active]="reportsActive"
+              (mouseenter)="positionReportsMenu()">
+              <button
+                #reportsTrigger
+                type="button"
+                class="nav-link nav-link--dropdown"
+                [class.active]="reportsActive"
+                (click)="toggleReports($event)"
+                [attr.aria-expanded]="reportsOpen"
+                [attr.aria-current]="reportsActive ? 'page' : null"
+                aria-haspopup="true">
+                <span class="nav-link__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-5 4 3 5-7"/></svg>
+                </span>
+                <span class="nav-link__text">{{ 'nav.reports' | transloco }}</span>
+                <span class="nav-link__caret" aria-hidden="true">▾</span>
+              </button>
+              <div
+                class="nav-dropdown__menu"
+                [style.top.px]="reportsMenuTop"
+                [style.left.px]="reportsMenuLeft"
+                (click)="closeReports()">
+                <a class="nav-dropdown__item" [routerLink]="['/reports/charts']" routerLinkActive="active">{{ 'nav.reportsCharts' | transloco }}</a>
+                <a class="nav-dropdown__item" [routerLink]="['/reports/tables']" routerLinkActive="active">{{ 'nav.reportsTables' | transloco }}</a>
               </div>
             </div>
           }
-          @if (isStaff() && !isAdmin()) {
-            <a routerLink="/moderation" routerLinkActive="active" class="nav-moderation">
-              {{ 'nav.moderation' | transloco }}
-              <span class="nav-badge" *ngIf="pendingModerationCount() > 0">{{ pendingModerationCount() }}</span>
+
+          @for (item of trailingNavItems(); track item.labelKey + item.route) {
+            <a
+              class="nav-link"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: !!item.exact }">
+              <span class="nav-link__icon" aria-hidden="true">
+                @switch (item.icon) {
+                  @case ('complaints') {
+                    <svg viewBox="0 0 24 24" fill="none"  stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.5 5.5 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.5a2 2 0 0 0-1.7-1H7.2a2 2 0 0 0-1.7 1Z"/></svg>
+                  }
+                  @case ('about') {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 10v6M12 7h.01"/></svg>
+                  }
+                }
+              </span>
+              <span class="nav-link__text">{{ item.labelKey | transloco }}</span>
+              @if (badgeCount(item) > 0) {
+                <span class="nav-link__badge">{{ badgeCount(item) }}</span>
+              }
             </a>
-            <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | transloco }}</a>
           }
-          <a routerLink="/about" routerLinkActive="active">{{ 'nav.about' | transloco }}</a>
-          } @else {
-            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">{{ 'nav.home' | transloco }}</a>
-            <a routerLink="/about" routerLinkActive="active">{{ 'nav.about' | transloco }}</a>
-            <a routerLink="/login" routerLinkActive="active">{{ 'nav.signIn' | transloco }}</a>
-            <a routerLink="/register" routerLinkActive="active">{{ 'nav.register' | transloco }}</a>
-          }
-        </nav>
+        </div>
+      </nav>
     </div>
 
     <div class="header-right">
-      <app-language-switcher class="header-lang" />
-      @if (isAuthenticated()) {
-        <div class="user-section">
+      <div class="header-actions">
+        <app-language-switcher class="header-lang" />
+
+        @if (isAuthenticated()) {
+          <span class="header-actions__sep" aria-hidden="true"></span>
+
           @if (isStaff()) {
-            <a routerLink="/profile" class="user-info">
-              <div class="user-avatar">
-                {{ userInitials }}
+            <div
+              class="header-inbox"
+              [class.header-inbox--open]="inboxOpen"
+              (mouseenter)="positionInboxMenu()">
+              <button
+                #inboxTrigger
+                type="button"
+                class="header-icon-btn header-inbox__trigger ui-tooltip-trigger ui-tooltip-trigger--below"
+                [class.header-inbox__trigger--active]="inboxOpen"
+                [attr.data-tooltip]="'nav.inboxTip' | transloco"
+                [attr.aria-label]="'nav.inbox' | transloco"
+                [attr.aria-expanded]="inboxOpen"
+                aria-haspopup="true"
+                (click)="toggleInbox($event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                @if (inboxTotalBadge() > 0) {
+                  <span class="header-inbox__badge">{{ inboxTotalBadge() > 99 ? '99+' : inboxTotalBadge() }}</span>
+                }
+              </button>
+              <div
+                class="header-inbox__menu"
+                [style.top.px]="inboxMenuTop"
+                [style.left.px]="inboxMenuLeft"
+                (click)="$event.stopPropagation()">
+                <p class="header-inbox__title">{{ 'nav.inbox' | transloco }}</p>
+                @if (inboxTotalBadge() === 0) {
+                  <p class="header-inbox__empty">{{ 'nav.inboxEmpty' | transloco }}</p>
+                } @else {
+                  <a class="header-inbox__item" routerLink="/moderation" (click)="closeInbox()">
+                    <span>{{ 'nav.inboxModeration' | transloco }}</span>
+                    @if (moderationBadge() > 0) {
+                      <span class="header-inbox__count">{{ moderationBadge() }}</span>
+                    }
+                  </a>
+                  <a class="header-inbox__item" routerLink="/complaints/inbox" (click)="closeInbox()">
+                    <span>{{ 'nav.inboxComplaints' | transloco }}</span>
+                    @if (complaintBadge() > 0) {
+                      <span class="header-inbox__count">{{ complaintBadge() }}</span>
+                    }
+                  </a>
+                }
               </div>
-              <span class="user-name">{{ userFullName() }}</span>
-            </a>
-          } @else {
-            <div class="user-info user-info--readonly">
-              <div class="user-avatar">
-                {{ userInitials }}
-              </div>
-              <span class="user-name">{{ userFullName() }}</span>
             </div>
           }
 
-          <app-base-button
-            variant="danger"
-            size="small"
-            (buttonClick)="handleLogout()"
-          >
-            {{ 'nav.logout' | transloco }}
-          </app-base-button>
-        </div>
-      }
+          <a
+            routerLink="/profile"
+            class="user-chip ui-tooltip-trigger ui-tooltip-trigger--below"
+            [attr.data-tooltip]="userFullName()"
+            [attr.aria-label]="('nav.profile' | transloco) + ': ' + userFullName()">
+            <span class="user-chip__avatar">{{ userInitials }}</span>
+            <span class="user-chip__name">{{ userFullName() }}</span>
+          </a>
+
+          <button
+            type="button"
+            class="header-icon-btn header-icon-btn--danger ui-tooltip-trigger ui-tooltip-trigger--below"
+            [attr.data-tooltip]="'nav.logout' | transloco"
+            [attr.aria-label]="'nav.logout' | transloco"
+            (click)="handleLogout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <path d="M10 17 15 12 10 7"/>
+              <path d="M15 12H3"/>
+            </svg>
+          </button>
+        }
+      </div>
     </div>
   </div>
 </header>

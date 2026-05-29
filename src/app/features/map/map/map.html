@@ -1,29 +1,38 @@
 <app-header></app-header>
 
-<div class="map-container">
-  <div class="header-section">
-    <div class="header-top">
-      <app-back-button [fallbackRoute]="mapBackFallback"></app-back-button>
+<div class="map-page">
+  <header class="map-header">
+    <app-back-button [fallbackRoute]="mapBackFallback"></app-back-button>
+    <div class="page-heading">
+      <h1>{{ 'map.title' | transloco }}</h1>
+      <app-tip [text]="'map.pageTip' | transloco"></app-tip>
     </div>
-    <h1>{{ 'map.title' | transloco }}</h1>
-    <p class="subtitle">{{ 'map.subtitle' | transloco }}</p>
-    <app-reddit-date-filter
-      [datePreset]="datePreset"
-      [useCustomRange]="useCustomRange"
-      [customFromLocal]="customFromLocal"
-      [customToLocal]="customToLocal"
-      [customRangeError]="customRangeError"
-      (rangeChange)="onRangeChange($event)"
-      (datePresetChange)="onDatePresetChange($event)"
-      (useCustomRangeChange)="useCustomRange = $event"
-      (customFromLocalChange)="customFromLocal = $event"
-      (customToLocalChange)="customToLocal = $event"
-      (customRangeErrorChange)="customRangeError = $event">
-    </app-reddit-date-filter>
-    <p class="map-approved-note">{{ 'map.approvedOnlyNote' | transloco }}</p>
+  </header>
+
+  <section class="map-toolbar">
+    <div class="map-toolbar__filter">
+      <div class="map-toolbar__filter-head">
+        <span class="map-toolbar__filter-label">{{ 'common.dateFilter.label' | transloco }}</span>
+        <app-tip [text]="'common.dateFilter.hint' | transloco"></app-tip>
+        <app-tip *ngIf="hasPostIdQuery" [text]="'map.dateFilterForPostLink' | transloco"></app-tip>
+      </div>
+      <app-reddit-date-filter
+        cssClass="map-rdf"
+        [datePreset]="datePreset"
+        [useCustomRange]="useCustomRange"
+        [customFromLocal]="customFromLocal"
+        [customToLocal]="customToLocal"
+        [customRangeError]="customRangeError"
+        (rangeChange)="onRangeChange($event)"
+        (datePresetChange)="onDatePresetChange($event)"
+        (useCustomRangeChange)="useCustomRange = $event"
+        (customFromLocalChange)="customFromLocal = $event"
+        (customToLocalChange)="customToLocal = $event"
+        (customRangeErrorChange)="customRangeError = $event">
+      </app-reddit-date-filter>
+    </div>
     <p class="map-manager-note" *ngIf="isManagerView">{{ 'map.managerReadOnlyNote' | transloco }}</p>
-    <p class="map-date-filter__deeplink" *ngIf="hasPostIdQuery">{{ 'map.dateFilterForPostLink' | transloco }}</p>
-  </div>
+  </section>
 
   <div class="map-wrapper" [class.map-wrapper--split]="selectedMarker">
     <div class="map-main">
@@ -41,11 +50,13 @@
         </div>
         <button
           type="button"
-          class="post-side-panel__close"
+          class="post-side-panel__close ui-tooltip-trigger"
+          [attr.data-tooltip]="'map.closePanel' | transloco"
           (click)="closePostPanel()"
-          [attr.aria-label]="'map.closePanel' | transloco"
-        >
-          ×
+          [attr.aria-label]="'map.closePanel' | transloco">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
         </button>
       </div>
       <div class="post-side-panel__list">
@@ -79,6 +90,7 @@
 
     <div class="markers-fallback" *ngIf="loading">
       <div class="fallback-message">
+        <div class="spinner"></div>
         <p>{{ 'map.loading' | transloco }}</p>
       </div>
     </div>
@@ -100,8 +112,7 @@
           <div
             class="marker-circle"
             [style.width.px]="getMarkerSize(marker.count)"
-            [style.height.px]="getMarkerSize(marker.count)"
-          >
+            [style.height.px]="getMarkerSize(marker.count)">
             <span class="marker-count">{{ marker.count }}</span>
           </div>
           <div class="marker-info">
@@ -118,11 +129,11 @@
     </div>
   </div>
 
-  <div class="map-controls">
-    <div class="control-info">
-      <span class="info-text">{{ 'map.pinSizeInfo' | transloco }}</span>
-    </div>
-    <div class="control-legend">
+  <footer class="map-legend">
+    <span class="map-legend__label kpi-label--tip ui-tooltip-trigger" [attr.data-tooltip]="'map.pinSizeInfo' | transloco">
+      {{ 'map.legendTitle' | transloco }}
+    </span>
+    <div class="map-legend__items">
       <div class="legend-item">
         <div class="legend-circle small"></div>
         <span>{{ 'map.legend12' | transloco }}</span>
@@ -136,5 +147,6 @@
         <span>{{ 'map.legend5' | transloco }}</span>
       </div>
     </div>
-  </div>
+    <app-tip [text]="'map.approvedOnlyNote' | transloco"></app-tip>
+  </footer>
 </div>

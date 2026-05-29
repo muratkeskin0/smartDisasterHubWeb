@@ -9,6 +9,7 @@ import { RedditAuthor, RedditAuthorInsights } from '../../../models';
 import { PageResponse } from '../../../core/services/text-analysis.service';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ListSortOption, ListToolbarComponent } from '../../../shared/components/list-toolbar/list-toolbar';
+import { AppTipComponent } from '../../../shared/components/app-tip/app-tip';
 
 @Component({
   selector: 'app-authors',
@@ -20,7 +21,8 @@ import { ListSortOption, ListToolbarComponent } from '../../../shared/components
     AppHeaderComponent,
     BackButtonComponent,
     TranslocoPipe,
-    ListToolbarComponent
+    ListToolbarComponent,
+    AppTipComponent
   ],
   templateUrl: './authors.html',
   styleUrl: './authors.css'
