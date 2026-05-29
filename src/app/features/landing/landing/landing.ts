@@ -52,11 +52,11 @@ export class LandingComponent {
 
 
 
-  /** 0 = intro, 1 = image1, 2 = image2 (touch) */
+  /** 0 = intro, 1 = image1, 2 = image2 */
   peeled = 0;
 
   peelTo(level: number): void {
-    this.peeled = Math.max(this.peeled, Math.min(level, 2));
+    this.peeled = Math.min(Math.max(level, 0), 2);
   }
 
 }

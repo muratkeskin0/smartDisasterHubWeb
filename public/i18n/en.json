@@ -584,7 +584,8 @@
     "previewImage2Alt": "Response teams using maps and devices in the field during a disaster",
     "previewImage2Caption": "Dashboards and location intelligence for coordination in the field",
     "scrollHint": "Scroll to explore",
-    "hoverHint": "Move the cursor upward to explore the visuals",
+    "hoverHint": "Tap the upper or lower area to preview the visuals",
+    "backToIntro": "Back to home",
     "skipToContent": "Skip to content"
   },
   "footer": {

@@ -11,6 +11,11 @@
     [class.landing-viewport--peel-1]="peeled >= 1"
     [class.landing-viewport--peel-2]="peeled >= 2">
     <div class="landing-dock" aria-label="Actions">
+      @if (peeled > 0) {
+        <button type="button" class="landing-dock__btn landing-dock__btn--ghost" (click)="peelTo(0)">
+          {{ 'landing.backToIntro' | transloco }}
+        </button>
+      }
       <a routerLink="/login" class="landing-dock__btn landing-dock__btn--primary">{{ 'landing.signIn' | transloco }}</a>
       <a routerLink="/register" class="landing-dock__btn landing-dock__btn--ghost">{{ 'landing.createAccount' | transloco }}</a>
     </div>

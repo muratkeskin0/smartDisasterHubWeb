@@ -584,7 +584,8 @@
     "previewImage2Alt": "Afet alanında harita ve cihaz kullanan müdahale ekipleri",
     "previewImage2Caption": "Sahada koordinasyon için paneller ve konum istihbaratı",
     "scrollHint": "Keşfetmek için kaydırın",
-    "hoverHint": "Görselleri görmek için imleci yukarı kaydırın",
+    "hoverHint": "Görselleri görmek için üst veya alt alana dokunun",
+    "backToIntro": "Ana ekrana dön",
     "skipToContent": "İçeriğe atla"
   },
   "footer": {

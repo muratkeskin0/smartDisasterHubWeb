@@ -303,22 +303,6 @@
   transform: translateY(-100%);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .landing-viewport:has(.landing-peel-zone:nth-child(1):hover) .landing-panel--intro,
-  .landing-viewport:has(.landing-peel-zone:nth-child(2):hover) .landing-panel--intro,
-  .landing-viewport:has(.landing-panel--media-1:hover) .landing-panel--intro,
-  .landing-viewport:has(.landing-panel--media-2:hover) .landing-panel--intro,
-  .landing-panel--intro:hover {
-    transform: translateY(-100%);
-  }
-
-  .landing-viewport:has(.landing-peel-zone:nth-child(2):hover) .landing-panel--media-1,
-  .landing-viewport:has(.landing-panel--media-2:hover) .landing-panel--media-1,
-  .landing-panel--media-1:hover {
-    transform: translateY(-100%);
-  }
-}
-
 @media (max-width: 640px) {
   .landing-top {
     padding: var(--spacing-sm) var(--spacing-md);
