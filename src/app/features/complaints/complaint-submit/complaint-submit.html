@@ -1,73 +1,118 @@
 <app-header></app-header>
 
-<div class="complaint-page">
-  <div class="complaint-page__header">
+<div class="cs-page">
+  <header class="cs-header">
     <app-back-button [fallbackRoute]="backFallback"></app-back-button>
-    <div>
-      <div class="page-heading">
-        <h1>{{ 'complaints.submitTitle' | transloco }}</h1>
-        <app-tip [text]="'complaints.submitPageTip' | transloco"></app-tip>
-      </div>
+    <div class="page-heading">
+      <h1>{{ 'complaints.submitTitle' | transloco }}</h1>
+      <p class="cs-header__subtitle">{{ 'complaints.submitSubtitle' | transloco }}</p>
+      <app-tip [text]="'complaints.submitPageTip' | transloco"></app-tip>
     </div>
-  </div>
+  </header>
 
-  <div class="complaint-layout">
-    <section class="complaint-card">
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <label class="field">
-          <span>{{ 'complaints.category' | transloco }}</span>
-          <select formControlName="category">
+  <div class="cs-layout">
+    <section class="cs-card cs-card--form">
+      <div class="cs-card__head">
+        <h2 class="cs-card__title">{{ 'complaints.submitButton' | transloco }}</h2>
+      </div>
+
+      @if (success()) {
+        <p class="cs-banner cs-banner--ok" role="status">{{ 'complaints.submitSuccess' | transloco }}</p>
+      }
+      @if (errorKey()) {
+        <p class="cs-banner cs-banner--error" role="alert">{{ errorKey()! | transloco }}</p>
+      }
+
+      <form class="cs-form" [formGroup]="form" (ngSubmit)="submit()">
+        <fieldset class="cs-field">
+          <legend class="cs-field__label">{{ 'complaints.category' | transloco }}</legend>
+          <div class="cs-categories" role="radiogroup" [attr.aria-label]="'complaints.category' | transloco">
             @for (cat of categories; track cat) {
-              <option [value]="cat">{{ ('complaints.categories.' + cat) | transloco }}</option>
+              <button
+                type="button"
+                class="cs-category-chip"
+                [class.cs-category-chip--active]="form.controls.category.value === cat"
+                [attr.aria-pressed]="form.controls.category.value === cat"
+                (click)="selectCategory(cat)">
+                <span class="cs-category-chip__icon" [attr.data-cat]="cat" aria-hidden="true"></span>
+                <span class="cs-category-chip__text">{{ ('complaints.categories.' + cat) | transloco }}</span>
+              </button>
             }
-          </select>
-        </label>
+          </div>
+        </fieldset>
 
-        <label class="field">
-          <span>{{ 'complaints.subject' | transloco }}</span>
-          <input type="text" formControlName="subject" maxlength="200" />
+        <label class="cs-field">
+          <span class="cs-field__label">{{ 'complaints.subject' | transloco }}</span>
+          <input
+            type="text"
+            class="cs-input"
+            formControlName="subject"
+            maxlength="200"
+            [class.cs-input--invalid]="form.controls.subject.touched && form.controls.subject.invalid"
+            autocomplete="off" />
           @if (form.controls.subject.touched && form.controls.subject.invalid) {
-            <small class="field-error">{{ 'complaints.subjectRequired' | transloco }}</small>
+            <small class="cs-field__error">{{ 'complaints.subjectRequired' | transloco }}</small>
           }
         </label>
 
-        <label class="field">
-          <span>{{ 'complaints.body' | transloco }}</span>
-          <textarea formControlName="body" rows="8" maxlength="5000"></textarea>
-          @if (form.controls.body.touched && form.controls.body.invalid) {
-            <small class="field-error">{{ 'complaints.bodyRequired' | transloco }}</small>
-          }
+        <label class="cs-field">
+          <span class="cs-field__label">{{ 'complaints.body' | transloco }}</span>
+          <textarea
+            class="cs-input cs-input--textarea"
+            formControlName="body"
+            rows="7"
+            maxlength="5000"
+            [class.cs-input--invalid]="form.controls.body.touched && form.controls.body.invalid"></textarea>
+          <div class="cs-field__meta">
+            @if (form.controls.body.touched && form.controls.body.invalid) {
+              <small class="cs-field__error">{{ 'complaints.bodyRequired' | transloco }}</small>
+            } @else {
+              <span></span>
+            }
+            <span class="cs-char-count">{{ bodyLength }} / 5000</span>
+          </div>
         </label>
 
-        @if (errorKey()) {
-          <p class="form-error">{{ errorKey()! | transloco }}</p>
-        }
-        @if (success()) {
-          <p class="form-success">{{ 'complaints.submitSuccess' | transloco }}</p>
-        }
-
-        <app-base-button type="submit" variant="primary" [disabled]="submitting()">
-          {{ 'complaints.submitButton' | transloco }}
-        </app-base-button>
+        <div class="cs-form__actions">
+          <app-base-button type="submit" variant="primary" [disabled]="submitting()">
+            {{ submitting() ? ('common.loading' | transloco) : ('complaints.submitButton' | transloco) }}
+          </app-base-button>
+        </div>
       </form>
     </section>
 
-    <aside class="complaint-card complaint-card--aside">
-      <h2>{{ 'complaints.myComplaintsTitle' | transloco }}</h2>
+    <aside class="cs-card cs-card--aside">
+      <div class="cs-card__head">
+        <h2 class="cs-card__title">{{ 'complaints.myComplaintsTitle' | transloco }}</h2>
+        @if (!loadingMine() && myComplaints().length > 0) {
+          <span class="cs-count-badge">{{ myComplaints().length }}</span>
+        }
+      </div>
+
       @if (loadingMine()) {
-        <p>{{ 'common.loading' | transloco }}</p>
+        <div class="cs-loading" aria-busy="true">
+          <span class="cs-loading__bar"></span>
+          <span class="cs-loading__bar cs-loading__bar--short"></span>
+          <span class="cs-loading__bar cs-loading__bar--medium"></span>
+        </div>
       } @else if (myComplaints().length === 0) {
-        <p class="muted">{{ 'complaints.myComplaintsEmpty' | transloco }}</p>
+        <div class="cs-empty">
+          <span class="cs-empty__icon" aria-hidden="true"></span>
+          <p>{{ 'complaints.myComplaintsEmpty' | transloco }}</p>
+        </div>
       } @else {
-        <ul class="complaint-list">
+        <ul class="cs-history">
           @for (item of myComplaints(); track item.id) {
-            <li class="complaint-list__item">
-              <strong>{{ item.subject }}</strong>
-              <span class="complaint-list__meta">
-                {{ statusLabel(item.status) | transloco }}
-                · {{ item.createdAt | date:'mediumDate' }}
-              </span>
-              <p>{{ item.body }}</p>
+            <li class="cs-history__item">
+              <div class="cs-history__top">
+                <span class="cs-status" [attr.data-status]="item.status">
+                  {{ statusLabel(item.status) | transloco }}
+                </span>
+                <time class="cs-history__date">{{ item.createdAt | date:'mediumDate' }}</time>
+              </div>
+              <h3 class="cs-history__subject">{{ item.subject }}</h3>
+              <p class="cs-history__category">{{ ('complaints.categories.' + item.category) | transloco }}</p>
+              <p class="cs-history__body">{{ truncateBody(item.body) }}</p>
             </li>
           }
         </ul>

@@ -51,6 +51,22 @@ export class ComplaintSubmitComponent implements OnInit {
     return this.authService.defaultHomeRoute;
   }
 
+  get bodyLength(): number {
+    return this.form.controls.body.value?.length ?? 0;
+  }
+
+  selectCategory(category: ComplaintCategory): void {
+    this.form.controls.category.setValue(category);
+  }
+
+  truncateBody(body: string, max = 160): string {
+    const text = body?.trim() ?? '';
+    if (text.length <= max) {
+      return text;
+    }
+    return `${text.slice(0, max).trimEnd()}…`;
+  }
+
   ngOnInit(): void {
     this.loadMine();
   }
