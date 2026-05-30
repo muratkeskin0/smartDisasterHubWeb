@@ -26,6 +26,7 @@ export type DashboardModuleIcon =
   | 'profile'
   | 'complaints'
   | 'team'
+  | 'users'
   | 'reports';
 
 export interface DashboardModule {
@@ -116,6 +117,12 @@ export class DashboardComponent implements OnInit {
       titleKey: 'dashboard.featureTeamTitle',
       descKey: 'dashboard.featureTeamDesc',
       icon: 'team'
+    },
+    {
+      route: '/admin/users',
+      titleKey: 'dashboard.featureUsersTitle',
+      descKey: 'dashboard.featureUsersDesc',
+      icon: 'users'
     },
     {
       route: '/profile',

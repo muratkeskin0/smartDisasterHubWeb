@@ -20,7 +20,14 @@ export const API_ENDPOINTS = {
   USER: {
     PROFILE: '/api/user/profile',
     CANCEL_PENDING_EMAIL: '/api/user/profile/pending-email',
-    MANAGERS: '/api/users/managers'
+    LIST: '/api/users',
+    MANAGERS: '/api/users/managers',
+    BY_ID: (id: number) => `/api/users/${id}`,
+    RESEND_ACTIVATION: (id: number) => `/api/users/${id}/resend-activation`,
+    VERIFY_EMAIL: (id: number) => `/api/users/${id}/verify-email`
+  },
+  ROLES: {
+    LIST: '/api/roles'
   },
   MODERATION: {
     STATS: '/api/moderation/stats',

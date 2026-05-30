@@ -1,0 +1,198 @@
+<app-header></app-header>
+
+<div class="users-page">
+  <header class="users-header">
+    <app-back-button fallbackRoute="/dashboard"></app-back-button>
+    <div class="page-heading">
+      <h1>{{ 'userManagement.title' | transloco }}</h1>
+      <app-tip [text]="'userManagement.pageTip' | transloco"></app-tip>
+    </div>
+    <span class="users-count" *ngIf="!loading">
+      {{ filteredUsers.length }} / {{ users.length }} {{ 'userManagement.userCountLabel' | transloco }}
+    </span>
+  </header>
+
+  <div class="users-toolbar">
+    <label class="users-search">
+      <span class="sr-only">{{ 'common.search' | transloco }}</span>
+      <input
+        type="search"
+        [(ngModel)]="searchTerm"
+        [placeholder]="'userManagement.searchPlaceholder' | transloco"
+        autocomplete="off" />
+    </label>
+
+    <div class="users-filters" role="group" [attr.aria-label]="'userManagement.filterLabel' | transloco">
+      <button
+        type="button"
+        class="users-filter"
+        [class.users-filter--active]="statusFilter === 'all'"
+        (click)="statusFilter = 'all'">
+        {{ 'userManagement.filterAll' | transloco }}
+      </button>
+      <button
+        type="button"
+        class="users-filter"
+        [class.users-filter--active]="statusFilter === 'pending'"
+        (click)="statusFilter = 'pending'">
+        {{ 'userManagement.filterPending' | transloco }}
+      </button>
+      <button
+        type="button"
+        class="users-filter"
+        [class.users-filter--active]="statusFilter === 'verified'"
+        (click)="statusFilter = 'verified'">
+        {{ 'userManagement.filterVerified' | transloco }}
+      </button>
+    </div>
+
+    <button type="button" class="users-refresh" (click)="loadData()" [disabled]="loading">
+      {{ 'common.refresh' | transloco }}
+    </button>
+  </div>
+
+  <p class="users-toast users-toast--ok" *ngIf="success">{{ success | transloco }}</p>
+  <p class="users-toast users-toast--err" *ngIf="error">{{ error }}</p>
+
+  <section class="users-card">
+    <div class="users-loading" *ngIf="loading">
+      <div class="users-spinner"></div>
+      <p>{{ 'common.loading' | transloco }}</p>
+    </div>
+
+    <div class="users-table-wrap" *ngIf="!loading">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th scope="col">{{ 'userManagement.colUser' | transloco }}</th>
+            <th scope="col">{{ 'userManagement.colRole' | transloco }}</th>
+            <th scope="col">{{ 'userManagement.colStatus' | transloco }}</th>
+            <th scope="col">{{ 'userManagement.colRegistered' | transloco }}</th>
+            <th scope="col">{{ 'userManagement.colActions' | transloco }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers">
+            <td>
+              <div class="users-cell-user">
+                <span class="users-avatar" aria-hidden="true">{{ getInitials(user) }}</span>
+                <div>
+                  <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                  <span class="users-email">{{ user.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="users-role users-role--{{ user.role?.name | lowercase }}">
+                {{ roleLabel(user) }}
+              </span>
+            </td>
+            <td>
+              <span
+                class="users-status"
+                [class.users-status--verified]="user.isEmailVerified"
+                [class.users-status--pending]="!user.isEmailVerified">
+                {{
+                  (user.isEmailVerified ? 'userManagement.statusVerified' : 'userManagement.statusPending')
+                    | transloco
+                }}
+              </span>
+            </td>
+            <td>{{ formatDate(user.createdAt) }}</td>
+            <td>
+              <div class="users-actions">
+                <button type="button" class="users-action users-action--edit" (click)="openEdit(user)">
+                  {{ 'userManagement.edit' | transloco }}
+                </button>
+                <button
+                  type="button"
+                  class="users-action users-action--resend"
+                  *ngIf="canResend(user)"
+                  [disabled]="actionLoadingId === user.id"
+                  (click)="resendActivation(user)">
+                  {{
+                    (actionLoadingId === user.id ? 'common.loading' : 'userManagement.resendActivation')
+                      | transloco
+                  }}
+                </button>
+                <button
+                  type="button"
+                  class="users-action users-action--delete"
+                  *ngIf="canDelete(user)"
+                  (click)="confirmDelete(user)">
+                  {{ 'userManagement.delete' | transloco }}
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredUsers.length === 0">
+            <td colspan="5" class="users-empty">{{ 'userManagement.empty' | transloco }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="users-modal-backdrop" *ngIf="editingUser" (click)="closeEdit()"></div>
+<div class="users-modal" *ngIf="editingUser" role="dialog" aria-modal="true" [attr.aria-label]="'userManagement.editTitle' | transloco">
+  <header class="users-modal__head">
+    <h2>{{ 'userManagement.editTitle' | transloco }}</h2>
+    <button type="button" class="users-modal__close" (click)="closeEdit()" [attr.aria-label]="'common.close' | transloco">
+      ×
+    </button>
+  </header>
+
+  <form class="users-modal__form" (ngSubmit)="saveEdit()">
+    <div class="users-modal__row">
+      <label class="users-field">
+        <span>{{ 'userManagement.firstName' | transloco }}</span>
+        <input type="text" [(ngModel)]="editForm.firstName" name="editFirstName" required />
+      </label>
+      <label class="users-field">
+        <span>{{ 'userManagement.lastName' | transloco }}</span>
+        <input type="text" [(ngModel)]="editForm.lastName" name="editLastName" required />
+      </label>
+    </div>
+
+    <label class="users-field">
+      <span>{{ 'userManagement.email' | transloco }}</span>
+      <input type="email" [(ngModel)]="editForm.email" name="editEmail" required />
+    </label>
+
+    <label class="users-field" *ngIf="editingUser.role?.name !== 'ADMIN'">
+      <span>{{ 'userManagement.role' | transloco }}</span>
+      <select [(ngModel)]="editForm.roleId" name="editRoleId" required>
+        <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.name }}</option>
+      </select>
+    </label>
+
+    <label class="users-field users-field--checkbox">
+      <input type="checkbox" [(ngModel)]="editForm.isEmailVerified" name="editVerified" />
+      <span>{{ 'userManagement.emailVerified' | transloco }}</span>
+    </label>
+
+    <div class="users-modal__actions">
+      <button type="button" class="users-modal__cancel" (click)="closeEdit()">
+        {{ 'common.close' | transloco }}
+      </button>
+      <button type="submit" class="users-modal__save" [disabled]="savingEdit">
+        {{ (savingEdit ? 'common.loading' : 'userManagement.save') | transloco }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="users-modal-backdrop" *ngIf="deleteTarget" (click)="cancelDelete()"></div>
+<div class="users-modal users-modal--confirm" *ngIf="deleteTarget" role="alertdialog" aria-modal="true">
+  <h2>{{ 'userManagement.deleteTitle' | transloco }}</h2>
+  <p>{{ 'userManagement.deleteConfirm' | transloco: { name: deleteTarget.firstName + ' ' + deleteTarget.lastName, email: deleteTarget.email } }}</p>
+  <div class="users-modal__actions">
+    <button type="button" class="users-modal__cancel" (click)="cancelDelete()">
+      {{ 'common.close' | transloco }}
+    </button>
+    <button type="button" class="users-modal__delete" [disabled]="deleting" (click)="deleteUser()">
+      {{ (deleting ? 'common.loading' : 'userManagement.delete') | transloco }}
+    </button>
+  </div>
+</div>

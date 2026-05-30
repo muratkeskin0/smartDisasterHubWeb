@@ -18,6 +18,7 @@ export type HeaderNavIcon =
   | 'map'
   | 'authors'
   | 'team'
+  | 'users'
   | 'integrations'
   | 'reports'
   | 'about'
@@ -113,6 +114,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy {
         },
         { route: '/map', labelKey: 'nav.map', icon: 'map' },
         { route: '/authors', labelKey: 'nav.authors', icon: 'authors' },
+        { route: '/admin/users', labelKey: 'nav.users', icon: 'users' },
         { route: '/team', labelKey: 'nav.team', icon: 'team' }
       ];
     }

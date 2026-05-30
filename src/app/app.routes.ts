@@ -66,6 +66,13 @@ export const routes: Routes = [
     title: 'Moderation - Smart Disaster Hub'
   },
   {
+    path: 'admin/users',
+    loadComponent: () =>
+      import('./features/users/user-management/user-management').then(m => m.UserManagementComponent),
+    canActivate: [authGuard, adminGuard],
+    title: 'User management - Smart Disaster Hub'
+  },
+  {
     path: 'team',
     loadComponent: () => import('./features/team/team/team').then(m => m.TeamComponent),
     canActivate: [authGuard, adminGuard],
