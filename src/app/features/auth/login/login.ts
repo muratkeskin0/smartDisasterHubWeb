@@ -29,12 +29,17 @@ export class LoginComponent {
   showPassword = signal(false);
   errors = signal<{ email?: string; password?: string }>({});
   serverError = signal('');
+  successMessage = signal('');
 
   constructor() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+
+    if (this.route.snapshot.queryParamMap.get('passwordReset') === '1') {
+      this.successMessage.set(this.apiError.translate('resetPassword.loginHint'));
+    }
   }
 
   togglePassword(): void {

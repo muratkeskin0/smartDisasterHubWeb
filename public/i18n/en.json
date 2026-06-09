@@ -673,6 +673,30 @@
     "errorTitle": "Activation failed",
     "goToLogin": "Go to Sign In"
   },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "subtitle": "Enter your email and we will send you a link to reset your password.",
+    "submit": "Send reset link",
+    "backToLogin": "Back to Sign In",
+    "mailSentTitle": "Check your email",
+    "mailSentSubtitle": "If an account exists for this address, we sent a password reset link. The link expires in 1 hour.",
+    "error": "Could not send the reset email. Please try again later."
+  },
+  "resetPassword": {
+    "title": "Set a new password",
+    "subtitle": "Choose a new password for your account.",
+    "newPassword": "New password",
+    "submit": "Update password",
+    "validatingTitle": "Checking your link...",
+    "validatingSubtitle": "Please wait while we verify your reset link.",
+    "successTitle": "Password updated",
+    "successBody": "Your password has been updated. You can now sign in with your new password.",
+    "errorTitle": "Reset link invalid",
+    "invalidLink": "This password reset link is invalid or has expired.",
+    "error": "Could not update your password. Please try again.",
+    "goToLogin": "Go to Sign In",
+    "loginHint": "Your password was updated. Sign in with your new password."
+  },
   "aboutPage": {
     "loading": "Loading about content...",
     "fallbackTitle": "About Smart Disaster Hub",

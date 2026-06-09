@@ -132,6 +132,24 @@ export class AuthService {
     return this.http.get<ApiResponse<void>>(`${this.apiUrl}${API_ENDPOINTS.AUTH.ACTIVATE}?token=${encodeURIComponent(token)}`);
   }
 
+  forgotPassword(email: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`, { email });
+  }
+
+  validateResetPasswordToken(token: string): Observable<ApiResponse<void>> {
+    return this.http.get<ApiResponse<void>>(
+      `${this.apiUrl}${API_ENDPOINTS.AUTH.RESET_PASSWORD_VALIDATE}?token=${encodeURIComponent(token)}`
+    );
+  }
+
+  resetPassword(token: string, password: string, confirmPassword: string): Observable<ApiResponse<void>> {
+    return this.http.post<ApiResponse<void>>(`${this.apiUrl}${API_ENDPOINTS.AUTH.RESET_PASSWORD}`, {
+      token,
+      password,
+      confirmPassword
+    });
+  }
+
   /**
    * User logout
    */

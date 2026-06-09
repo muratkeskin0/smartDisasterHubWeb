@@ -67,7 +67,7 @@
           <input type="checkbox" [disabled]="loading()" />
           <span>{{ 'login.rememberMe' | transloco }}</span>
         </label>
-        <a href="#" class="forgot-password" (click)="$event.preventDefault()">{{ 'login.forgotPassword' | transloco }}</a>
+        <a routerLink="/forgot-password" class="forgot-password">{{ 'login.forgotPassword' | transloco }}</a>
       </div>
 
       <button type="submit" class="btn-primary" [disabled]="loading() || loginForm.invalid">
@@ -77,6 +77,10 @@
           <span>{{ 'login.submit' | transloco }}</span>
         }
       </button>
+
+      @if (successMessage()) {
+        <span class="success-message">{{ successMessage() }}</span>
+      }
 
       @if (serverError()) {
         <span class="error-message">{{ serverError() }}</span>

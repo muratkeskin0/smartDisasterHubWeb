@@ -35,6 +35,27 @@ export const routes: Routes = [
     title: 'Activate Email - Smart Disaster Hub'
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password').then(m => m.ForgotPasswordComponent),
+    canActivate: [guestGuard],
+    title: 'Forgot Password - Smart Disaster Hub'
+  },
+  {
+    path: 'forgot-password-sent',
+    loadComponent: () =>
+      import('./features/auth/forgot-password-sent/forgot-password-sent').then(m => m.ForgotPasswordSentComponent),
+    canActivate: [guestGuard],
+    title: 'Reset Email Sent - Smart Disaster Hub'
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password').then(m => m.ResetPasswordComponent),
+    canActivate: [guestGuard],
+    title: 'Reset Password - Smart Disaster Hub'
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/dashboard/dashboard').then(m => m.DashboardComponent),
     canActivate: [authGuard, adminGuard],
