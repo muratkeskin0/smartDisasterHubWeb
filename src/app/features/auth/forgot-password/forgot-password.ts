@@ -5,8 +5,10 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { ApiResponse } from '../../../models';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiErrorService } from '../../../core/services/api-error.service';
+import { parseApiError } from '../../../core/utils/api-error.util';
 import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher';
 import { AppLogoComponent } from '../../../shared/components/app-logo/app-logo';
 
@@ -69,7 +71,7 @@ export class ForgotPasswordComponent {
       .subscribe({
         next: res => {
           if (!res.success) {
-            this.serverError.set(this.apiError.resolveFromResponse(res, 'forgotPasswordPage.error'));
+            this.serverError.set(this.resolveForgotResponse(res));
             return;
           }
           this.router.navigate(['/forgot-password-sent'], {
@@ -77,8 +79,23 @@ export class ForgotPasswordComponent {
           });
         },
         error: (err: HttpErrorResponse) => {
-          this.serverError.set(this.apiError.resolve(err, 'forgotPasswordPage.error'));
+          this.serverError.set(this.resolveForgotError(err));
         }
       });
+  }
+
+  private resolveForgotError(err: HttpErrorResponse): string {
+    const parsed = parseApiError(err);
+    if (parsed.code === 'USER_001') {
+      return this.apiError.translate('forgotPasswordPage.userNotFound');
+    }
+    return this.apiError.resolve(err, 'forgotPasswordPage.error');
+  }
+
+  private resolveForgotResponse(res: ApiResponse<void>): string {
+    if (res.error?.code === 'USER_001') {
+      return this.apiError.translate('forgotPasswordPage.userNotFound');
+    }
+    return this.apiError.resolveFromResponse(res, 'forgotPasswordPage.error');
   }
 }

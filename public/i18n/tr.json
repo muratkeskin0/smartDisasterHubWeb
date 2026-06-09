@@ -680,7 +680,8 @@
     "submit": "Sıfırlama bağlantısı gönder",
     "backToLogin": "Girişe dön",
     "mailSentTitle": "E-postanızı kontrol edin",
-    "mailSentSubtitle": "Bu adrese kayıtlı bir hesap varsa şifre sıfırlama bağlantısı gönderildi. Bağlantı 1 saat geçerlidir.",
+    "mailSentSubtitle": "E-postanıza şifre sıfırlama bağlantısı gönderildi. Bağlantı 1 saat geçerlidir.",
+    "userNotFound": "Bu e-posta ile kayıtlı hesap bulunamadı. Adresi kontrol edin veya yeni hesap oluşturun.",
     "error": "Sıfırlama e-postası gönderilemedi. Lütfen daha sonra tekrar deneyin."
   },
   "resetPasswordPage": {

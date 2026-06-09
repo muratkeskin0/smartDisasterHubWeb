@@ -680,7 +680,8 @@
     "submit": "Send reset link",
     "backToLogin": "Back to Sign In",
     "mailSentTitle": "Check your email",
-    "mailSentSubtitle": "If an account exists for this address, we sent a password reset link. The link expires in 1 hour.",
+    "mailSentSubtitle": "We sent a password reset link to your email. The link expires in 1 hour.",
+    "userNotFound": "No account found with this email. Check the address or create a new account.",
     "error": "Could not send the reset email. Please try again later."
   },
   "resetPasswordPage": {
