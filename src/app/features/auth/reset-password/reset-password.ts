@@ -70,7 +70,7 @@ export class ResetPasswordComponent {
     this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
     if (!this.token) {
       this.loading.set(false);
-      this.errorMessage.set(this.apiError.translate('resetPassword.invalidLink'));
+      this.errorMessage.set(this.apiError.translate('resetPasswordPage.invalidLink'));
       return;
     }
 
@@ -78,14 +78,14 @@ export class ResetPasswordComponent {
       next: res => {
         this.loading.set(false);
         if (!res.success) {
-          this.errorMessage.set(this.apiError.resolveFromResponse(res, 'resetPassword.invalidLink'));
+          this.errorMessage.set(this.apiError.resolveFromResponse(res, 'resetPasswordPage.invalidLink'));
           return;
         }
         this.tokenValid.set(true);
       },
       error: err => {
         this.loading.set(false);
-        this.errorMessage.set(this.apiError.resolve(err, 'resetPassword.invalidLink'));
+        this.errorMessage.set(this.apiError.resolve(err, 'resetPasswordPage.invalidLink'));
       }
     });
   }
@@ -115,16 +115,16 @@ export class ResetPasswordComponent {
       .subscribe({
         next: res => {
           if (!res.success) {
-            this.errorMessage.set(this.apiError.resolveFromResponse(res, 'resetPassword.error'));
+            this.errorMessage.set(this.apiError.resolveFromResponse(res, 'resetPasswordPage.error'));
             return;
           }
           this.success.set(true);
           this.successMessage.set(
-            res.message || this.apiError.translate('resetPassword.successBody')
+            res.message || this.apiError.translate('resetPasswordPage.successBody')
           );
         },
         error: (err: HttpErrorResponse) => {
-          this.errorMessage.set(this.apiError.resolve(err, 'resetPassword.error'));
+          this.errorMessage.set(this.apiError.resolve(err, 'resetPasswordPage.error'));
         }
       });
   }

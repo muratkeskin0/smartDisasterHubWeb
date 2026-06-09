@@ -673,16 +673,17 @@
     "errorTitle": "Aktivasyon başarısız",
     "goToLogin": "Giriş ekranına git"
   },
-  "forgotPassword": {
+  "forgotPasswordPage": {
     "title": "Şifremi Unuttum",
     "subtitle": "E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.",
+    "emailPlaceholder": "ornek@email.com",
     "submit": "Sıfırlama bağlantısı gönder",
     "backToLogin": "Girişe dön",
     "mailSentTitle": "E-postanızı kontrol edin",
     "mailSentSubtitle": "Bu adrese kayıtlı bir hesap varsa şifre sıfırlama bağlantısı gönderildi. Bağlantı 1 saat geçerlidir.",
     "error": "Sıfırlama e-postası gönderilemedi. Lütfen daha sonra tekrar deneyin."
   },
-  "resetPassword": {
+  "resetPasswordPage": {
     "title": "Yeni şifre belirle",
     "subtitle": "Hesabınız için yeni bir şifre seçin.",
     "newPassword": "Yeni şifre",

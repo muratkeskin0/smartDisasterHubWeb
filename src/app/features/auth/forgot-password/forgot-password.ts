@@ -33,6 +33,7 @@ export class ForgotPasswordComponent {
   form: FormGroup;
   loading = signal(false);
   serverError = signal('');
+  emailError = signal('');
 
   constructor() {
     this.form = this.fb.group({
@@ -40,7 +41,19 @@ export class ForgotPasswordComponent {
     });
   }
 
+  validateEmail(): void {
+    const emailControl = this.form.get('email');
+    if (emailControl?.errors?.['required']) {
+      this.emailError.set(this.apiError.translate('errors.validationFields.emailRequired'));
+    } else if (emailControl?.errors?.['email']) {
+      this.emailError.set(this.apiError.translate('errors.validationFields.emailInvalid'));
+    } else {
+      this.emailError.set('');
+    }
+  }
+
   onSubmit(): void {
+    this.validateEmail();
     if (this.form.invalid || this.loading()) {
       return;
     }
@@ -56,7 +69,7 @@ export class ForgotPasswordComponent {
       .subscribe({
         next: res => {
           if (!res.success) {
-            this.serverError.set(this.apiError.resolveFromResponse(res, 'forgotPassword.error'));
+            this.serverError.set(this.apiError.resolveFromResponse(res, 'forgotPasswordPage.error'));
             return;
           }
           this.router.navigate(['/forgot-password-sent'], {
@@ -64,7 +77,7 @@ export class ForgotPasswordComponent {
           });
         },
         error: (err: HttpErrorResponse) => {
-          this.serverError.set(this.apiError.resolve(err, 'forgotPassword.error'));
+          this.serverError.set(this.apiError.resolve(err, 'forgotPasswordPage.error'));
         }
       });
   }

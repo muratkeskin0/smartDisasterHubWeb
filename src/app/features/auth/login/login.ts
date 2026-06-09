@@ -38,7 +38,7 @@ export class LoginComponent {
     });
 
     if (this.route.snapshot.queryParamMap.get('passwordReset') === '1') {
-      this.successMessage.set(this.apiError.translate('resetPassword.loginHint'));
+      this.successMessage.set(this.apiError.translate('resetPasswordPage.loginHint'));
     }
   }
 
